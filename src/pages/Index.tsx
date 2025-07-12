@@ -11,8 +11,12 @@ const Index = () => {
           toast({
             title: "Login realizado com sucesso!",
             description: "Bem-vindo ao Sistema de Gestão Financeira.",
-          })
-          resolve()
+          });
+          // Redirecionar para o dashboard após login bem-sucedido
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 1000);
+          resolve();
         } else {
           reject(new Error("Credenciais inválidas"))
         }

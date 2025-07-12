@@ -176,7 +176,7 @@ const getFilteredData = (area: string, year: string, status: string) => {
 
 const sidebarItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-  { title: "Projetos", icon: FolderOpen, href: "/projects" },
+  { title: "Projetos", icon: FolderOpen, href: "/projetos" },
   { title: "Relatórios", icon: BarChart3, href: "/reports" },
   { title: "Planejamento", icon: Calendar, href: "/planning" },
   { title: "Administração", icon: Settings, href: "/admin" },

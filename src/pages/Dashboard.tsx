@@ -27,38 +27,152 @@ import {
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// Dados de exemplo para demonstração
-const portfolioData = {
-  budget: 2500000,
-  realized: 1850000,
-  committed: 400000,
-  available: 250000,
-  budgetUnit: 85
+// Função para gerar dados dinâmicos baseados nos filtros
+const getFilteredData = (area: string, year: string, status: string) => {
+  // Dados base diferenciados por área
+  const areaMultipliers = {
+    all: { budget: 1, realized: 0.74, committed: 0.16 },
+    ti: { budget: 0.6, realized: 0.85, committed: 0.12 },
+    marketing: { budget: 0.4, realized: 0.65, committed: 0.25 },
+    operacoes: { budget: 0.8, realized: 0.78, committed: 0.18 }
+  };
+
+  // Ajustes por ano
+  const yearMultipliers = {
+    "2024": { budget: 0.9, realized: 0.95, committed: 0.8 },
+    "2025": { budget: 1.0, realized: 0.74, committed: 1.0 },
+    "2026": { budget: 1.2, realized: 0.45, committed: 0.6 }
+  };
+
+  const areaData = areaMultipliers[area as keyof typeof areaMultipliers] || areaMultipliers.all;
+  const yearData = yearMultipliers[year as keyof typeof yearMultipliers] || yearMultipliers["2025"];
+
+  const baseBudget = 2500000;
+  const budget = Math.round(baseBudget * areaData.budget * yearData.budget);
+  const realized = Math.round(budget * areaData.realized * yearData.realized);
+  const committed = Math.round(budget * areaData.committed * yearData.committed);
+  const available = budget - realized - committed;
+
+  // Dados do portfólio
+  const portfolioData = {
+    budget,
+    realized,
+    committed,
+    available,
+    budgetUnit: Math.round(85 * areaData.realized * yearData.realized)
+  };
+
+  // Dados do gráfico (últimos 6 meses)
+  const chartData = [
+    { 
+      month: "Jan", 
+      planejado: Math.round(180000 * areaData.budget * yearData.budget), 
+      realizado: Math.round(165000 * areaData.realized * yearData.realized), 
+      bu: Math.round(95 * areaData.realized), 
+      underPerformed: areaData.realized < 0.8 
+    },
+    { 
+      month: "Fev", 
+      planejado: Math.round(220000 * areaData.budget * yearData.budget), 
+      realizado: Math.round(198000 * areaData.realized * yearData.realized), 
+      bu: Math.round(90 * areaData.realized), 
+      underPerformed: areaData.realized < 0.85 
+    },
+    { 
+      month: "Mar", 
+      planejado: Math.round(280000 * areaData.budget * yearData.budget), 
+      realizado: Math.round(245000 * areaData.realized * yearData.realized), 
+      bu: Math.round(87 * areaData.realized), 
+      underPerformed: areaData.realized < 0.87 
+    },
+    { 
+      month: "Abr", 
+      planejado: Math.round(310000 * areaData.budget * yearData.budget), 
+      realizado: Math.round(280000 * areaData.realized * yearData.realized), 
+      bu: Math.round(90 * areaData.realized), 
+      underPerformed: areaData.realized < 0.9 
+    },
+    { 
+      month: "Mai", 
+      planejado: Math.round(350000 * areaData.budget * yearData.budget), 
+      realizado: Math.round(320000 * areaData.realized * yearData.realized), 
+      bu: Math.round(91 * areaData.realized), 
+      underPerformed: areaData.realized < 0.91 
+    },
+    { 
+      month: "Jun", 
+      planejado: Math.round(400000 * areaData.budget * yearData.budget), 
+      realizado: Math.round(380000 * areaData.realized * yearData.realized), 
+      bu: Math.round(95 * areaData.realized), 
+      underPerformed: areaData.realized < 0.95 
+    }
+  ];
+
+  // Distribuição por status (ajustada por filtros)
+  const statusDistribution = {
+    all: [
+      { name: "Em Andamento", value: 45, color: "hsl(213, 67%, 35%)" },
+      { name: "Planejado", value: 25, color: "hsl(213, 38%, 91%)" },
+      { name: "Concluído", value: 20, color: "hsl(210, 100%, 18%)" },
+      { name: "Em Atraso", value: 10, color: "hsl(351, 83%, 50%)" }
+    ],
+    ti: [
+      { name: "Em Andamento", value: 55, color: "hsl(213, 67%, 35%)" },
+      { name: "Planejado", value: 20, color: "hsl(213, 38%, 91%)" },
+      { name: "Concluído", value: 20, color: "hsl(210, 100%, 18%)" },
+      { name: "Em Atraso", value: 5, color: "hsl(351, 83%, 50%)" }
+    ],
+    marketing: [
+      { name: "Em Andamento", value: 35, color: "hsl(213, 67%, 35%)" },
+      { name: "Planejado", value: 35, color: "hsl(213, 38%, 91%)" },
+      { name: "Concluído", value: 15, color: "hsl(210, 100%, 18%)" },
+      { name: "Em Atraso", value: 15, color: "hsl(351, 83%, 50%)" }
+    ],
+    operacoes: [
+      { name: "Em Andamento", value: 40, color: "hsl(213, 67%, 35%)" },
+      { name: "Planejado", value: 30, color: "hsl(213, 38%, 91%)" },
+      { name: "Concluído", value: 25, color: "hsl(210, 100%, 18%)" },
+      { name: "Em Atraso", value: 5, color: "hsl(351, 83%, 50%)" }
+    ]
+  };
+
+  // Projetos críticos por área
+  const projectsByArea = {
+    all: [
+      { name: "Sistema ERP", budget: 450000, spent: 520000, status: "critical", delay: true, area: "TI" },
+      { name: "App Mobile", budget: 180000, spent: 195000, status: "warning", delay: false, area: "TI" },
+      { name: "Campanha Digital", budget: 320000, spent: 290000, status: "normal", delay: false, area: "Marketing" },
+      { name: "Portal Cliente", budget: 280000, spent: 295000, status: "critical", delay: true, area: "TI" },
+      { name: "Automação Fabril", budget: 150000, spent: 140000, status: "normal", delay: false, area: "Operações" }
+    ],
+    ti: [
+      { name: "Sistema ERP", budget: 450000, spent: 520000, status: "critical", delay: true, area: "TI" },
+      { name: "App Mobile", budget: 180000, spent: 195000, status: "warning", delay: false, area: "TI" },
+      { name: "Portal Cliente", budget: 280000, spent: 295000, status: "critical", delay: true, area: "TI" },
+      { name: "Sistema BI", budget: 220000, spent: 210000, status: "normal", delay: false, area: "TI" },
+      { name: "Infraestrutura Cloud", budget: 350000, spent: 330000, status: "normal", delay: false, area: "TI" }
+    ],
+    marketing: [
+      { name: "Campanha Digital", budget: 320000, spent: 290000, status: "normal", delay: false, area: "Marketing" },
+      { name: "Rebranding", budget: 180000, spent: 220000, status: "critical", delay: true, area: "Marketing" },
+      { name: "E-commerce", budget: 150000, spent: 165000, status: "warning", delay: false, area: "Marketing" },
+      { name: "CRM Marketing", budget: 120000, spent: 115000, status: "normal", delay: false, area: "Marketing" }
+    ],
+    operacoes: [
+      { name: "Automação Fabril", budget: 150000, spent: 140000, status: "normal", delay: false, area: "Operações" },
+      { name: "Logística 4.0", budget: 280000, spent: 320000, status: "critical", delay: true, area: "Operações" },
+      { name: "Qualidade ISO", budget: 95000, spent: 90000, status: "normal", delay: false, area: "Operações" },
+      { name: "Sustentabilidade", budget: 200000, spent: 185000, status: "normal", delay: false, area: "Operações" }
+    ]
+  };
+
+  return {
+    portfolioData,
+    chartData,
+    projectsByStatus: statusDistribution[area as keyof typeof statusDistribution] || statusDistribution.all,
+    criticalProjects: projectsByArea[area as keyof typeof projectsByArea] || projectsByArea.all
+  };
 };
-
-const chartData = [
-  { month: "Jan", planejado: 180000, realizado: 165000, bu: 95, underPerformed: true },
-  { month: "Fev", planejado: 220000, realizado: 198000, bu: 90, underPerformed: true },
-  { month: "Mar", planejado: 280000, realizado: 245000, bu: 87, underPerformed: true },
-  { month: "Abr", planejado: 310000, realizado: 280000, bu: 90, underPerformed: true },
-  { month: "Mai", planejado: 350000, realizado: 320000, bu: 91, underPerformed: true },
-  { month: "Jun", planejado: 400000, realizado: 380000, bu: 95, underPerformed: true }
-];
-
-const projectsByStatus = [
-  { name: "Em Andamento", value: 45, color: "hsl(213, 67%, 35%)" },
-  { name: "Planejado", value: 25, color: "hsl(213, 38%, 91%)" },
-  { name: "Concluído", value: 20, color: "hsl(210, 100%, 18%)" },
-  { name: "Em Atraso", value: 10, color: "hsl(351, 83%, 50%)" }
-];
-
-const criticalProjects = [
-  { name: "Sistema ERP", budget: 450000, spent: 520000, status: "critical", delay: true },
-  { name: "App Mobile", budget: 180000, spent: 195000, status: "warning", delay: false },
-  { name: "Infraestrutura TI", budget: 320000, spent: 290000, status: "normal", delay: false },
-  { name: "Portal Cliente", budget: 280000, spent: 295000, status: "critical", delay: true },
-  { name: "Sistema BI", budget: 150000, spent: 140000, status: "normal", delay: false }
-];
 
 const sidebarItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -75,6 +189,13 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState("2025");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showAllProjects, setShowAllProjects] = useState(false);
+
+  // Dados dinâmicos baseados nos filtros
+  const { portfolioData, chartData, projectsByStatus, criticalProjects } = getFilteredData(
+    selectedArea, 
+    selectedYear, 
+    selectedStatus
+  );
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {

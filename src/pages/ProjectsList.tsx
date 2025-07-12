@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Filter, Download, Plus, Eye, Edit3, FileText, AlertTriangle } from "lucide-react";
+import { Search, Filter, Download, Plus, Eye, Edit3, FileText, AlertTriangle, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ExecutiveDashboard } from "@/components/executive-dashboard";
+import { CompactProjectView } from "@/components/compact-project-view";
+import { SmartFilters } from "@/components/smart-filters";
 
 interface Project {
   id: string;
@@ -21,6 +24,8 @@ interface Project {
   balance: number;
   currency: "BRL" | "USD" | "EUR" | "SEK";
   isCritical: boolean;
+  progress: number;
+  deadline: string;
 }
 
 const mockProjects: Project[] = [
@@ -35,7 +40,9 @@ const mockProjects: Project[] = [
     committed: 500000,
     balance: 200000,
     currency: "BRL",
-    isCritical: false
+    isCritical: false,
+    progress: 72,
+    deadline: "15/03/2025"
   },
   {
     id: "PRJ-002", 
@@ -48,7 +55,9 @@ const mockProjects: Project[] = [
     committed: 200000,
     balance: -350000,
     currency: "BRL",
-    isCritical: true
+    isCritical: true,
+    progress: 85,
+    deadline: "28/02/2025"
   },
   {
     id: "PRJ-003",
@@ -61,7 +70,9 @@ const mockProjects: Project[] = [
     committed: 0,
     balance: 50000,
     currency: "BRL",
-    isCritical: false
+    isCritical: false,
+    progress: 100,
+    deadline: "31/01/2025"
   },
   {
     id: "PRJ-004",
@@ -74,7 +85,9 @@ const mockProjects: Project[] = [
     committed: 800000,
     balance: 600000,
     currency: "EUR",
-    isCritical: true
+    isCritical: true,
+    progress: 45,
+    deadline: "30/04/2025"
   },
   {
     id: "PRJ-005",
@@ -87,7 +100,39 @@ const mockProjects: Project[] = [
     committed: 450000,
     balance: 1350000,
     currency: "BRL",
-    isCritical: false
+    isCritical: false,
+    progress: 15,
+    deadline: "15/06/2025"
+  },
+  {
+    id: "PRJ-006",
+    name: "Digitalização Processos RH",
+    leader: "Lucia Ferreira",
+    status: "Em Andamento",
+    area: "RH",
+    budget: 650000,
+    realized: 320000,
+    committed: 180000,
+    balance: 150000,
+    currency: "BRL",
+    isCritical: false,
+    progress: 55,
+    deadline: "20/05/2025"
+  },
+  {
+    id: "PRJ-007",
+    name: "Expansão Suécia",
+    leader: "Erik Johansson",
+    status: "Em Andamento",
+    area: "Internacional",
+    budget: 5200000,
+    realized: 2800000,
+    committed: 1200000,
+    balance: 1200000,
+    currency: "SEK",
+    isCritical: false,
+    progress: 68,
+    deadline: "30/09/2025"
   }
 ];
 
@@ -110,22 +155,53 @@ export default function ProjectsList() {
     category: "",
     currency: ""
   });
-  const [viewMode, setViewMode] = useState<"table" | "cards">("table");
+  const [viewMode, setViewMode] = useState<"executive" | "table" | "cards">("executive");
+  const [smartFilter, setSmartFilter] = useState("attention");
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
     return `${symbols[currency as keyof typeof symbols]} ${amount.toLocaleString("pt-BR")}`;
   };
 
-  const filteredProjects = mockProjects.filter(project => {
-    const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesArea = !filters.area || project.area === filters.area;
-    const matchesStatus = !filters.status || project.status === filters.status;
-    const matchesCurrency = !filters.currency || project.currency === filters.currency;
+  const getSmartFilteredProjects = () => {
+    let baseProjects = mockProjects;
     
-    return matchesSearch && matchesArea && matchesStatus && matchesCurrency;
-  });
+    // Apply smart filter first
+    switch (smartFilter) {
+      case "attention":
+        baseProjects = mockProjects.filter(p => 
+          p.isCritical || 
+          p.status === "Crítico" || 
+          p.status === "Em Atraso" ||
+          p.progress < 30
+        );
+        break;
+      case "financial":
+        baseProjects = mockProjects.filter(p => 
+          p.balance < 0 || 
+          (p.realized / p.budget) > 0.9
+        );
+        break;
+      case "area":
+        baseProjects = mockProjects.filter(p => p.area === "Produção"); // Example: user's area
+        break;
+      default:
+        baseProjects = mockProjects;
+    }
+    
+    // Then apply regular filters
+    return baseProjects.filter(project => {
+      const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           project.id.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesArea = !filters.area || project.area === filters.area;
+      const matchesStatus = !filters.status || project.status === filters.status;
+      const matchesCurrency = !filters.currency || project.currency === filters.currency;
+      
+      return matchesSearch && matchesArea && matchesStatus && matchesCurrency;
+    });
+  };
+
+  const filteredProjects = getSmartFilteredProjects();
 
   const toggleProjectSelection = (projectId: string) => {
     setSelectedProjects(prev => 
@@ -374,26 +450,48 @@ export default function ProjectsList() {
 
         {/* Conteúdo principal */}
         <div className="container mx-auto px-6 py-6">
+          {/* Executive Dashboard */}
+          {viewMode === "executive" && (
+            <ExecutiveDashboard projects={mockProjects} />
+          )}
+
+          {/* Smart Filters */}
+          <SmartFilters 
+            projects={mockProjects}
+            activeFilter={smartFilter}
+            onFilterChange={setSmartFilter}
+          />
+
           {/* Controles de visualização */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 mt-6">
             <p className="text-sm text-muted-foreground">
               {filteredProjects.length} projeto(s) encontrado(s)
               {selectedProjects.length > 0 && ` • ${selectedProjects.length} selecionado(s)`}
             </p>
             <div className="flex gap-2">
               <Button
+                variant={viewMode === "executive" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("executive")}
+                className="gap-2"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Executiva
+              </Button>
+              <Button
                 variant={viewMode === "table" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setViewMode("table")}
-                className="hidden md:flex"
+                className="gap-2"
               >
-                Tabela
+                <List className="h-4 w-4" />
+                Compacta
               </Button>
               <Button
                 variant={viewMode === "cards" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setViewMode("cards")}
-                className="hidden md:flex"
+                className="hidden md:flex gap-2"
               >
                 Cards
               </Button>
@@ -417,9 +515,19 @@ export default function ProjectsList() {
             </Card>
           ) : (
             <>
-              {/* Visualização em tabela - desktop */}
+              {/* Visualização Compacta */}
+              {viewMode === "table" && (
+                <CompactProjectView 
+                  projects={filteredProjects}
+                  selectedProjects={selectedProjects}
+                  onToggleSelection={toggleProjectSelection}
+                  formatCurrency={formatCurrency}
+                />
+              )}
+
+              {/* Visualização em tabela tradicional - desktop */}
               <div className="hidden md:block">
-                {viewMode === "table" ? (
+                {viewMode === "cards" && (
                   <Card>
                     <Table>
                       <TableHeader>
@@ -535,14 +643,17 @@ export default function ProjectsList() {
                       </TableBody>
                     </Table>
                   </Card>
-                ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {filteredProjects.map((project) => (
-                      <ProjectCard key={project.id} project={project} />
-                    ))}
-                  </div>
                 )}
               </div>
+
+              {/* Visualização em cards */}
+              {viewMode === "cards" && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {filteredProjects.map((project) => (
+                    <ProjectCard key={project.id} project={project} />
+                  ))}
+                </div>
+              )}
 
               {/* Visualização em cards - mobile */}
               <div className="md:hidden space-y-4">

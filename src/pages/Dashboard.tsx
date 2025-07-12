@@ -72,7 +72,7 @@ const sidebarItems = [
 
 const Dashboard = () => {
   const [viewMode, setViewMode] = useState<"graphs" | "cards">("cards");
-  const [selectedAreas, setSelectedAreas] = useState<string[]>(["all"]);
+  const [selectedArea, setSelectedArea] = useState<string>("all");
   const [selectedYear, setSelectedYear] = useState("2025");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -107,16 +107,13 @@ const Dashboard = () => {
     // Aqui seria implementada a navegação para drill-down
   };
 
-  const handleAreaChange = (area: string, checked: boolean) => {
-    if (area === "all") {
-      setSelectedAreas(checked ? ["all"] : []);
-    } else {
-      setSelectedAreas(prev => {
-        const newAreas = checked 
-          ? [...prev.filter(a => a !== "all"), area]
-          : prev.filter(a => a !== area);
-        return newAreas.length === 0 ? ["all"] : newAreas;
-      });
+  const getAreaLabel = (area: string) => {
+    switch (area) {
+      case "all": return "Todas";
+      case "ti": return "TI";
+      case "marketing": return "Marketing";
+      case "operacoes": return "Operações";
+      default: return area;
     }
   };
 
@@ -182,25 +179,20 @@ const Dashboard = () => {
           {/* Barra de Filtros Fixa */}
           <div className="sticky top-0 z-10 p-4 bg-card border-b border-border shadow-sm">
             <div className="flex flex-wrap gap-4 items-center">
-              {/* Filtro Área - Seleção Múltipla */}
-              <div className="flex items-center gap-2 min-w-[200px]">
+              {/* Filtro Área */}
+              <div className="flex items-center gap-2 min-w-[140px]">
                 <label className="text-sm font-medium whitespace-nowrap">Área:</label>
-                <div className="flex gap-2 flex-wrap">
-                  {["all", "ti", "marketing", "operacoes"].map((area) => (
-                    <div key={area} className="flex items-center gap-1">
-                      <Checkbox
-                        id={area}
-                        checked={selectedAreas.includes(area)}
-                        onCheckedChange={(checked) => handleAreaChange(area, !!checked)}
-                      />
-                      <label htmlFor={area} className="text-xs cursor-pointer">
-                        {area === "all" ? "Todas" : 
-                         area === "ti" ? "TI" : 
-                         area === "marketing" ? "Marketing" : "Operações"}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+                <Select value={selectedArea} onValueChange={setSelectedArea}>
+                  <SelectTrigger className="w-32 h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="ti">TI</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="operacoes">Operações</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               {/* Filtro Ano */}

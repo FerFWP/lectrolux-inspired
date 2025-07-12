@@ -1,14 +1,25 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { LoginForm } from "@/components/login-form"
+import { toast } from "@/hooks/use-toast"
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const handleLogin = async (credentials: { username: string; password: string }) => {
+    // Simulação de autenticação
+    return new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        if (credentials.username === "admin" && credentials.password === "123456") {
+          toast({
+            title: "Login realizado com sucesso!",
+            description: "Bem-vindo ao Sistema de Gestão Financeira.",
+          })
+          resolve()
+        } else {
+          reject(new Error("Credenciais inválidas"))
+        }
+      }, 1500)
+    })
+  }
+
+  return <LoginForm onSubmit={handleLogin} />
 };
 
 export default Index;

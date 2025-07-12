@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { CompactProjectView } from "@/components/compact-project-view";
 import { SmartFilters } from "@/components/smart-filters";
+import { IntelligentSearch } from "@/components/intelligent-search";
 
 interface Project {
   id: string;
@@ -157,6 +158,7 @@ export default function ProjectsList() {
   });
   const [viewMode, setViewMode] = useState<"executive" | "table" | "cards">("executive");
   const [smartFilter, setSmartFilter] = useState("attention");
+  const [intelligentFilters, setIntelligentFilters] = useState<string[]>([]);
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
@@ -189,10 +191,35 @@ export default function ProjectsList() {
         baseProjects = mockProjects;
     }
     
+    // Apply intelligent filters from search
+    intelligentFilters.forEach(filter => {
+      const [type, value] = filter.split(':');
+      switch (type) {
+        case 'líder':
+          baseProjects = baseProjects.filter(p => p.leader === value);
+          break;
+        case 'área':
+          baseProjects = baseProjects.filter(p => p.area === value);
+          break;
+        case 'status':
+          baseProjects = baseProjects.filter(p => p.status === value);
+          break;
+        case 'moeda':
+          baseProjects = baseProjects.filter(p => p.currency === value);
+          break;
+        case 'budget':
+          if (value === 'exceeded') {
+            baseProjects = baseProjects.filter(p => p.balance < 0);
+          }
+          break;
+      }
+    });
+    
     // Then apply regular filters
     return baseProjects.filter(project => {
       const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           project.id.toLowerCase().includes(searchTerm.toLowerCase());
+                           project.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           project.leader.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesArea = !filters.area || project.area === filters.area;
       const matchesStatus = !filters.status || project.status === filters.status;
       const matchesCurrency = !filters.currency || project.currency === filters.currency;
@@ -211,6 +238,11 @@ export default function ProjectsList() {
     );
   };
 
+  const handleIntelligentSearch = (query: string, activeFilters: string[]) => {
+    setSearchTerm(query);
+    setIntelligentFilters(activeFilters);
+  };
+
   const clearFilters = () => {
     setFilters({
       area: "",
@@ -220,6 +252,8 @@ export default function ProjectsList() {
       category: "",
       currency: ""
     });
+    setIntelligentFilters([]);
+    setSearchTerm("");
   };
 
   const ProjectCard = ({ project }: { project: Project }) => (
@@ -342,16 +376,15 @@ export default function ProjectsList() {
               </div>
             </div>
 
-            {/* Barra de busca e filtros */}
+            {/* Barra de busca inteligente */}
             <div className="space-y-4">
               <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Digite o nome ou ID do projeto para buscar..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                <div className="flex-1">
+                  <IntelligentSearch
+                    projects={mockProjects}
+                    onSearch={handleIntelligentSearch}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
                   />
                 </div>
                 <Button 

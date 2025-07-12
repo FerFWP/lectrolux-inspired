@@ -209,10 +209,28 @@ export default function ProjectsList() {
             <Eye className="h-4 w-4 mr-1" />
             Ver
           </Button>
-          <Button size="sm" variant="outline" className="flex-1">
-            <Edit3 className="h-4 w-4 mr-1" />
-            Editar
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => {
+                  // Simular verificação de permissão
+                  const hasPermission = Math.random() > 0.5;
+                  if (!hasPermission) {
+                    alert("Você não possui permissão para editar este projeto. Entre em contato com o administrador do sistema.");
+                  }
+                }}
+              >
+                <Edit3 className="h-4 w-4 mr-1" />
+                Editar
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Editar informações do projeto (requer permissão)</p>
+            </TooltipContent>
+          </Tooltip>
           <Button size="sm" variant="outline">
             <FileText className="h-4 w-4" />
           </Button>
@@ -230,10 +248,17 @@ export default function ProjectsList() {
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-bold text-foreground">Lista de Projetos</h1>
               <div className="flex gap-2">
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportar Lista
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline">
+                      <Download className="h-4 w-4 mr-2" />
+                      Exportar Lista
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Exportar lista de projetos para Excel ou PowerBI com filtros aplicados</p>
+                  </TooltipContent>
+                </Tooltip>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
                   Novo Projeto
@@ -247,7 +272,7 @@ export default function ProjectsList() {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="Buscar por nome ou ID do projeto..."
+                    placeholder="Digite o nome ou ID do projeto para buscar..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -276,18 +301,27 @@ export default function ProjectsList() {
                   </SelectContent>
                 </Select>
 
-                <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({...prev, status: value}))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Em Andamento">Em Andamento</SelectItem>
-                    <SelectItem value="Concluído">Concluído</SelectItem>
-                    <SelectItem value="Em Atraso">Em Atraso</SelectItem>
-                    <SelectItem value="Planejado">Planejado</SelectItem>
-                    <SelectItem value="Crítico">Crítico</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({...prev, status: value}))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Em Andamento">Em Andamento</SelectItem>
+                          <SelectItem value="Concluído">Concluído</SelectItem>
+                          <SelectItem value="Em Atraso">Em Atraso</SelectItem>
+                          <SelectItem value="Planejado">Planejado</SelectItem>
+                          <SelectItem value="Crítico">Crítico</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Filtre projetos por status atual: Em Andamento, Concluído, Em Atraso, Planejado ou Crítico</p>
+                  </TooltipContent>
+                </Tooltip>
 
                 <Select value={filters.currency} onValueChange={(value) => setFilters(prev => ({...prev, currency: value}))}>
                   <SelectTrigger>
@@ -375,7 +409,7 @@ export default function ProjectsList() {
                 <div>
                   <h3 className="font-semibold mb-2">Nenhum projeto encontrado</h3>
                   <p className="text-muted-foreground">
-                    Tente ajustar os filtros ou termo de busca para encontrar os projetos desejados.
+                    Não encontramos projetos que correspondam aos critérios selecionados. Tente ajustar os filtros ou termo de busca, ou limpe todos os filtros para ver a lista completa.
                   </p>
                 </div>
               </div>
@@ -469,11 +503,21 @@ export default function ProjectsList() {
                                 </Tooltip>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Button size="sm" variant="outline">
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => {
+                                        // Simular verificação de permissão
+                                        const hasPermission = Math.random() > 0.5;
+                                        if (!hasPermission) {
+                                          alert("Você não possui permissão para editar este projeto. Entre em contato com o administrador do sistema.");
+                                        }
+                                      }}
+                                    >
                                       <Edit3 className="h-4 w-4" />
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent>Editar projeto</TooltipContent>
+                                  <TooltipContent>Editar informações do projeto (requer permissão)</TooltipContent>
                                 </Tooltip>
                                 <Tooltip>
                                   <TooltipTrigger asChild>

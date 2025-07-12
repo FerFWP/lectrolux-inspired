@@ -570,126 +570,6 @@ export default function ProjectsList() {
                 />
               )}
 
-              {/* Visualização em tabela tradicional - desktop */}
-              <div className="hidden md:block">
-                {viewMode === "cards" && (
-                  <Card>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-12">
-                            <Checkbox 
-                              checked={selectedProjects.length === filteredProjects.length}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedProjects(filteredProjects.map(p => p.id));
-                                } else {
-                                  setSelectedProjects([]);
-                                }
-                              }}
-                            />
-                          </TableHead>
-                          <TableHead>Projeto</TableHead>
-                          <TableHead>Líder</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Área</TableHead>
-                          <TableHead className="text-right">Orçamento</TableHead>
-                          <TableHead className="text-right">Realizado</TableHead>
-                          <TableHead className="text-right">Saldo</TableHead>
-                          <TableHead className="w-32">Ações</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredProjects.map((project) => (
-                          <TableRow 
-                            key={project.id} 
-                            className={`hover:bg-muted/50 cursor-pointer ${project.isCritical ? 'bg-destructive/5 border-l-4 border-l-destructive' : ''}`}
-                          >
-                            <TableCell>
-                              <Checkbox 
-                                checked={selectedProjects.includes(project.id)}
-                                onCheckedChange={() => toggleProjectSelection(project.id)}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-primary hover:underline">
-                                    {project.name}
-                                  </span>
-                                  {project.isCritical && (
-                                    <Badge variant="destructive" className="gap-1 text-xs">
-                                      <AlertTriangle className="h-3 w-3" />
-                                      Crítico
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-sm text-muted-foreground">{project.id}</p>
-                              </div>
-                            </TableCell>
-                            <TableCell>{project.leader}</TableCell>
-                            <TableCell>
-                              <Badge className={statusColors[project.status]}>
-                                {project.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{project.area}</TableCell>
-                            <TableCell className="text-right font-medium">
-                              {formatCurrency(project.budget, project.currency)}
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                              {formatCurrency(project.realized, project.currency)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <span className={`font-medium ${project.balance < 0 ? 'text-destructive' : 'text-green-600'}`}>
-                                {formatCurrency(project.balance, project.currency)}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-1">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button size="sm" variant="outline">
-                                      <Eye className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Visualizar projeto</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      onClick={() => {
-                                        // Simular verificação de permissão
-                                        const hasPermission = Math.random() > 0.5;
-                                        if (!hasPermission) {
-                                          alert("Você não possui permissão para editar este projeto. Entre em contato com o administrador do sistema.");
-                                        }
-                                      }}
-                                    >
-                                      <Edit3 className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Editar informações do projeto (requer permissão)</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button size="sm" variant="outline">
-                                      <FileText className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Exportar dados</TooltipContent>
-                                </Tooltip>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Card>
-                )}
-              </div>
 
               {/* Visualização em cards */}
               {viewMode === "cards" && (
@@ -700,12 +580,6 @@ export default function ProjectsList() {
                 </div>
               )}
 
-              {/* Visualização em cards - mobile */}
-              <div className="md:hidden space-y-4">
-                {filteredProjects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
-                ))}
-              </div>
             </>
           )}
 

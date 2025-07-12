@@ -6,7 +6,8 @@ const Index = () => {
     // Simulação de autenticação
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
-        if (credentials.username === "admin" && credentials.password === "123456") {
+        if ((credentials.username === "admin" && credentials.password === "123456") || 
+            (credentials.username === "teste@electrolux.com" && credentials.password === "12345678")) {
           toast({
             title: "Login realizado com sucesso!",
             description: "Bem-vindo ao Sistema de Gestão Financeira.",

@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit3, Calendar, TrendingUp, TrendingDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useNavigate } from "react-router-dom";
 
 interface Project {
   id: string;
@@ -39,6 +40,7 @@ export function CompactProjectView({
   viewMode = "compact"
 }: CompactProjectViewProps) {
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const getHealthIndicator = (project: Project) => {
     if (project.isCritical || project.status === "Crítico") return "red";
@@ -177,7 +179,12 @@ export function CompactProjectView({
                   <div className="flex gap-1">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="h-8 w-8 p-0"
+                          onClick={() => navigate(`/projetos/${project.id}`)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>

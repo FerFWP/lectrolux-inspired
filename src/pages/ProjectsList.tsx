@@ -12,6 +12,7 @@ import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { CompactProjectView } from "@/components/compact-project-view";
 import { SmartFilters } from "@/components/smart-filters";
 import { IntelligentSearch } from "@/components/intelligent-search";
+import { useNavigate } from "react-router-dom";
 
 interface Project {
   id: string;
@@ -159,6 +160,7 @@ export default function ProjectsList() {
   const [viewMode, setViewMode] = useState<"executive" | "table" | "cards">("executive");
   const [smartFilter, setSmartFilter] = useState("attention");
   const [intelligentFilters, setIntelligentFilters] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
@@ -315,7 +317,12 @@ export default function ProjectsList() {
         </div>
 
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" className="flex-1">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="flex-1"
+            onClick={() => navigate(`/projetos/${project.id}`)}
+          >
             <Eye className="h-4 w-4 mr-1" />
             Ver
           </Button>

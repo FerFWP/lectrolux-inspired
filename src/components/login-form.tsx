@@ -238,20 +238,6 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
               </p>
             </div>
           </div>
-          
-          {/* Desktop Features */}
-          <div className="grid grid-cols-2 gap-4 w-full max-w-md">
-            <div className="bg-card/50 p-4 rounded-lg border border-border/50">
-              <Shield className="w-6 h-6 text-primary mb-2" />
-              <h3 className="font-semibold text-sm">Segurança Avançada</h3>
-              <p className="text-xs text-muted-foreground">Autenticação 2FA disponível</p>
-            </div>
-            <div className="bg-card/50 p-4 rounded-lg border border-border/50">
-              <Clock className="w-6 h-6 text-primary mb-2" />
-              <h3 className="font-semibold text-sm">Disponibilidade</h3>
-              <p className="text-xs text-muted-foreground">Sistema sempre online</p>
-            </div>
-          </div>
         </div>
 
         {/* Right Column - Login Form */}
@@ -405,26 +391,8 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
             </CardContent>
           </Card>
 
-          {/* System Status & Language - Desktop */}
-          <div className="mt-8 space-y-4 w-full max-w-md">
-            <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Shield className="w-3 h-3 text-green-500" />
-                <span>Sistema Online</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                <span>Atualizado: 10/01/2025</span>
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <Badge variant="secondary" className="text-xs">
-                <Shield className="w-3 h-3 mr-1" />
-                Autenticação 2FA disponível
-              </Badge>
-            </div>
-            
+          {/* Language Selector - Desktop */}
+          <div className="mt-8 w-full max-w-md">
             <div className="flex justify-center">
               <SelectLanguage 
                 value={language} 

@@ -1,11 +1,12 @@
 import React, { useState } from "react"
-import { Eye, EyeOff, User, Lock, AlertCircle, HelpCircle } from "lucide-react"
+import { Eye, EyeOff, User, Lock, AlertCircle, HelpCircle, Phone, Clock, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { SelectLanguage } from "@/components/ui/select-language"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import electroluxLogo from "@/assets/electrolux-logo.png"
 
@@ -85,21 +86,24 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
             {/* Username Field */}
             <div className="space-y-2">
               <Label htmlFor="username" className="text-sm font-medium text-foreground">
-                Usuário *
+                Login *
               </Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Seu e-mail corporativo"
+                  placeholder="E-mail corporativo ou nome de usuário"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="pl-10 h-12 border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/20"
                   required
-                  aria-describedby={error ? "error-message" : undefined}
+                  aria-describedby={error ? "error-message" : "username-help"}
                 />
               </div>
+              <p className="text-xs text-muted-foreground" id="username-help">
+                Use suas credenciais fornecidas pelo setor de TI
+              </p>
             </div>
 
             {/* Password Field */}
@@ -157,28 +161,74 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
             </Button>
           </form>
 
-          {/* Forgot Password Link */}
-          <div className="text-center">
-            <button
-              type="button"
-              className="text-sm text-primary hover:text-primary-medium hover:underline transition-colors font-medium"
-              onClick={() => {
-                // Implementar lógica de esqueci minha senha
-                console.log("Esqueci minha senha clicked")
-              }}
-            >
-              Recuperar senha
-            </button>
+          {/* Forgot Password Link & Help Section */}
+          <div className="space-y-4">
+            <div className="text-center">
+              <button
+                type="button"
+                className="text-sm text-primary hover:text-primary-medium hover:underline transition-colors font-medium"
+                onClick={() => {
+                  // Implementar lógica de esqueci minha senha
+                  console.log("Esqueci minha senha clicked")
+                }}
+              >
+                Recuperar senha
+              </button>
+            </div>
+            
+            {/* Help Section */}
+            <div className="border-t border-border pt-4">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Phone className="w-4 h-4 text-muted-foreground" />
+                <button
+                  type="button"
+                  className="text-sm text-primary hover:text-primary-medium hover:underline transition-colors font-medium"
+                  onClick={() => {
+                    console.log("Precisa de ajuda clicked")
+                  }}
+                >
+                  Precisa de ajuda?
+                </button>
+              </div>
+              
+              <div className="space-y-2 text-xs text-muted-foreground text-center">
+                <p>Suporte TI: <span className="text-foreground font-medium">(11) 3000-8000</span></p>
+                <p>Horário: Segunda a Sexta, 8h às 18h</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Language Selector */}
-      <div className="mt-8">
-        <SelectLanguage 
-          value={language} 
-          onValueChange={setLanguage}
-        />
+      {/* System Status & Language Selector */}
+      <div className="mt-8 space-y-4 w-full max-w-md">
+        {/* System Status */}
+        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Shield className="w-3 h-3 text-green-500" />
+            <span>Sistema Online</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            <span>Última atualização: 10/01/2025</span>
+          </div>
+        </div>
+        
+        {/* Security Notice */}
+        <div className="text-center">
+          <Badge variant="secondary" className="text-xs">
+            <Shield className="w-3 h-3 mr-1" />
+            Sistema com autenticação 2FA disponível
+          </Badge>
+        </div>
+        
+        {/* Language Selector */}
+        <div className="flex justify-center">
+          <SelectLanguage 
+            value={language} 
+            onValueChange={setLanguage}
+          />
+        </div>
       </div>
     </div>
   )

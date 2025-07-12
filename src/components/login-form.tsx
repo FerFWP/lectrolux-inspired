@@ -1,10 +1,11 @@
 import React, { useState } from "react"
-import { Eye, EyeOff, User, Lock, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, User, Lock, AlertCircle, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { SelectLanguage } from "@/components/ui/select-language"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import electroluxLogo from "@/assets/electrolux-logo.png"
 
@@ -35,7 +36,7 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
     try {
       await onSubmit?.({ username: username.trim(), password })
     } catch (err) {
-      setError("Usuário ou senha incorretos. Tente novamente.")
+      setError("Usuário ou senha inválidos. Tente novamente ou recupere sua senha.")
     } finally {
       setIsLoading(false)
     }
@@ -91,7 +92,7 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Digite seu usuário"
+                  placeholder="Seu e-mail corporativo"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="pl-10 h-12 border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/20"
@@ -103,15 +104,27 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">
-                Senha *
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                  Senha *
+                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">Mínimo 8 caracteres, letras e números</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Digite sua senha"
+                  placeholder="Sua senha de acesso"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10 h-12 border-input bg-background focus:border-ring focus:ring-2 focus:ring-ring/20"
@@ -154,7 +167,7 @@ export function LoginForm({ onSubmit, className }: LoginFormProps) {
                 console.log("Esqueci minha senha clicked")
               }}
             >
-              Esqueci minha senha
+              Recuperar senha
             </button>
           </div>
         </CardContent>

@@ -19,7 +19,7 @@ interface Project {
   realized: number;
   committed: number;
   balance: number;
-  currency: "BRL" | "USD" | "EUR";
+  currency: "BRL" | "USD" | "EUR" | "SEK";
   isCritical: boolean;
 }
 
@@ -113,7 +113,7 @@ export default function ProjectsList() {
   const [viewMode, setViewMode] = useState<"table" | "cards">("table");
 
   const formatCurrency = (amount: number, currency: string) => {
-    const symbols = { BRL: "R$", USD: "$", EUR: "€" };
+    const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
     return `${symbols[currency as keyof typeof symbols]} ${amount.toLocaleString("pt-BR")}`;
   };
 
@@ -331,6 +331,7 @@ export default function ProjectsList() {
                     <SelectItem value="BRL">Real (BRL)</SelectItem>
                     <SelectItem value="USD">Dólar (USD)</SelectItem>
                     <SelectItem value="EUR">Euro (EUR)</SelectItem>
+                    <SelectItem value="SEK">Coroa Sueca (SEK)</SelectItem>
                   </SelectContent>
                 </Select>
 

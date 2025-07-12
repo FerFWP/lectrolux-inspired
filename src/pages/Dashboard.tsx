@@ -497,20 +497,40 @@ const Dashboard = () => {
                           className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                           onClick={() => console.log(`Navigate to project: ${project.name}`)}
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-semibold text-primary">{project.name}</h4>
-                              {project.delay && <Clock className="h-4 w-4 text-orange-500" />}
+                          <div className="flex items-center gap-4 flex-1">
+                            {/* Nome do Projeto com ícone de delay */}
+                            <div className="min-w-[180px]">
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-semibold text-primary">{project.name}</h4>
+                                {project.delay && <Clock className="h-4 w-4 text-orange-500" />}
+                              </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
-                              <span>Orçado: {formatCurrency(project.budget)}</span>
-                              <span>Gasto: {formatCurrency(project.spent)}</span>
-                              <span className={project.spent > project.budget ? "text-destructive font-medium" : "text-green-600"}>
-                                Variação: {formatCurrency(project.spent - project.budget)}
-                              </span>
+                            
+                            {/* Informações Financeiras - Grid com tamanhos fixos */}
+                            <div className="flex items-center gap-6 flex-1">
+                              <div className="min-w-[120px]">
+                                <span className="text-sm text-muted-foreground">Orçado: </span>
+                                <span className="text-sm font-medium">{formatCurrency(project.budget)}</span>
+                              </div>
+                              
+                              <div className="min-w-[120px]">
+                                <span className="text-sm text-muted-foreground">Gasto: </span>
+                                <span className="text-sm font-medium">{formatCurrency(project.spent)}</span>
+                              </div>
+                              
+                              <div className="min-w-[130px]">
+                                <span className="text-sm text-muted-foreground">Variação: </span>
+                                <span className={`text-sm font-medium ${
+                                  project.spent > project.budget ? "text-destructive" : "text-green-600"
+                                }`}>
+                                  {formatCurrency(project.spent - project.budget)}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          
+                          {/* Badges de Status */}
+                          <div className="flex items-center gap-2 ml-4">
                             {project.delay && (
                               <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">
                                 Atrasado
@@ -520,8 +540,8 @@ const Dashboard = () => {
                               variant={getStatusColor(project.status)}
                               className={project.status === "critical" ? "animate-pulse" : ""}
                             >
-                              {project.status === "critical" ? "🔴 Crítico" : 
-                               project.status === "warning" ? "⚠️ Atenção" : "✅ Normal"}
+                              {project.status === "critical" ? "Crítico" : 
+                               project.status === "warning" ? "Atenção" : "Normal"}
                             </Badge>
                           </div>
                         </div>

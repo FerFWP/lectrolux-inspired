@@ -548,6 +548,16 @@ export default function ProjectsList() {
             </Card>
           ) : (
             <>
+              {/* Visualização Executiva - Dashboard + Lista Compacta */}
+              {viewMode === "executive" && (
+                <CompactProjectView 
+                  projects={filteredProjects}
+                  selectedProjects={selectedProjects}
+                  onToggleSelection={toggleProjectSelection}
+                  formatCurrency={formatCurrency}
+                />
+              )}
+
               {/* Visualização Compacta */}
               {viewMode === "table" && (
                 <CompactProjectView 

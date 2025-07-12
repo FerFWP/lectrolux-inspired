@@ -28,13 +28,15 @@ interface CompactProjectViewProps {
   selectedProjects: string[];
   onToggleSelection: (projectId: string) => void;
   formatCurrency: (amount: number, currency: string) => string;
+  viewMode?: "executive" | "compact";
 }
 
 export function CompactProjectView({ 
   projects, 
   selectedProjects, 
   onToggleSelection, 
-  formatCurrency 
+  formatCurrency,
+  viewMode = "compact"
 }: CompactProjectViewProps) {
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
 
@@ -64,10 +66,12 @@ export function CompactProjectView({
                 }}
               />
             </TableHead>
-            <TableHead className="w-4"></TableHead>
+            {viewMode === "executive" && <TableHead className="w-4"></TableHead>}
             <TableHead>Projeto</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Líder</TableHead>
+            {viewMode === "executive" && <TableHead>Orçamento</TableHead>}
+            {viewMode === "executive" && <TableHead>Saldo</TableHead>}
             <TableHead>Progresso</TableHead>
             <TableHead>Prazo</TableHead>
             <TableHead className="w-32">Ações</TableHead>
@@ -79,10 +83,12 @@ export function CompactProjectView({
               <TableRow 
                 key={project.id}
                 className={`cursor-pointer transition-colors ${
-                  expandedProject === project.id ? "bg-muted/50" : ""
-                } ${project.isCritical ? "border-l-4 border-l-destructive" : ""}`}
-                onMouseEnter={() => setExpandedProject(project.id)}
-                onMouseLeave={() => setExpandedProject(null)}
+                  viewMode === "compact" && expandedProject === project.id ? "bg-muted/50" : ""
+                } ${project.isCritical ? "border-l-4 border-l-destructive" : ""} ${
+                  viewMode === "executive" ? "hover:bg-muted/30" : ""
+                }`}
+                onMouseEnter={() => viewMode === "compact" && setExpandedProject(project.id)}
+                onMouseLeave={() => viewMode === "compact" && setExpandedProject(null)}
               >
                 <TableCell>
                   <Checkbox 
@@ -90,13 +96,15 @@ export function CompactProjectView({
                     onCheckedChange={() => onToggleSelection(project.id)}
                   />
                 </TableCell>
-                <TableCell>
-                  <div className={`w-3 h-3 rounded-full ${
-                    getHealthIndicator(project) === "red" ? "bg-red-500" :
-                    getHealthIndicator(project) === "yellow" ? "bg-yellow-500" :
-                    "bg-green-500"
-                  }`} />
-                </TableCell>
+                {viewMode === "executive" && (
+                  <TableCell>
+                    <div className={`w-3 h-3 rounded-full ${
+                      getHealthIndicator(project) === "red" ? "bg-red-500" :
+                      getHealthIndicator(project) === "yellow" ? "bg-yellow-500" :
+                      "bg-green-500"
+                    }`} />
+                  </TableCell>
+                )}
                 <TableCell>
                   <div>
                     <div className="font-medium">{project.name}</div>
@@ -118,18 +126,41 @@ export function CompactProjectView({
                 <TableCell>
                   <div className="text-sm font-medium">{project.leader}</div>
                 </TableCell>
+                {viewMode === "executive" && (
+                  <TableCell>
+                    <div className="text-sm font-medium">
+                      {formatCurrency(project.budget, project.currency)}
+                    </div>
+                  </TableCell>
+                )}
+                {viewMode === "executive" && (
+                  <TableCell>
+                    <div className={`text-sm font-medium flex items-center gap-1 ${
+                      project.balance < 0 ? "text-red-600" : "text-green-600"
+                    }`}>
+                      {formatCurrency(project.balance, project.currency)}
+                      {project.balance < 0 ? (
+                        <TrendingDown className="h-3 w-3" />
+                      ) : (
+                        <TrendingUp className="h-3 w-3" />
+                      )}
+                    </div>
+                  </TableCell>
+                )}
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div className="w-16 bg-muted rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all ${
-                          project.progress >= 80 ? "bg-green-500" :
-                          project.progress >= 50 ? "bg-blue-500" :
-                          project.progress >= 30 ? "bg-orange-500" :
-                          "bg-red-500"
-                        }`}
-                        style={{ width: `${project.progress}%` }}
-                      />
+                    <div className={viewMode === "executive" ? "w-20" : "w-16"}>
+                      <div className="bg-muted rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all ${
+                            project.progress >= 80 ? "bg-green-500" :
+                            project.progress >= 50 ? "bg-blue-500" :
+                            project.progress >= 30 ? "bg-orange-500" :
+                            "bg-red-500"
+                          }`}
+                          style={{ width: `${project.progress}%` }}
+                        />
+                      </div>
                     </div>
                     <span className={`text-sm font-medium ${getProgressColor(project.progress)}`}>
                       {project.progress}%
@@ -164,8 +195,8 @@ export function CompactProjectView({
                 </TableCell>
               </TableRow>
               
-              {/* Expanded Details Row */}
-              {expandedProject === project.id && (
+              {/* Expanded Details Row - Only in Compact Mode */}
+              {viewMode === "compact" && expandedProject === project.id && (
                 <TableRow className="bg-muted/20">
                   <TableCell colSpan={8} className="py-2">
                     <div className="grid grid-cols-4 gap-4 text-sm">

@@ -45,7 +45,7 @@ export function SmartFilters({ projects, activeFilter, onFilterChange }: SmartFi
       label: "Minha Atenção",
       icon: AlertTriangle,
       count: attentionProjects.length,
-      description: "Projetos críticos, atrasados ou com baixo progresso",
+      description: "Projetos críticos ou atrasados",
       color: "destructive"
     },
     {
@@ -53,7 +53,7 @@ export function SmartFilters({ projects, activeFilter, onFilterChange }: SmartFi
       label: "Risco Financeiro", 
       icon: DollarSign,
       count: financialRiskProjects.length,
-      description: "Projetos com saldo negativo ou alto consumo de orçamento",
+      description: "Saldo negativo ou alto consumo",
       color: "orange"
     },
     {
@@ -61,7 +61,7 @@ export function SmartFilters({ projects, activeFilter, onFilterChange }: SmartFi
       label: "Minha Área",
       icon: Users,
       count: myAreaProjects.length,
-      description: "Projetos da sua área de responsabilidade",
+      description: "Projetos da sua área",
       color: "blue"
     },
     {
@@ -69,7 +69,7 @@ export function SmartFilters({ projects, activeFilter, onFilterChange }: SmartFi
       label: "Todos os Projetos",
       icon: Target,
       count: projects.length,
-      description: "Visualizar todos os projetos disponíveis",
+      description: "Visualizar todos os projetos",
       color: "default"
     }
   ];

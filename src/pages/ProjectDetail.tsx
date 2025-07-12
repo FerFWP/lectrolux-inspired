@@ -77,7 +77,7 @@ export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("resumo");
-  const [transactionFilter, setTransactionFilter] = useState("");
+  const [transactionFilter, setTransactionFilter] = useState("all");
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
@@ -92,7 +92,7 @@ export default function ProjectDetail() {
   };
 
   const filteredTransactions = mockProject.transactions.filter(t => 
-    !transactionFilter || t.category === transactionFilter
+    !transactionFilter || transactionFilter === "all" || t.category === transactionFilter
   );
 
   return (
@@ -381,7 +381,7 @@ export default function ProjectDetail() {
                       <SelectValue placeholder="Filtrar por categoria" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as categorias</SelectItem>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
                       <SelectItem value="Software">Software</SelectItem>
                       <SelectItem value="Hardware">Hardware</SelectItem>
                       <SelectItem value="Serviços">Serviços</SelectItem>

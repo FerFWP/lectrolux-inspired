@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -18,8 +18,10 @@ import {
   Calendar,
   Settings,
   Download,
-  Filter
+  Filter,
+  HelpCircle
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Dados de exemplo para demonstração
 const portfolioData = {
@@ -196,14 +198,24 @@ const Dashboard = () => {
           {/* Content */}
           <main className="flex-1 p-6 space-y-6">
             {viewMode === "cards" ? (
-              <>
+              <TooltipProvider>
                 {/* KPI Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <Card className="hover-scale">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Orçado Total
-                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                          Orçamento Total
+                        </CardTitle>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor total aprovado no orçamento para todos os projetos selecionados.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-5 w-5 text-primary" />
                         <span className="text-2xl font-bold text-primary">
@@ -215,9 +227,19 @@ const Dashboard = () => {
 
                   <Card className="hover-scale">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Realizado
-                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                          Valor Realizado
+                        </CardTitle>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor total já investido nos projetos selecionados.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-green-600" />
                         <span className="text-2xl font-bold text-primary">
@@ -232,9 +254,19 @@ const Dashboard = () => {
 
                   <Card className="hover-scale">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Comprometido
-                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                          Valor Comprometido
+                        </CardTitle>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor reservado para contratos assinados e pedidos de compra aprovados.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-yellow-600" />
                         <span className="text-2xl font-bold text-primary">
@@ -249,9 +281,19 @@ const Dashboard = () => {
 
                   <Card className="hover-scale">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Saldo Disponível
-                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                          Saldo Disponível
+                        </CardTitle>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor restante do orçamento disponível para novos investimentos.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                       <div className="flex items-center gap-2">
                         <TrendingDown className="h-5 w-5 text-destructive" />
                         <span className="text-2xl font-bold text-primary">
@@ -259,7 +301,14 @@ const Dashboard = () => {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="outline">BU: {portfolioData.budgetUnit}%</Badge>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge variant="outline" className="cursor-help">BU Disponível: {portfolioData.budgetUnit}%</Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Percentual do Budget Unit (BU) ainda disponível para uso no período.</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                     </CardHeader>
                   </Card>
@@ -278,7 +327,7 @@ const Dashboard = () => {
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="month" />
                           <YAxis />
-                          <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                           <RechartsTooltip formatter={(value) => formatCurrency(Number(value))} />
                           <Bar dataKey="planejado" fill="hsl(213, 38%, 91%)" name="Planejado" />
                           <Bar dataKey="realizado" fill="hsl(210, 100%, 18%)" name="Realizado" />
                         </BarChart>
@@ -306,7 +355,7 @@ const Dashboard = () => {
                               <Cell key={`cell-${index}`} fill={entry.color} />
                             ))}
                           </Pie>
-                          <Tooltip />
+                          <RechartsTooltip />
                         </PieChart>
                       </ResponsiveContainer>
                     </CardContent>
@@ -337,9 +386,9 @@ const Dashboard = () => {
                       ))}
                     </div>
                   </CardContent>
-                </Card>
-              </>
-            ) : (
+                 </Card>
+               </TooltipProvider>
+             ) : (
               <>
                 {/* Graphics Mode */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -354,7 +403,7 @@ const Dashboard = () => {
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="month" />
                           <YAxis />
-                          <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                          <RechartsTooltip formatter={(value) => formatCurrency(Number(value))} />
                           <Line type="monotone" dataKey="planejado" stroke="hsl(213, 38%, 91%)" strokeWidth={3} />
                           <Line type="monotone" dataKey="realizado" stroke="hsl(210, 100%, 18%)" strokeWidth={3} />
                         </LineChart>
@@ -373,7 +422,7 @@ const Dashboard = () => {
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="month" />
                           <YAxis domain={[0, 100]} />
-                          <Tooltip formatter={(value) => `${value}%`} />
+                          <RechartsTooltip formatter={(value) => `${value}%`} />
                           <Bar dataKey="bu" fill="hsl(213, 67%, 35%)" />
                         </BarChart>
                       </ResponsiveContainer>
@@ -383,22 +432,73 @@ const Dashboard = () => {
 
                 {/* Summary Cards for Graphics Mode */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card className="text-center p-6">
-                    <h3 className="text-4xl font-bold text-primary">{formatCurrency(portfolioData.budget)}</h3>
-                    <p className="text-muted-foreground">Orçamento Total</p>
-                  </Card>
-                  <Card className="text-center p-6">
-                    <h3 className="text-4xl font-bold text-green-600">{formatCurrency(portfolioData.realized)}</h3>
-                    <p className="text-muted-foreground">Realizado</p>
-                  </Card>
-                  <Card className="text-center p-6">
-                    <h3 className="text-4xl font-bold text-yellow-600">{formatCurrency(portfolioData.committed)}</h3>
-                    <p className="text-muted-foreground">Comprometido</p>
-                  </Card>
-                  <Card className="text-center p-6">
-                    <h3 className="text-4xl font-bold text-destructive">{formatCurrency(portfolioData.available)}</h3>
-                    <p className="text-muted-foreground">Disponível</p>
-                  </Card>
+                  <TooltipProvider>
+                    <Card className="text-center p-6">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <h3 className="text-4xl font-bold text-primary">{formatCurrency(portfolioData.budget)}</h3>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor total aprovado no orçamento para todos os projetos selecionados.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <p className="text-muted-foreground">Orçamento Total</p>
+                    </Card>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Card className="text-center p-6">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <h3 className="text-4xl font-bold text-green-600">{formatCurrency(portfolioData.realized)}</h3>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor total já investido nos projetos selecionados.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <p className="text-muted-foreground">Valor Realizado</p>
+                    </Card>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Card className="text-center p-6">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <h3 className="text-4xl font-bold text-yellow-600">{formatCurrency(portfolioData.committed)}</h3>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor reservado para contratos assinados e pedidos de compra aprovados.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <p className="text-muted-foreground">Valor Comprometido</p>
+                    </Card>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Card className="text-center p-6">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <h3 className="text-4xl font-bold text-destructive">{formatCurrency(portfolioData.available)}</h3>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground/70 hover:text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor restante do orçamento disponível para novos investimentos.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <p className="text-muted-foreground">Saldo Disponível</p>
+                    </Card>
+                  </TooltipProvider>
                 </div>
               </>
             )}

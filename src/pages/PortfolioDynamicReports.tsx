@@ -428,7 +428,16 @@ const PortfolioDynamicReports = () => {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total de Projetos</p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-sm text-muted-foreground cursor-help">Total de Projetos</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Número total de projetos ativos no portfólio atual</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <p className="text-3xl font-bold text-primary">{portfolioData.totals.projects}</p>
                 <p className="text-xs text-muted-foreground">Portfolio ativo</p>
               </div>
@@ -441,7 +450,16 @@ const PortfolioDynamicReports = () => {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Orçamento Consolidado</p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-sm text-muted-foreground cursor-help">Orçamento Consolidado</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Soma total dos orçamentos aprovados para todos os projetos</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <p className="text-2xl font-bold text-blue-600">
                   {formatCurrency(portfolioData.totals.budget)}
                 </p>
@@ -456,7 +474,16 @@ const PortfolioDynamicReports = () => {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Realizado Consolidado</p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-sm text-muted-foreground cursor-help">Realizado Consolidado</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Total de gastos já executados em todos os projetos</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <p className="text-2xl font-bold text-green-600">
                   {formatCurrency(portfolioData.totals.realized)}
                 </p>
@@ -473,7 +500,16 @@ const PortfolioDynamicReports = () => {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Saldo Total</p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-sm text-muted-foreground cursor-help">Saldo Total</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Diferença entre orçamento total aprovado e valores já executados. <strong>Verde</strong> = saldo positivo disponível, <strong>Vermelho</strong> = déficit que exige contenção de gastos.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <p className={`text-2xl font-bold ${insights.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatCurrency(Math.abs(insights.balance))}
                 </p>
@@ -490,13 +526,22 @@ const PortfolioDynamicReports = () => {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Projetos Críticos</p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-sm text-muted-foreground cursor-help">Projetos Críticos</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Projetos <strong>críticos</strong> apresentam pelo menos uma dessas condições: desvio &gt;20%, atraso &gt;30 dias ou saldo negativo. Requer atenção prioritária da liderança.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <div className="flex items-center gap-2">
                   <p className="text-3xl font-bold text-red-600">{insights.criticalProjects}</p>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Badge variant="destructive" className="animate-pulse">
+                        <Badge variant="destructive" className="animate-pulse cursor-help">
                           ALERTA
                         </Badge>
                       </TooltipTrigger>
@@ -540,13 +585,16 @@ const PortfolioDynamicReports = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis tickFormatter={(value) => `${(value/1000000).toFixed(1)}M`} />
-                  <RechartsTooltip 
-                    formatter={(value: any, name) => [
-                      formatCurrency(value), 
-                      name === 'budget' ? 'Orçamento' : 
-                      name === 'realized' ? 'Realizado' : 'Variação'
-                    ]}
-                  />
+                   <RechartsTooltip 
+                     formatter={(value: any, name) => [
+                       formatCurrency(value), 
+                       name === 'budget' ? 'Orçamento' : 
+                       name === 'realized' ? 'Realizado' : 'Variação'
+                     ]}
+                     labelStyle={{ color: 'hsl(var(--foreground))' }}
+                     contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
+                     labelFormatter={(label) => `Mês: ${label}`}
+                   />
                   <Bar dataKey="budget" fill="hsl(var(--primary))" name="Orçamento" />
                   <Bar dataKey="realized" fill="hsl(var(--chart-2))" name="Realizado" />
                 </BarChart>
@@ -588,7 +636,12 @@ const PortfolioDynamicReports = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <RechartsTooltip formatter={(value) => formatCurrency(value as number)} />
+                  <RechartsTooltip 
+                    formatter={(value) => formatCurrency(value as number)}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
+                    labelFormatter={(name) => `Categoria: ${name}`}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -722,34 +775,45 @@ const PortfolioDynamicReports = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {insights.recommendations.map((insight, index) => (
-            <Alert key={index} className={`border-l-4 ${
-              insight.type === 'critical' ? 'border-l-red-500 bg-red-50' :
-              insight.type === 'warning' ? 'border-l-orange-500 bg-orange-50' :
-              'border-l-blue-500 bg-blue-50'
-            }`}>
-              <div className="flex items-start gap-3">
-                {insight.type === 'critical' ? (
-                  <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-                ) : insight.type === 'warning' ? (
-                  <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
-                ) : (
-                  <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
-                )}
-                <div className="flex-1">
-                  <AlertDescription className="font-medium text-foreground">
-                    {insight.title}
-                  </AlertDescription>
-                  <AlertDescription className="text-muted-foreground mt-1">
-                    {insight.description}
-                  </AlertDescription>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </Alert>
-          ))}
+          <div className="flex items-start gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-orange-800">⚠️ Atenção: Maior Desvio</p>
+              <p className="text-orange-700">O projeto 'Portal do Cliente' registrou desvio de +€50.000 (17%) em Janeiro. Recomenda-se análise urgente dos custos de consultoria.</p>
+            </div>
+          </div>
+          
+          <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-red-800">🚨 Saldo Crítico</p>
+              <p className="text-red-700">2 projetos apresentam saldo negativo totalizando -€50.000. Ação imediata necessária para contenção de custos.</p>
+            </div>
+          </div>
+          
+          <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-blue-800">📈 Pico Identificado</p>
+              <p className="text-blue-700">Março concentrou 38% dos gastos do portfólio (R$ 1.2M). Principal causa: finalização de 3 projetos críticos simultaneamente.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-yellow-800">📊 Tendência Crescente</p>
+              <p className="text-yellow-700">Gastos aumentaram 15% nos últimos 3 meses consecutivos. Projeção indica necessidade de revisão orçamentária para Q2.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-medium text-green-800">🎯 Concentração de Gasto</p>
+              <p className="text-green-700">A área 'TI' representa 67% dos gastos totais. Considere redistribuir investimentos para outras áreas estratégicas.</p>
+            </div>
+          </div>
           
           {/* Trend Analysis */}
           <div className="bg-muted/50 rounded-lg p-4">

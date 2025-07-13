@@ -556,38 +556,402 @@ export default function ProjectDetail() {
 
             {/* Aba Planejamento */}
             <TabsContent value="planejamento" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Previsões Mensais de Desembolso</h3>
-                <Button size="sm" className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Salvar Baseline
-                </Button>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold">Previsões Mensais de Desembolso</h3>
+                  <p className="text-sm text-muted-foreground">Acompanhe o planejamento vs realizado por período</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="text-xs text-muted-foreground">
+                    Última baseline: <span className="font-medium">01/12/2024 - 14:30</span>
+                  </div>
+                  <Button size="sm" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Salvar Baseline
+                  </Button>
+                </div>
+              </div>
+
+              {/* Legenda e resumo de alertas */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="border-green-200 bg-green-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full" />
+                      <span className="text-sm font-medium">Dentro do planejado</span>
+                    </div>
+                    <div className="text-2xl font-bold text-green-600">1 mês</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-red-200 bg-red-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                      <span className="text-sm font-medium">Desvio crítico</span>
+                    </div>
+                    <div className="text-2xl font-bold text-red-600">1 mês</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm font-medium">Pendente execução</span>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">1 mês</div>
+                  </CardContent>
+                </Card>
               </div>
               
+              {/* Tabela melhorada com visualizações */}
               <Card>
-                <CardContent className="p-6">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Mês</TableHead>
-                        <TableHead className="text-right">Planejado</TableHead>
-                        <TableHead className="text-right">Realizado</TableHead>
-                        <TableHead className="text-right">Variação</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {mockProject.monthlyPlan.map((month, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">{month.month}</TableCell>
-                          <TableCell className="text-right">{formatCurrency(month.planned, mockProject.currency)}</TableCell>
-                          <TableCell className="text-right">{formatCurrency(month.realized, mockProject.currency)}</TableCell>
-                          <TableCell className={`text-right ${month.realized - month.planned > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                            {formatCurrency(month.realized - month.planned, mockProject.currency)}
-                          </TableCell>
+                <CardContent className="p-0">
+                  {/* Desktop View */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead className="font-semibold">Período</TableHead>
+                          <TableHead className="text-right font-semibold">Planejado</TableHead>
+                          <TableHead className="text-right font-semibold">Realizado</TableHead>
+                          <TableHead className="text-right font-semibold">Variação</TableHead>
+                          <TableHead className="font-semibold">Comparativo Visual</TableHead>
+                          <TableHead className="font-semibold">Status</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {mockProject.monthlyPlan.map((month, index) => {
+                          const variance = month.realized - month.planned;
+                          const variancePercentage = month.planned > 0 ? ((variance / month.planned) * 100) : 0;
+                          const isCritical = Math.abs(variancePercentage) > 15;
+                          const isOverBudget = variance > 0;
+                          const isPending = month.realized === 0;
+                          const maxValue = Math.max(month.planned, month.realized, 1);
+                          const plannedWidth = (month.planned / maxValue) * 100;
+                          const realizedWidth = (month.realized / maxValue) * 100;
+                          
+                          return (
+                            <TableRow key={index} className={`hover:bg-muted/30 ${isCritical ? 'bg-red-50/50' : ''}`}>
+                              <TableCell className="font-medium">
+                                <div className="flex items-center gap-2">
+                                  {month.month}
+                                  {isCritical && (
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <AlertTriangle className="h-4 w-4 text-red-500" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <div className="space-y-1 text-xs">
+                                          <p><strong>Desvio crítico detectado!</strong></p>
+                                          <p>Variação: {Math.abs(variancePercentage).toFixed(1)}%</p>
+                                          <p>Limite aceito: ±15%</p>
+                                          {isOverBudget ? 
+                                            <p className="text-red-600">⚠️ Ultrapassou o orçamento</p> : 
+                                            <p className="text-orange-600">⚠️ Abaixo do planejado</p>
+                                          }
+                                        </div>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="text-right font-medium group">
+                                <div className="flex items-center justify-end gap-1">
+                                  <Input
+                                    className="w-24 text-right text-sm border-0 bg-transparent p-1 focus:bg-background focus:border-input"
+                                    defaultValue={month.planned.toString()}
+                                    onBlur={(e) => {
+                                      const newValue = parseInt(e.target.value.replace(/\D/g, ''));
+                                      if (newValue && newValue !== month.planned) {
+                                        // Validação instantânea
+                                        if (newValue > month.planned * 1.5) {
+                                          e.target.classList.add('border-red-500', 'bg-red-50');
+                                        } else {
+                                          e.target.classList.remove('border-red-500', 'bg-red-50');
+                                        }
+                                      }
+                                    }}
+                                  />
+                                  <Edit3 className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                              </TableCell>
+                              
+                              <TableCell className="text-right font-medium">
+                                <span className={isPending ? 'text-muted-foreground' : isOverBudget ? 'text-red-600' : 'text-green-600'}>
+                                  {formatCurrency(month.realized, mockProject.currency)}
+                                </span>
+                              </TableCell>
+                              
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <span className={`font-medium ${variance >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                        {formatCurrency(variance, mockProject.currency)}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <div className="space-y-1 text-xs">
+                                        <p><strong>Cálculo da Variação:</strong></p>
+                                        <p>Realizado - Planejado</p>
+                                        <p>{formatCurrency(month.realized, mockProject.currency)} - {formatCurrency(month.planned, mockProject.currency)}</p>
+                                        <p>= {formatCurrency(variance, mockProject.currency)}</p>
+                                        <p className="border-t pt-1 mt-1">
+                                          <strong>Percentual:</strong> {variancePercentage.toFixed(1)}%
+                                        </p>
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                  
+                                  {!isPending && (
+                                    <Badge variant={isCritical ? "destructive" : variance >= 0 ? "secondary" : "outline"} className="text-xs">
+                                      {variancePercentage.toFixed(1)}%
+                                    </Badge>
+                                  )}
+                                </div>
+                              </TableCell>
+                              
+                              {/* Comparativo Visual - Sparkline */}
+                              <TableCell>
+                                <div className="w-32 space-y-1">
+                                  {/* Barra Planejado */}
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                                    <div className="flex-1 bg-blue-100 h-2 rounded-full overflow-hidden">
+                                      <div 
+                                        className="bg-blue-500 h-full transition-all duration-300"
+                                        style={{ width: `${plannedWidth}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Barra Realizado */}
+                                  <div className="flex items-center gap-1">
+                                    <div className={`w-2 h-2 rounded-full ${isPending ? 'bg-gray-300' : isOverBudget && isCritical ? 'bg-red-500' : 'bg-green-500'}`} />
+                                    <div className={`flex-1 h-2 rounded-full overflow-hidden ${isPending ? 'bg-gray-100' : isOverBudget && isCritical ? 'bg-red-100' : 'bg-green-100'}`}>
+                                      <div 
+                                        className={`h-full transition-all duration-500 ${isPending ? 'bg-gray-300' : isOverBudget && isCritical ? 'bg-red-500' : 'bg-green-500'}`}
+                                        style={{ width: `${realizedWidth}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              
+                              {/* Status */}
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  {isPending ? (
+                                    <>
+                                      <Clock className="h-4 w-4 text-blue-500" />
+                                      <Badge variant="outline" className="text-blue-600 border-blue-200">
+                                        Pendente
+                                      </Badge>
+                                    </>
+                                  ) : isCritical ? (
+                                    <>
+                                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                                      <Badge variant="destructive">
+                                        Crítico
+                                      </Badge>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="h-4 w-4 rounded-full bg-green-500 flex items-center justify-center">
+                                        <div className="h-2 w-2 bg-white rounded-full" />
+                                      </div>
+                                      <Badge variant="outline" className="text-green-600 border-green-200">
+                                        Normal
+                                      </Badge>
+                                    </>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Mobile View - Cards compactos */}
+                  <div className="md:hidden space-y-4 p-4">
+                    {mockProject.monthlyPlan.map((month, index) => {
+                      const variance = month.realized - month.planned;
+                      const variancePercentage = month.planned > 0 ? ((variance / month.planned) * 100) : 0;
+                      const isCritical = Math.abs(variancePercentage) > 15;
+                      const isOverBudget = variance > 0;
+                      const isPending = month.realized === 0;
+                      const maxValue = Math.max(month.planned, month.realized, 1);
+                      const plannedWidth = (month.planned / maxValue) * 100;
+                      const realizedWidth = (month.realized / maxValue) * 100;
+                      
+                      return (
+                        <Card key={index} className={`${isCritical ? 'border-red-200 bg-red-50/30' : ''}`}>
+                          <CardContent className="p-4 space-y-3">
+                            {/* Header do card */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-semibold text-lg">{month.month}</h4>
+                                {isCritical && <AlertTriangle className="h-4 w-4 text-red-500" />}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {isPending ? (
+                                  <Badge variant="outline" className="text-blue-600 border-blue-200">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    Pendente
+                                  </Badge>
+                                ) : isCritical ? (
+                                  <Badge variant="destructive">
+                                    <AlertTriangle className="h-3 w-3 mr-1" />
+                                    Crítico
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-green-600 border-green-200">
+                                    Normal
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Valores */}
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <div className="text-muted-foreground">Planejado</div>
+                                <div className="font-semibold">{formatCurrency(month.planned, mockProject.currency)}</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground">Realizado</div>
+                                <div className={`font-semibold ${isPending ? 'text-muted-foreground' : isOverBudget ? 'text-red-600' : 'text-green-600'}`}>
+                                  {formatCurrency(month.realized, mockProject.currency)}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Variação */}
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="text-muted-foreground text-sm">Variação</div>
+                                <div className={`font-semibold ${variance >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                  {formatCurrency(variance, mockProject.currency)}
+                                </div>
+                              </div>
+                              {!isPending && (
+                                <Badge variant={isCritical ? "destructive" : variance >= 0 ? "secondary" : "outline"}>
+                                  {variancePercentage.toFixed(1)}%
+                                </Badge>
+                              )}
+                            </div>
+
+                            {/* Visualização compacta */}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                                <span>Planejado</span>
+                                <div className="ml-auto w-2 h-2 bg-green-500 rounded-full" />
+                                <span>Realizado</span>
+                              </div>
+                              
+                              <div className="relative bg-gray-100 h-6 rounded-full overflow-hidden">
+                                {/* Barra planejado (fundo) */}
+                                <div 
+                                  className="absolute top-0 bg-blue-200 h-full transition-all duration-300"
+                                  style={{ width: `${plannedWidth}%` }}
+                                />
+                                
+                                {/* Barra realizado (frente) */}
+                                <div 
+                                  className={`absolute top-0 h-full transition-all duration-500 ${isPending ? 'bg-gray-300' : isOverBudget && isCritical ? 'bg-red-500' : 'bg-green-500'}`}
+                                  style={{ width: `${realizedWidth}%` }}
+                                />
+                                
+                                {/* Linha de referência planejado */}
+                                <div 
+                                  className="absolute top-0 w-0.5 h-full bg-blue-700 z-10"
+                                  style={{ left: `${plannedWidth}%` }}
+                                />
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Resumo da tabela */}
+                  <div className="border-t bg-muted/20 p-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="text-center">
+                        <div className="font-semibold text-blue-600">
+                          {formatCurrency(mockProject.monthlyPlan.reduce((acc, m) => acc + m.planned, 0), mockProject.currency)}
+                        </div>
+                        <div className="text-muted-foreground">Total Planejado</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-green-600">
+                          {formatCurrency(mockProject.monthlyPlan.reduce((acc, m) => acc + m.realized, 0), mockProject.currency)}
+                        </div>
+                        <div className="text-muted-foreground">Total Realizado</div>
+                      </div>
+                      <div className="text-center">
+                        <div className={`font-semibold ${mockProject.monthlyPlan.reduce((acc, m) => acc + (m.realized - m.planned), 0) >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {formatCurrency(mockProject.monthlyPlan.reduce((acc, m) => acc + (m.realized - m.planned), 0), mockProject.currency)}
+                        </div>
+                        <div className="text-muted-foreground">Variação Total</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-purple-600">
+                          {(((mockProject.monthlyPlan.reduce((acc, m) => acc + m.realized, 0) / mockProject.monthlyPlan.reduce((acc, m) => acc + m.planned, 0)) * 100) || 0).toFixed(1)}%
+                        </div>
+                        <div className="text-muted-foreground">Execução</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Histórico de Baselines */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <History className="h-5 w-5" />
+                    Histórico de Baselines
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {mockProject.baselines.slice().reverse().map((baseline, index) => (
+                      <div key={baseline.id} className={`flex items-center justify-between p-3 rounded-lg border ${index === 0 ? 'bg-blue-50 border-blue-200' : 'bg-muted/30'}`}>
+                        <div className="flex items-center gap-3">
+                          {index === 0 && (
+                            <Badge variant="default" className="bg-blue-600">
+                              Atual
+                            </Badge>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{baseline.version}</span>
+                              <span className="text-sm text-muted-foreground">{baseline.date}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{baseline.description}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <div className="font-semibold">{formatCurrency(baseline.budget, mockProject.currency)}</div>
+                          </div>
+                          <Button variant="outline" size="sm" className="gap-2">
+                            <Eye className="h-4 w-4" />
+                            Visualizar
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

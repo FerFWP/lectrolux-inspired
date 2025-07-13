@@ -189,8 +189,8 @@ export default function ProjectDetail() {
             <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-red-800">
-                <strong>Atenção:</strong> Este projeto possui saldo negativo de {formatCurrency(Math.abs(mockProject.balance), mockProject.currency)}. 
-                Revisão orçamentária necessária.
+                <strong>Orçamento Crítico:</strong> O valor realizado ultrapassou o orçamento planejado em {formatCurrency(Math.abs(mockProject.balance), mockProject.currency)}. 
+                Ação imediata necessária para controle financeiro do projeto.
               </AlertDescription>
             </Alert>
           </div>
@@ -258,7 +258,14 @@ export default function ProjectDetail() {
                 
                 <Card className={mockProject.balance < 0 ? "border-red-200 bg-red-50" : ""}>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Saldo</CardTitle>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <CardTitle className="text-sm font-medium text-muted-foreground cursor-help">Saldo</CardTitle>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Valor restante do orçamento após descontar realizados e comprometidos</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </CardHeader>
                   <CardContent>
                     <div className={`text-2xl font-bold ${mockProject.balance < 0 ? "text-red-600" : "text-green-600"}`}>
@@ -394,6 +401,19 @@ export default function ProjectDetail() {
                 </div>
               </div>
               
+              {/* Campo para novo lançamento */}
+              <Card className="border-dashed">
+                <CardContent className="p-4">
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="Ex: Licenças de software, equipamentos, consultoria..."
+                      className="flex-1"
+                    />
+                    <Button size="sm">Adicionar</Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
               <Card>
                 <CardContent className="p-6">
                   <Table>
@@ -434,28 +454,44 @@ export default function ProjectDetail() {
             <TabsContent value="historico" className="space-y-6">
               <h3 className="text-lg font-semibold">Histórico de Baselines</h3>
               
-              <div className="space-y-4">
-                {mockProject.baselines.map((baseline) => (
-                  <Card key={baseline.id}>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">{baseline.version}</Badge>
-                            <span className="text-sm text-muted-foreground">{baseline.date}</span>
+              {mockProject.baselines.length > 0 ? (
+                <div className="space-y-4">
+                  {mockProject.baselines.map((baseline) => (
+                    <Card key={baseline.id}>
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">{baseline.version}</Badge>
+                              <span className="text-sm text-muted-foreground">{baseline.date}</span>
+                            </div>
+                            <p className="font-medium">{baseline.description}</p>
+                            <p className="text-lg font-bold">{formatCurrency(baseline.budget, mockProject.currency)}</p>
                           </div>
-                          <p className="font-medium">{baseline.description}</p>
-                          <p className="text-lg font-bold">{formatCurrency(baseline.budget, mockProject.currency)}</p>
+                          <Button variant="outline" size="sm" className="gap-2">
+                            <Eye className="h-4 w-4" />
+                            Comparar
+                          </Button>
                         </div>
-                        <Button variant="outline" size="sm" className="gap-2">
-                          <Eye className="h-4 w-4" />
-                          Comparar
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-dashed">
+                  <CardContent className="p-12 text-center">
+                    <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h4 className="text-lg font-medium mb-2">Nenhuma baseline salva</h4>
+                    <p className="text-muted-foreground mb-4">
+                      Salve versões do planejamento para acompanhar a evolução do projeto e facilitar comparações futuras.
+                    </p>
+                    <Button variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Criar primeira baseline
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             {/* Aba Relatórios */}

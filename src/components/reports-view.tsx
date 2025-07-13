@@ -62,15 +62,39 @@ export function ReportsView({ project, transactions, baselines }: ReportsViewPro
         break;
     }
 
+    // Apply template-specific modifications
+    let templateMultiplier = 1;
+    let templateRiskAdjustment = '';
+    
+    switch (selectedTemplate) {
+      case 'financial_summary':
+        templateMultiplier = 0.85; // Conservative baseline
+        riskLevel = 'ok';
+        break;
+      case 'deviation_analysis':
+        templateMultiplier = 1.25; // Show over-budget scenario
+        riskLevel = 'critical';
+        templateRiskAdjustment = 'deviation';
+        break;
+      case 'monthly_detail':
+        templateMultiplier = 0.95; // Detailed view
+        riskLevel = riskLevel; // Keep period-based risk
+        break;
+      case 'projection_vs_actual':
+        templateMultiplier = 1.1; // Projection comparison
+        riskLevel = 'warning';
+        break;
+    }
+
     // Simulate filtered transactions
     const filteredTransactions = transactions.slice(0, Math.floor(transactions.length * dataMultiplier));
-    const totalRealized = filteredTransactions.reduce((sum, t) => sum + t.amount, 0) * dataMultiplier;
+    const totalRealized = filteredTransactions.reduce((sum, t) => sum + t.amount, 0) * dataMultiplier * templateMultiplier;
     const balance = project.budget - totalRealized;
     const executionRate = (totalRealized / project.budget) * 100;
     
     // Category distribution with variations
     const baseCategoryData = filteredTransactions.reduce((acc: any, t) => {
-      acc[t.category] = (acc[t.category] || 0) + t.amount * dataMultiplier;
+      acc[t.category] = (acc[t.category] || 0) + t.amount * dataMultiplier * templateMultiplier;
       return acc;
     }, {});
 
@@ -81,6 +105,17 @@ export function ReportsView({ project, transactions, baselines }: ReportsViewPro
     } else if (filters.period === 'last_3_months') {
       baseCategoryData['Software'] = (baseCategoryData['Software'] || 0) * 0.7;
       baseCategoryData['Hardware'] = (baseCategoryData['Hardware'] || 0) * 1.2;
+    }
+
+    // Add template-specific category adjustments
+    if (selectedTemplate === 'deviation_analysis') {
+      // Show problematic categories for deviation analysis
+      baseCategoryData['Consultoria'] = (baseCategoryData['Consultoria'] || 0) * 1.8;
+      baseCategoryData['Licenças'] = (baseCategoryData['Licenças'] || 0) * 1.5;
+    } else if (selectedTemplate === 'projection_vs_actual') {
+      // Show variance in projections
+      baseCategoryData['Hardware'] = (baseCategoryData['Hardware'] || 0) * 1.3;
+      baseCategoryData['Software'] = (baseCategoryData['Software'] || 0) * 0.8;
     }
 
     const pieData = Object.entries(baseCategoryData).map(([name, value]: [string, any]) => ({
@@ -104,7 +139,7 @@ export function ReportsView({ project, transactions, baselines }: ReportsViewPro
         realizedMultiplier = 0.5 + (i / monthsBack) * 1.5; // Aceleração no ano
       }
 
-      const realized = baseRealized * realizedMultiplier * dataMultiplier;
+      const realized = baseRealized * realizedMultiplier * dataMultiplier * templateMultiplier;
       const planned = project.budget / 12;
 
       return {
@@ -129,23 +164,43 @@ export function ReportsView({ project, transactions, baselines }: ReportsViewPro
     let periodInsight = '';
     let trendInsight = '';
     
-    switch (filters.period) {
-      case 'last_3_months':
-        periodInsight = 'Período recente mostra controle de gastos';
-        trendInsight = 'Tendência decrescente identificada';
+    // Template-specific insights
+    switch (selectedTemplate) {
+      case 'financial_summary':
+        periodInsight = 'Resumo consolidado mostra situação estável';
+        trendInsight = 'Execução orçamentária dentro do esperado';
         break;
-      case 'last_6_months':
-        periodInsight = 'Semestre com alguns picos de gasto';
-        trendInsight = 'Volatilidade moderada nos gastos';
+      case 'deviation_analysis':
+        periodInsight = 'Análise revela desvios significativos no orçamento';
+        trendInsight = 'Várias categorias ultrapassaram limites planejados';
         break;
-      case 'last_12_months':
-        periodInsight = 'Ano com crescimento acelerado de gastos';
-        trendInsight = 'Necessária revisão orçamentária urgente';
+      case 'monthly_detail':
+        periodInsight = 'Detalhamento mensal permite rastreamento preciso';
+        trendInsight = 'Padrões sazonais identificados nos gastos';
         break;
-      case 'ytd':
-        periodInsight = 'Ano corrente com boa execução';
-        trendInsight = 'Projeção indica necessidade de contenção';
+      case 'projection_vs_actual':
+        periodInsight = 'Comparação mostra divergências entre planejado e realizado';
+        trendInsight = 'Ajustes necessários nas projeções futuras';
         break;
+      default:
+        switch (filters.period) {
+          case 'last_3_months':
+            periodInsight = 'Período recente mostra controle de gastos';
+            trendInsight = 'Tendência decrescente identificada';
+            break;
+          case 'last_6_months':
+            periodInsight = 'Semestre com alguns picos de gasto';
+            trendInsight = 'Volatilidade moderada nos gastos';
+            break;
+          case 'last_12_months':
+            periodInsight = 'Ano com crescimento acelerado de gastos';
+            trendInsight = 'Necessária revisão orçamentária urgente';
+            break;
+          case 'ytd':
+            periodInsight = 'Ano corrente com boa execução';
+            trendInsight = 'Projeção indica necessidade de contenção';
+            break;
+        }
     }
 
     return {
@@ -166,7 +221,7 @@ export function ReportsView({ project, transactions, baselines }: ReportsViewPro
         avgMonthlySpend: Math.round(totalRealized / monthsBack)
       }
     };
-  }, [project, transactions, filters.period]);
+  }, [project, transactions, filters.period, selectedTemplate]);
 
   const templates = [
     { id: "financial_summary", name: "Resumo Financeiro", icon: DollarSign },

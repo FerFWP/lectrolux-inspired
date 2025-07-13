@@ -29,12 +29,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import { TransactionDialog } from "@/components/transaction-dialog";
 import { useToast } from "@/components/ui/use-toast";
 
 interface TransactionsViewProps {
   project: any;
   transactions: any[];
-  onNewTransaction?: () => void;
+  onTransactionAdded?: () => void;
   onImportSAP?: () => void;
   onAttachDocument?: (transactionId: string) => void;
 }
@@ -42,7 +43,7 @@ interface TransactionsViewProps {
 export function TransactionsView({ 
   project, 
   transactions, 
-  onNewTransaction, 
+  onTransactionAdded, 
   onImportSAP, 
   onAttachDocument 
 }: TransactionsViewProps) {
@@ -223,10 +224,16 @@ export function TransactionsView({
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">Transações Realizadas</h3>
           <div className="flex gap-2">
-            <Button size="sm" onClick={onNewTransaction}>
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Lançamento
-            </Button>
+            <TransactionDialog 
+              projectId={project.id || "mock-project-id"}
+              onTransactionAdded={onTransactionAdded || (() => {})}
+              trigger={
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Lançamento
+                </Button>
+              }
+            />
             <Button size="sm" variant="outline" onClick={onImportSAP}>
               <Upload className="h-4 w-4 mr-2" />
               Importar SAP

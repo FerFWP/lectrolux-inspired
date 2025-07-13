@@ -426,13 +426,7 @@ export default function ProjectDetail() {
               <TransactionsView 
                 project={project}
                 transactions={transactions}
-                onNewTransaction={() => {
-                  // Abrir dialog de nova transação
-                  toast({
-                    title: "Novo Lançamento",
-                    description: "Funcionalidade de novo lançamento será implementada.",
-                  });
-                }}
+                onTransactionAdded={handleTransactionAdded}
                 onImportSAP={() => {
                   toast({
                     title: "Importação SAP",

@@ -39,6 +39,7 @@ import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { FinancialSummary } from "@/components/financial-summary";
 import { PlanningView } from "@/components/planning-view";
 import { TransactionsView } from "@/components/transactions-view";
+import { HistoryView } from "@/components/history-view";
 
 // Mock data for demo purposes
 const mockProject = {
@@ -444,48 +445,17 @@ export default function ProjectDetail() {
 
             {/* Aba Histórico */}
             <TabsContent value="historico" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Histórico de Baselines</h3>
-                <BaselineDialog 
-                  projectId={project.id || ""} 
-                  onBaselineAdded={handleBaselineAdded}
-                />
-              </div>
-
-              {baselines.length > 0 ? (
-                <div className="space-y-4">
-                  {baselines.map((baseline) => (
-                    <Card key={baseline.id}>
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline">{baseline.version}</Badge>
-                              <span className="text-sm text-muted-foreground">{format(new Date(baseline.created_at), "dd/MM/yyyy")}</span>
-                            </div>
-                            <p className="font-medium">{baseline.description}</p>
-                            <p className="text-lg font-bold">{formatCurrency(baseline.budget, project.currency)}</p>
-                          </div>
-                          <Button variant="outline" size="sm" className="gap-2">
-                            <Eye className="h-4 w-4" />
-                            Visualizar
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <p className="text-muted-foreground">Nenhuma baseline encontrada para este projeto.</p>
-                    <BaselineDialog 
-                      projectId={project.id || ""} 
-                      onBaselineAdded={handleBaselineAdded}
-                    />
-                  </CardContent>
-                </Card>
-              )}
+              <HistoryView 
+                project={project}
+                baselines={baselines}
+                onRestoreBaseline={(baselineId) => {
+                  toast({
+                    title: "Baseline Restaurada",
+                    description: "Projeto revertido para baseline selecionada.",
+                  });
+                  handleBaselineAdded();
+                }}
+              />
             </TabsContent>
 
             {/* Aba Planejamento */}

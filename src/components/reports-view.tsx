@@ -3,13 +3,13 @@ import { format, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   BarChart3, Download, Filter, Calendar, DollarSign, AlertTriangle, 
-  TrendingUp, Target, PieChart, FileText, Eye, Activity
+  TrendingUp, Target, PieChart as PieChartIcon, FileText, Eye, Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart, Bar, LineChart, Line, PieChart as RechartsPie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -359,18 +359,30 @@ export function ReportsView({ project, transactions, baselines }: ReportsViewPro
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PieChart className="h-5 w-5" />
+              <PieChartIcon className="h-5 w-5" />
               Distribuição por Categoria
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <RechartsPie data={analytics.pieData} cx="50%" cy="50%" outerRadius={80} dataKey="value">
-                  {analytics.pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </RechartsPie>
+                <PieChart>
+                  <Pie 
+                    data={analytics.pieData} 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={80} 
+                    dataKey="value"
+                    label={({ percentage }) => `${percentage}%`}
+                  >
+                    {analytics.pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: any, name: string) => [formatCurrency(value), name]}
+                  />
+                </PieChart>
               </ResponsiveContainer>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-4">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -28,6 +28,12 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { ProjectEditDialog } from "@/components/project-edit-dialog";
+import { BaselineDialog } from "@/components/baseline-dialog";
+import { TransactionDialog } from "@/components/transaction-dialog";
+import { PortfolioComparisonDialog } from "@/components/portfolio-comparison-dialog";
 
 // Mock data - In real app, this would come from API
 const mockProject = {
@@ -78,6 +84,11 @@ export default function ProjectDetail() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("comando");
   const [transactionFilter, setTransactionFilter] = useState("all");
+  const [project, setProject] = useState<any>(null);
+  const [baselines, setBaselines] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
@@ -91,9 +102,114 @@ export default function ProjectDetail() {
     return "bg-red-500";
   };
 
-  const filteredTransactions = mockProject.transactions.filter(t => 
+  const filteredTransactions = transactions.filter(t => 
     !transactionFilter || transactionFilter === "all" || t.category === transactionFilter
   );
+
+  const fetchProjectData = async () => {
+    if (!id) return;
+    
+    try {
+      setLoading(true);
+      
+      // Fetch project data
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('project_code', id)
+        .single();
+
+      if (projectError) {
+        if (projectError.code === 'PGRST116') {
+          // Use mock data if project not found in database
+          setProject(mockProject);
+        } else {
+          throw projectError;
+        }
+      } else {
+        setProject(projectData);
+      }
+
+      // Fetch baselines
+      const { data: baselinesData, error: baselinesError } = await supabase
+        .from('baselines')
+        .select('*')
+        .eq('project_id', projectData?.id || '')
+        .order('created_at', { ascending: false });
+
+      if (baselinesError && baselinesError.code !== 'PGRST116') {
+        console.error('Error fetching baselines:', baselinesError);
+      } else {
+        setBaselines(baselinesData || mockProject.baselines);
+      }
+
+      // Fetch transactions
+      const { data: transactionsData, error: transactionsError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('project_id', projectData?.id || '')
+        .order('created_at', { ascending: false });
+
+      if (transactionsError && transactionsError.code !== 'PGRST116') {
+        console.error('Error fetching transactions:', transactionsError);
+      } else {
+        setTransactions(transactionsData || mockProject.transactions);
+      }
+
+    } catch (error: any) {
+      console.error('Error fetching project data:', error);
+      setProject(mockProject);
+      setBaselines(mockProject.baselines);
+      setTransactions(mockProject.transactions);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjectData();
+  }, [id]);
+
+  const handleProjectUpdate = (updatedProject: any) => {
+    setProject(updatedProject);
+  };
+
+  const handleBaselineAdded = () => {
+    fetchProjectData();
+  };
+
+  const handleTransactionAdded = () => {
+    fetchProjectData();
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Carregando projeto...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-foreground">Projeto não encontrado</h2>
+          <p className="text-muted-foreground">O projeto {id} não foi encontrado.</p>
+          <Button className="mt-4" onClick={() => navigate("/projetos")}>
+            Voltar à Lista
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate balance and other derived values
+  const balance = project.budget - project.realized - project.committed;
+  const budgetUtilization = ((project.realized / project.budget) * 100).toFixed(1);
 
   return (
     <TooltipProvider>
@@ -139,10 +255,10 @@ export default function ProjectDetail() {
                   <TooltipContent>Exportar dados do projeto</TooltipContent>
                 </Tooltip>
                 
-                <Button size="sm">
-                  <Edit3 className="h-4 w-4 mr-2" />
-                  Editar
-                </Button>
+                <ProjectEditDialog 
+                  project={project} 
+                  onProjectUpdate={handleProjectUpdate}
+                />
               </div>
             </div>
 
@@ -150,46 +266,46 @@ export default function ProjectDetail() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-center">
               <div className="lg:col-span-2">
                 <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-xl font-semibold">{mockProject.name}</h2>
-                  {mockProject.isCritical && (
+                  <h2 className="text-xl font-semibold">{project.name}</h2>
+                  {project.is_critical && (
                     <AlertTriangle className="h-5 w-5 text-red-500" />
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">{mockProject.id}</p>
+                <p className="text-sm text-muted-foreground">{project.project_code || id}</p>
               </div>
               
               <div>
                 <p className="text-xs text-muted-foreground">Status</p>
-                <Badge className={statusColors[mockProject.status]}>
-                  {mockProject.status}
+                <Badge className={statusColors[project.status as keyof typeof statusColors]}>
+                  {project.status}
                 </Badge>
               </div>
               
               <div>
                 <p className="text-xs text-muted-foreground">Área</p>
-                <p className="text-sm font-medium">{mockProject.area}</p>
+                <p className="text-sm font-medium">{project.area}</p>
               </div>
               
               <div>
                 <p className="text-xs text-muted-foreground">Líder</p>
-                <p className="text-sm font-medium">{mockProject.leader}</p>
+                <p className="text-sm font-medium">{project.leader}</p>
               </div>
               
               <div>
                 <p className="text-xs text-muted-foreground">Moeda</p>
-                <p className="text-sm font-medium">{mockProject.currency}</p>
+                <p className="text-sm font-medium">{project.currency}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Alertas críticos */}
-        {mockProject.balance < 0 && (
+        {balance < 0 && (
           <div className="container mx-auto px-6 py-4">
             <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-red-800">
-                <strong>Orçamento Crítico:</strong> O valor realizado ultrapassou o orçamento planejado em {formatCurrency(Math.abs(mockProject.balance), mockProject.currency)}. 
+                <strong>Orçamento Crítico:</strong> O valor realizado ultrapassou o orçamento planejado em {formatCurrency(Math.abs(balance), project.currency)}. 
                 Ação imediata necessária para controle financeiro do projeto.
               </AlertDescription>
             </Alert>
@@ -231,10 +347,14 @@ export default function ProjectDetail() {
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Painel de Comando Executivo</h3>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Eye className="h-4 w-4 mr-2" />
-                    Comparar com Portfolio
-                  </Button>
+                  <PortfolioComparisonDialog 
+                    currentProject={{
+                      name: project.name,
+                      area: project.area, 
+                      budgetUtilization: parseFloat(budgetUtilization),
+                      progress: project.progress
+                    }}
+                  />
                   <Button size="sm">
                     <AlertTriangle className="h-4 w-4 mr-2" />
                     Escalar Problema
@@ -335,60 +455,60 @@ export default function ProjectDetail() {
             {/* Aba Resumo Financeiro */}
             <TabsContent value="resumo" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Orçamento</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatCurrency(mockProject.budget, mockProject.currency)}</div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Realizado</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-blue-600">{formatCurrency(mockProject.realized, mockProject.currency)}</div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                      {((mockProject.realized / mockProject.budget) * 100).toFixed(1)}% do orçamento
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Comprometido</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-orange-600">{formatCurrency(mockProject.committed, mockProject.currency)}</div>
-                  </CardContent>
-                </Card>
-                
-                <Card className={mockProject.balance < 0 ? "border-red-200 bg-red-50" : ""}>
-                  <CardHeader className="pb-2">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <CardTitle className="text-sm font-medium text-muted-foreground cursor-help">Saldo</CardTitle>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Valor restante do orçamento após descontar realizados e comprometidos</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </CardHeader>
-                  <CardContent>
-                    <div className={`text-2xl font-bold ${mockProject.balance < 0 ? "text-red-600" : "text-green-600"}`}>
-                      {formatCurrency(mockProject.balance, mockProject.currency)}
-                    </div>
-                    {mockProject.balance < 0 && (
-                      <div className="flex items-center text-sm text-red-600">
-                        <TrendingDown className="h-3 w-3 mr-1" />
-                        Sobre orçamento
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Orçamento</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{formatCurrency(project.budget, project.currency)}</div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Realizado</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-blue-600">{formatCurrency(project.realized, project.currency)}</div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        {budgetUtilization}% do orçamento
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Comprometido</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-orange-600">{formatCurrency(project.committed, project.currency)}</div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className={balance < 0 ? "border-red-200 bg-red-50" : ""}>
+                    <CardHeader className="pb-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <CardTitle className="text-sm font-medium text-muted-foreground cursor-help">Saldo</CardTitle>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Valor restante do orçamento após descontar realizados e comprometidos</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </CardHeader>
+                    <CardContent>
+                      <div className={`text-2xl font-bold ${balance < 0 ? "text-red-600" : "text-green-600"}`}>
+                        {formatCurrency(balance, project.currency)}
+                      </div>
+                      {balance < 0 && (
+                        <div className="flex items-center text-sm text-red-600">
+                          <TrendingDown className="h-3 w-3 mr-1" />
+                          Sobre orçamento
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
               </div>
 
               {/* Progresso do projeto */}

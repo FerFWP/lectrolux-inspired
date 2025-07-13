@@ -14,7 +14,154 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      baselines: {
+        Row: {
+          budget: number
+          created_at: string
+          description: string | null
+          id: string
+          project_id: string
+          user_id: string
+          version: string
+        }
+        Insert: {
+          budget: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          project_id: string
+          user_id: string
+          version: string
+        }
+        Update: {
+          budget?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          project_id?: string
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "baselines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          area: string
+          budget: number
+          committed: number
+          created_at: string
+          currency: string
+          deadline: string | null
+          description: string | null
+          id: string
+          is_critical: boolean
+          leader: string
+          name: string
+          progress: number
+          project_code: string
+          realized: number
+          start_date: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          area: string
+          budget?: number
+          committed?: number
+          created_at?: string
+          currency?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          is_critical?: boolean
+          leader: string
+          name: string
+          progress?: number
+          project_code: string
+          realized?: number
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          area?: string
+          budget?: number
+          committed?: number
+          created_at?: string
+          currency?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          is_critical?: boolean
+          leader?: string
+          name?: string
+          progress?: number
+          project_code?: string
+          realized?: number
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string
+          id: string
+          project_id: string
+          transaction_date: string
+          transaction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          project_id: string
+          transaction_date?: string
+          transaction_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          project_id?: string
+          transaction_date?: string
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

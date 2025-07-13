@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Link, useLocation } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { 
   TrendingUp, 
@@ -185,6 +186,7 @@ const sidebarItems = [
 ];
 
 const Dashboard = () => {
+  const location = useLocation();
   const [viewMode, setViewMode] = useState<"graphs" | "cards">("cards");
   const [selectedArea, setSelectedArea] = useState<string>("all");
   const [selectedYear, setSelectedYear] = useState("2025");
@@ -253,16 +255,21 @@ const Dashboard = () => {
               <SidebarGroupLabel>Navegação</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {sidebarItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <a href={item.href} className="flex items-center gap-3">
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                   {sidebarItems.map((item) => (
+                     <SidebarMenuItem key={item.title}>
+                       <SidebarMenuButton asChild>
+                         <Link 
+                           to={item.href} 
+                           className={`flex items-center gap-3 hover:text-primary transition-colors ${
+                             location.pathname === item.href ? 'bg-accent text-accent-foreground font-medium' : ''
+                           }`}
+                         >
+                           <item.icon className="h-4 w-4" />
+                           <span>{item.title}</span>
+                         </Link>
+                       </SidebarMenuButton>
+                     </SidebarMenuItem>
+                   ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

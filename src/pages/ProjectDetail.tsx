@@ -38,6 +38,7 @@ import { PortfolioComparisonDialog } from "@/components/portfolio-comparison-dia
 import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { FinancialSummary } from "@/components/financial-summary";
 import { PlanningView } from "@/components/planning-view";
+import { TransactionsView } from "@/components/transactions-view";
 
 // Mock data for demo purposes
 const mockProject = {
@@ -85,7 +86,6 @@ export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("comando");
-  const [transactionFilter, setTransactionFilter] = useState("all");
   const [project, setProject] = useState<any>(null);
   const [baselines, setBaselines] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -104,9 +104,6 @@ export default function ProjectDetail() {
     return "bg-red-500";
   };
 
-  const filteredTransactions = transactions.filter(t => 
-    !transactionFilter || transactionFilter === "all" || t.category === transactionFilter
-  );
 
   const fetchProjectData = async () => {
     if (!id) return;
@@ -426,63 +423,29 @@ export default function ProjectDetail() {
 
             {/* Aba Realizados */}
             <TabsContent value="realizados" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Transações Realizadas</h3>
-                <div className="flex gap-2">
-                  <Select value={transactionFilter} onValueChange={setTransactionFilter}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as categorias</SelectItem>
-                      <SelectItem value="Software">Software</SelectItem>
-                      <SelectItem value="Hardware">Hardware</SelectItem>
-                      <SelectItem value="Serviços">Serviços</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <TransactionDialog 
-                    projectId={project.id || ""} 
-                    onTransactionAdded={handleTransactionAdded}
-                  />
-                </div>
-              </div>
-
-              <Card>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Descrição</TableHead>
-                        <TableHead>Categoria</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead className="text-right">Valor</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredTransactions.map((transaction) => (
-                        <TableRow key={transaction.id}>
-                          <TableCell>
-                            {format(new Date(transaction.transaction_date), "dd/MM/yyyy")}
-                          </TableCell>
-                          <TableCell>{transaction.description}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{transaction.category}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={transaction.transaction_type === 'manual' ? 'default' : 'secondary'}>
-                              {transaction.transaction_type === 'manual' ? 'Manual' : 'Importado'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right font-mono">
-                            {formatCurrency(transaction.amount, project.currency)}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+              <TransactionsView 
+                project={project}
+                transactions={transactions}
+                onNewTransaction={() => {
+                  // Abrir dialog de nova transação
+                  toast({
+                    title: "Novo Lançamento",
+                    description: "Funcionalidade de novo lançamento será implementada.",
+                  });
+                }}
+                onImportSAP={() => {
+                  toast({
+                    title: "Importação SAP",
+                    description: "Iniciando importação de dados do SAP...",
+                  });
+                }}
+                onAttachDocument={(transactionId) => {
+                  toast({
+                    title: "Anexar Documento",
+                    description: `Anexando documento à transação ${transactionId}`,
+                  });
+                }}
+              />
             </TabsContent>
 
             {/* Aba Histórico */}

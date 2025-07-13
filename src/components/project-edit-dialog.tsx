@@ -46,6 +46,19 @@ export function ProjectEditDialog({ project, onProjectUpdate }: ProjectEditDialo
     setLoading(true);
 
     try {
+      // If this is mock data, just update the local state
+      if (project.id === "mock-uuid-001" || !project.id?.includes("-")) {
+        console.log("Updating mock project data");
+        onProjectUpdate(formData);
+        setOpen(false);
+        toast({
+          title: "Projeto atualizado (modo demo)",
+          description: "As alterações foram salvas localmente.",
+        });
+        return;
+      }
+
+      // Otherwise try to update in database
       const { error } = await supabase
         .from('projects')
         .update({

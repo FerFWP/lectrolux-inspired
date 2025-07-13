@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { CompactProjectView } from "@/components/compact-project-view";
 import { SmartFilters } from "@/components/smart-filters";
 import { IntelligentSearch } from "@/components/intelligent-search";
@@ -490,11 +489,6 @@ export default function ProjectsList() {
 
         {/* Conteúdo principal */}
         <div className="container mx-auto px-6 py-6">
-          {/* Executive Dashboard */}
-          {viewMode === "executive" && (
-            <ExecutiveDashboard projects={mockProjects} />
-          )}
-
           {/* Smart Filters */}
           <SmartFilters 
             projects={mockProjects}

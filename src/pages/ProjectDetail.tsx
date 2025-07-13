@@ -35,6 +35,7 @@ import { ProjectEditDialog } from "@/components/project-edit-dialog";
 import { BaselineDialog } from "@/components/baseline-dialog";
 import { TransactionDialog } from "@/components/transaction-dialog";
 import { PortfolioComparisonDialog } from "@/components/portfolio-comparison-dialog";
+import { ExecutiveDashboard } from "@/components/executive-dashboard";
 
 // Mock data for demo purposes
 const mockProject = {
@@ -340,77 +341,20 @@ export default function ProjectDetail() {
 
             {/* Aba Painel de Comando Executivo */}
             <TabsContent value="comando" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Painel de Comando Executivo</h3>
-                <div className="flex gap-2">
-                  <PortfolioComparisonDialog 
-                    currentProject={{
-                      name: project.name,
-                      area: project.area, 
-                      budgetUtilization: parseFloat(budgetUtilization),
-                      progress: project.progress
-                    }}
-                  />
-                  <Button size="sm">
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                    Escalar Problema
-                  </Button>
-                </div>
-              </div>
-
-              {/* KPIs Críticos em destaque */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="border-l-4 border-l-red-500">
-                  <CardContent className="p-4">
-                    <div className="text-sm text-muted-foreground">Risco Financeiro</div>
-                    <div className="text-2xl font-bold text-red-600">CRÍTICO</div>
-                    <div className="text-xs text-red-600">Ultrapassou {budgetUtilization}%</div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-l-4 border-l-orange-500">  
-                  <CardContent className="p-4">
-                    <div className="text-sm text-muted-foreground">Prazo</div>
-                    <div className="text-2xl font-bold text-orange-600">45 dias</div>
-                    <div className="text-xs text-orange-600">Para deadline</div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-l-4 border-l-blue-500">
-                  <CardContent className="p-4">
-                    <div className="text-sm text-muted-foreground">Progresso</div>
-                    <div className="text-2xl font-bold text-blue-600">{project.progress}%</div>
-                    <div className="text-xs text-blue-600">Execução física</div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-l-4 border-l-green-500">
-                  <CardContent className="p-4">
-                    <div className="text-sm text-muted-foreground">ROI Projetado</div>
-                    <div className="text-2xl font-bold text-green-600">18%</div>
-                    <div className="text-xs text-green-600">Meta: 15%</div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Card de progresso visual */}
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold">Progresso Geral</h4>
-                    <span className="text-sm font-bold">{project.progress}%</span>
-                  </div>
-                  <Progress value={project.progress} className="h-3" />
-                  <div className="grid grid-cols-2 gap-4 text-sm mt-4">
-                    <div>
-                      <span className="text-muted-foreground">Início:</span> {project.start_date ? format(new Date(project.start_date), "dd/MM/yyyy") : "Não definido"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Prazo:</span> {project.deadline ? format(new Date(project.deadline), "dd/MM/yyyy") : "Não definido"}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <ExecutiveDashboard 
+                project={project}
+                baselines={baselines}
+                onComparePortfolio={() => {
+                  // Abrir modal de comparação com portfólio
+                }}
+                onScaleProblem={() => {
+                  toast({
+                    title: "Problema Escalado",
+                    description: "Notificação enviada para PMO e Diretoria. Você receberá retorno em até 24h.",
+                    duration: 5000,
+                  });
+                }}
+              />
             </TabsContent>
 
             {/* Aba Resumo Executivo */}

@@ -178,6 +178,7 @@ const sidebarItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { title: "Projetos", icon: FolderOpen, href: "/projetos" },
   { title: "Relatórios", icon: BarChart3, href: "/reports" },
+  { title: "Relatórios Dinâmicos", icon: FileText, href: "/relatorios-dinamicos" },
   { title: "Planejamento", icon: Calendar, href: "/planning" },
   { title: "Administração", icon: Settings, href: "/admin" },
   { title: "Exportações", icon: Download, href: "/exports" }

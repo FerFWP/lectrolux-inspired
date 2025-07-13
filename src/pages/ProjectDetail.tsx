@@ -40,6 +40,7 @@ import { FinancialSummary } from "@/components/financial-summary";
 import { PlanningView } from "@/components/planning-view";
 import { TransactionsView } from "@/components/transactions-view";
 import { HistoryView } from "@/components/history-view";
+import { ReportsView } from "@/components/reports-view";
 
 // Mock data for demo purposes
 const mockProject = {
@@ -488,74 +489,11 @@ export default function ProjectDetail() {
 
             {/* Aba Relatórios */}
             <TabsContent value="relatorios" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Relatórios</h3>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="gap-2">
-                    <Download className="h-4 w-4" />
-                    Exportar PDF
-                  </Button>
-                  <Button size="sm" variant="outline" className="gap-2">
-                    <Download className="h-4 w-4" />
-                    Exportar Excel
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Resumo Financeiro</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Orçamento:</span>
-                        <span className="font-mono">{formatCurrency(project.budget, project.currency)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Realizado:</span>
-                        <span className="font-mono">{formatCurrency(project.realized || 0, project.currency)}</span>
-                      </div>
-                      <div className="flex justify-between border-t pt-2">
-                        <span>Saldo:</span>
-                        <span className={`font-mono font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {formatCurrency(balance, project.currency)}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Status do Projeto</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between mb-2">
-                          <span>Progresso</span>
-                          <span className="font-bold">{project.progress}%</span>
-                        </div>
-                        <Progress value={project.progress} />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span>Status:</span>
-                          <Badge className={statusColors[project.status as keyof typeof statusColors]}>
-                            {project.status}
-                          </Badge>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Crítico:</span>
-                          <span>{project.is_critical ? "Sim" : "Não"}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <ReportsView 
+                project={project}
+                transactions={transactions}
+                baselines={baselines}
+              />
             </TabsContent>
           </Tabs>
         </div>

@@ -36,6 +36,7 @@ import { BaselineDialog } from "@/components/baseline-dialog";
 import { TransactionDialog } from "@/components/transaction-dialog";
 import { PortfolioComparisonDialog } from "@/components/portfolio-comparison-dialog";
 import { ExecutiveDashboard } from "@/components/executive-dashboard";
+import { FinancialSummary } from "@/components/financial-summary";
 
 // Mock data for demo purposes
 const mockProject = {
@@ -359,6 +360,23 @@ export default function ProjectDetail() {
 
             {/* Aba Resumo Executivo */}
             <TabsContent value="resumo" className="space-y-6">
+              <FinancialSummary 
+                project={project}
+                transactions={transactions}
+                baselines={baselines}
+                onDrillDown={(type, data) => {
+                  if (type === 'realized') {
+                    toast({
+                      title: "Detalhamento de Realizados",
+                      description: `Visualizando ${data.length} transações realizadas.`,
+                    });
+                  }
+                }}
+              />
+            </TabsContent>
+
+            {/* Aba Resumo Executivo Antigo */}
+            <TabsContent value="resumo-old" className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Resumo Executivo</h3>
                 <div className="flex gap-2">

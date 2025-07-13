@@ -38,10 +38,11 @@ const PortfolioDynamicReports = () => {
   const [viewMode, setViewMode] = useState<'executive' | 'analytical'>('analytical');
   const [sortConfig, setSortConfig] = useState({ key: '', direction: 'asc' });
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Mock data for portfolio analysis
-  const portfolioData = useMemo(() => {
-    const projects = [
+  // Mock data generator based on filters
+  const generateFilteredData = useMemo(() => {
+    const allProjects = [
       {
         id: 1,
         name: "Sistema ERP Corporativo",
@@ -53,7 +54,8 @@ const PortfolioDynamicReports = () => {
         progress: 78,
         category: "Software",
         deadline: "2024-12-30",
-        critical: true
+        critical: true,
+        dateCreated: new Date('2024-01-15')
       },
       {
         id: 2,
@@ -66,7 +68,8 @@ const PortfolioDynamicReports = () => {
         progress: 15,
         category: "Marketing",
         deadline: "2024-11-15",
-        critical: false
+        critical: false,
+        dateCreated: new Date('2024-02-10')
       },
       {
         id: 3,
@@ -79,7 +82,8 @@ const PortfolioDynamicReports = () => {
         progress: 82,
         category: "Infraestrutura",
         deadline: "2024-10-20",
-        critical: false
+        critical: false,
+        dateCreated: new Date('2024-03-05')
       },
       {
         id: 4,
@@ -92,7 +96,8 @@ const PortfolioDynamicReports = () => {
         progress: 95,
         category: "Software",
         deadline: "2024-09-30",
-        critical: true
+        critical: true,
+        dateCreated: new Date('2024-01-20')
       },
       {
         id: 5,
@@ -105,31 +110,171 @@ const PortfolioDynamicReports = () => {
         progress: 100,
         category: "Infraestrutura",
         deadline: "2024-08-15",
-        critical: false
+        critical: false,
+        dateCreated: new Date('2024-04-01')
+      },
+      {
+        id: 6,
+        name: "Plataforma E-commerce",
+        area: "TI",
+        status: "Em Andamento",
+        leader: "Ana Silva",
+        budget: 720000,
+        realized: 450000,
+        progress: 65,
+        category: "Software",
+        deadline: "2024-12-15",
+        critical: false,
+        dateCreated: new Date('2024-05-10')
+      },
+      {
+        id: 7,
+        name: "Campanha Institucional",
+        area: "Marketing",
+        status: "Em Atraso",
+        leader: "Carlos Santos",
+        budget: 180000,
+        realized: 220000,
+        progress: 90,
+        category: "Marketing",
+        deadline: "2024-10-30",
+        critical: true,
+        dateCreated: new Date('2024-06-01')
+      },
+      {
+        id: 8,
+        name: "Otimização Energética",
+        area: "Operações",
+        status: "Planejado",
+        leader: "Maria Oliveira",
+        budget: 320000,
+        realized: 25000,
+        progress: 8,
+        category: "Infraestrutura",
+        deadline: "2025-02-28",
+        critical: false,
+        dateCreated: new Date('2024-07-15')
       }
     ];
 
+    // Apply filters
+    let filteredProjects = allProjects.filter(project => {
+      // Area filter
+      if (!filters.areas.includes('all') && !filters.areas.includes(project.area.toLowerCase())) {
+        return false;
+      }
+      
+      // Status filter
+      if (!filters.status.includes('all')) {
+        const statusMap = {
+          'progress': 'Em Andamento',
+          'planned': 'Planejado',
+          'completed': 'Concluído',
+          'delayed': 'Em Atraso'
+        };
+        const allowedStatuses = filters.status.map(s => statusMap[s as keyof typeof statusMap] || s);
+        if (!allowedStatuses.includes(project.status)) {
+          return false;
+        }
+      }
+      
+      // Category filter
+      if (filters.category !== 'all' && project.category.toLowerCase() !== filters.category) {
+        return false;
+      }
+      
+      // Leader filter
+      if (!filters.leaders.includes('all') && !filters.leaders.includes(project.leader.toLowerCase().replace(' ', ''))) {
+        return false;
+      }
+      
+      // Period filter (simplified - based on creation date)
+      const now = new Date();
+      const monthsBack = {
+        'last_3_months': 3,
+        'last_6_months': 6,
+        'last_12_months': 12,
+        'ytd': 12
+      };
+      const monthsToCheck = monthsBack[filters.period as keyof typeof monthsBack] || 6;
+      const cutoffDate = new Date(now.setMonth(now.getMonth() - monthsToCheck));
+      
+      if (project.dateCreated < cutoffDate) {
+        return false;
+      }
+      
+      return true;
+    });
+
+    // Apply search filter
+    if (searchTerm) {
+      filteredProjects = filteredProjects.filter(project => 
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.leader.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.area.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filteredProjects;
+  }, [filters, searchTerm]);
+
+  // Mock data for portfolio analysis
+  const portfolioData = useMemo(() => {
+    const projects = generateFilteredData;
+    
+    if (projects.length === 0) {
+      return {
+        projects: [],
+        monthlyEvolution: [],
+        categoryDistribution: [],
+        areaDistribution: [],
+        totals: {
+          projects: 0,
+          budget: 0,
+          realized: 0,
+          critical: 0
+        }
+      };
+    }
+
+    // Generate monthly evolution based on filtered projects
     const monthlyEvolution = [
-      { month: 'Jan', budget: 2800000, realized: 2150000, variance: -650000 },
-      { month: 'Fev', budget: 2950000, realized: 2480000, variance: -470000 },
-      { month: 'Mar', budget: 3100000, realized: 2890000, variance: -210000 },
-      { month: 'Abr', budget: 3250000, realized: 3320000, variance: 70000 },
-      { month: 'Mai', budget: 3400000, realized: 3680000, variance: 280000 },
-      { month: 'Jun', budget: 3550000, realized: 3420000, variance: -130000 }
-    ];
+      { month: 'Jan', budget: projects.reduce((sum, p) => sum + p.budget * 0.15, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.12, 0) },
+      { month: 'Fev', budget: projects.reduce((sum, p) => sum + p.budget * 0.18, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.16, 0) },
+      { month: 'Mar', budget: projects.reduce((sum, p) => sum + p.budget * 0.22, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.21, 0) },
+      { month: 'Abr', budget: projects.reduce((sum, p) => sum + p.budget * 0.25, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.28, 0) },
+      { month: 'Mai', budget: projects.reduce((sum, p) => sum + p.budget * 0.28, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.32, 0) },
+      { month: 'Jun', budget: projects.reduce((sum, p) => sum + p.budget * 0.30, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.29, 0) }
+    ].map(item => ({ ...item, variance: item.realized - item.budget }));
 
-    const categoryDistribution = [
-      { name: 'Software', value: 1140000, color: '#0088FE', projects: 2 },
-      { name: 'Infraestrutura', value: 995000, color: '#00C49F', projects: 2 },
-      { name: 'Marketing', value: 45000, color: '#FFBB28', projects: 1 },
-      { name: 'Consultoria', value: 320000, color: '#FF8042', projects: 0 }
-    ];
+    // Calculate category distribution
+    const categoryTotals = projects.reduce((acc, project) => {
+      acc[project.category] = (acc[project.category] || 0) + project.realized;
+      return acc;
+    }, {} as Record<string, number>);
 
-    const areaDistribution = [
-      { name: 'TI', budget: 1140000, realized: 1060000, projects: 2 },
-      { name: 'Marketing', budget: 320000, realized: 45000, projects: 1 },
-      { name: 'Operações', budget: 1130000, realized: 995000, projects: 2 }
-    ];
+    const categoryDistribution = Object.entries(categoryTotals).map(([name, value], index) => ({
+      name,
+      value,
+      color: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'][index % 5],
+      projects: projects.filter(p => p.category === name).length
+    }));
+
+    // Calculate area distribution
+    const areaTotals = projects.reduce((acc, project) => {
+      if (!acc[project.area]) {
+        acc[project.area] = { budget: 0, realized: 0, projects: 0 };
+      }
+      acc[project.area].budget += project.budget;
+      acc[project.area].realized += project.realized;
+      acc[project.area].projects += 1;
+      return acc;
+    }, {} as Record<string, { budget: number; realized: number; projects: number }>);
+
+    const areaDistribution = Object.entries(areaTotals).map(([name, data]) => ({
+      name,
+      ...data
+    }));
 
     return {
       projects,
@@ -143,7 +288,50 @@ const PortfolioDynamicReports = () => {
         critical: projects.filter(p => p.critical).length
       }
     };
-  }, [filters]);
+  }, [generateFilteredData]);
+
+  // Filter update function with loading
+  const updateFilters = async (newFilters: Partial<typeof filters>) => {
+    setIsLoading(true);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    setFilters(prev => ({ ...prev, ...newFilters }));
+    setIsLoading(false);
+  };
+
+  // Get active filters description
+  const getActiveFiltersDescription = () => {
+    const descriptions = [];
+    
+    if (!filters.areas.includes('all')) {
+      descriptions.push(`Área: ${filters.areas.join(', ')}`);
+    }
+    
+    if (!filters.status.includes('all')) {
+      descriptions.push(`Status: ${filters.status.join(', ')}`);
+    }
+    
+    if (filters.category !== 'all') {
+      descriptions.push(`Categoria: ${filters.category}`);
+    }
+    
+    if (!filters.leaders.includes('all')) {
+      descriptions.push(`Líder: ${filters.leaders.join(', ')}`);
+    }
+    
+    const periodLabels = {
+      'last_3_months': 'Últimos 3 meses',
+      'last_6_months': 'Últimos 6 meses',
+      'last_12_months': 'Últimos 12 meses',
+      'ytd': 'Este ano'
+    };
+    
+    descriptions.push(`Período: ${periodLabels[filters.period as keyof typeof periodLabels] || filters.period}`);
+    
+    return descriptions.length > 1 ? descriptions.join(' • ') : 'Todos os critérios';
+  };
 
   const insights = useMemo(() => {
     const { projects, totals } = portfolioData;
@@ -282,6 +470,19 @@ const PortfolioDynamicReports = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Search Bar */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Buscar por projeto, líder ou área..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             {/* Área Filter */}
             <div className="space-y-2">
@@ -298,7 +499,10 @@ const PortfolioDynamicReports = () => {
                   </Tooltip>
                 </TooltipProvider>
               </Label>
-              <Select defaultValue="all">
+              <Select 
+                value={filters.areas.includes('all') ? 'all' : filters.areas[0]} 
+                onValueChange={(value) => updateFilters({ areas: [value] })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -306,7 +510,7 @@ const PortfolioDynamicReports = () => {
                   <SelectItem value="all">Todas as Áreas</SelectItem>
                   <SelectItem value="ti">TI</SelectItem>
                   <SelectItem value="marketing">Marketing</SelectItem>
-                  <SelectItem value="operacoes">Operações</SelectItem>
+                  <SelectItem value="operações">Operações</SelectItem>
                   <SelectItem value="financeiro">Financeiro</SelectItem>
                 </SelectContent>
               </Select>
@@ -327,7 +531,10 @@ const PortfolioDynamicReports = () => {
                   </Tooltip>
                 </TooltipProvider>
               </Label>
-              <Select defaultValue="all">
+              <Select 
+                value={filters.status.includes('all') ? 'all' : filters.status[0]}
+                onValueChange={(value) => updateFilters({ status: [value] })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -356,7 +563,10 @@ const PortfolioDynamicReports = () => {
                   </Tooltip>
                 </TooltipProvider>
               </Label>
-              <Select defaultValue="last_6_months">
+              <Select 
+                value={filters.period}
+                onValueChange={(value) => updateFilters({ period: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -373,14 +583,17 @@ const PortfolioDynamicReports = () => {
             {/* Category Filter */}
             <div className="space-y-2">
               <Label>Categoria</Label>
-              <Select defaultValue="all">
+              <Select 
+                value={filters.category}
+                onValueChange={(value) => updateFilters({ category: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
                   <SelectItem value="software">Software</SelectItem>
-                  <SelectItem value="infrastructure">Infraestrutura</SelectItem>
+                  <SelectItem value="infraestrutura">Infraestrutura</SelectItem>
                   <SelectItem value="marketing">Marketing</SelectItem>
                   <SelectItem value="consultoria">Consultoria</SelectItem>
                 </SelectContent>
@@ -390,16 +603,19 @@ const PortfolioDynamicReports = () => {
             {/* Leader Filter */}
             <div className="space-y-2">
               <Label>Líder</Label>
-              <Select defaultValue="all">
+              <Select 
+                value={filters.leaders.includes('all') ? 'all' : filters.leaders[0]}
+                onValueChange={(value) => updateFilters({ leaders: [value] })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="ana">Ana Silva</SelectItem>
-                  <SelectItem value="carlos">Carlos Santos</SelectItem>
-                  <SelectItem value="maria">Maria Oliveira</SelectItem>
-                  <SelectItem value="joao">João Costa</SelectItem>
+                  <SelectItem value="anasilva">Ana Silva</SelectItem>
+                  <SelectItem value="carlossantos">Carlos Santos</SelectItem>
+                  <SelectItem value="mariaoliveira">Maria Oliveira</SelectItem>
+                  <SelectItem value="joaocosta">João Costa</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -407,7 +623,10 @@ const PortfolioDynamicReports = () => {
             {/* Currency Filter */}
             <div className="space-y-2">
               <Label>Moeda</Label>
-              <Select defaultValue="BRL">
+              <Select 
+                value={filters.currency}
+                onValueChange={(value) => updateFilters({ currency: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -422,8 +641,68 @@ const PortfolioDynamicReports = () => {
         </CardContent>
       </Card>
 
-      {/* Key Indicators Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+      {/* Active Filters Indicator */}
+      {(filters.areas[0] !== 'all' || filters.status[0] !== 'all' || filters.category !== 'all' || filters.leaders[0] !== 'all' || searchTerm) && (
+        <Alert className="border-primary bg-primary/5">
+          <Filter className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Filtros Ativos:</strong> {getActiveFiltersDescription()}
+            {searchTerm && ` • Busca: "${searchTerm}"`}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3 w-3 ml-2 inline cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Todos os dados e análises abaixo são baseados nos critérios selecionados acima.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <Card className="border-2 border-primary">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center gap-3">
+              <RefreshCw className="h-5 w-5 animate-spin text-primary" />
+              <p className="text-sm font-medium">Atualizando dados do portfólio...</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && portfolioData.totals.projects === 0 && (
+        <Card className="border-2 border-dashed border-muted-foreground/25">
+          <CardContent className="pt-8 pb-8">
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                <AlertCircle className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Nenhum projeto encontrado</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Nenhum projeto foi encontrado para os critérios selecionados. 
+                  Tente ajustar os filtros ou limpar todos os critérios.
+                </p>
+              </div>
+              <Button variant="outline" onClick={clearFilters}>
+                <X className="h-4 w-4 mr-2" />
+                Limpar todos os filtros
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Content - Only show if not loading and has data */}
+      {!isLoading && portfolioData.totals.projects > 0 && (
+        <>
+          {/* Key Indicators Panel */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
         <Card className="border-l-4 border-l-primary">
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
@@ -559,8 +838,9 @@ const PortfolioDynamicReports = () => {
         </Card>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Section - Only show in analytical mode or always show but with different complexity */}
+      {viewMode === 'analytical' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Evolution with Drill-down */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
@@ -648,6 +928,7 @@ const PortfolioDynamicReports = () => {
           </CardContent>
         </Card>
       </div>
+      )}
 
       {/* Dynamic Table and Insights */}
       <Card>
@@ -911,6 +1192,8 @@ const PortfolioDynamicReports = () => {
           ))}
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 };

@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { CompactProjectView } from "@/components/compact-project-view";
 import { SmartFilters } from "@/components/smart-filters";
 import { IntelligentSearch } from "@/components/intelligent-search";
+import { HomeButton } from "@/components/home-button";
 import { useNavigate } from "react-router-dom";
 
 interface Project {
@@ -362,7 +363,10 @@ export default function ProjectsList() {
         <div className="sticky top-0 z-10 bg-background border-b">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-2xl font-bold text-foreground">Lista de Projetos</h1>
+              <div className="flex items-center gap-4">
+                <HomeButton />
+                <h1 className="text-2xl font-bold text-foreground">Lista de Projetos</h1>
+              </div>
               <div className="flex gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>

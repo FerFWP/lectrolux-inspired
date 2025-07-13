@@ -22,6 +22,7 @@ import {
   Calendar, Users, Building, CreditCard, AlertCircle, CheckCircle,
   Lightbulb, ChevronRight, FileBarChart, FileSpreadsheet, Image as ImageIcon
 } from "lucide-react";
+import { HomeButton } from "@/components/home-button";
 
 const PortfolioDynamicReports = () => {
   // Filter states
@@ -226,13 +227,18 @@ const PortfolioDynamicReports = () => {
     <div className="min-h-screen bg-secondary p-4 space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">
-            Relatórios Dinâmicos do Portfólio
-          </h1>
-          <p className="text-muted-foreground">
-            Análise completa e comparativa do desempenho financeiro de todos os projetos
-          </p>
+        <div className="flex items-center gap-4">
+          <TooltipProvider>
+            <HomeButton />
+          </TooltipProvider>
+          <div>
+            <h1 className="text-3xl font-bold text-primary">
+              Relatórios Dinâmicos do Portfólio
+            </h1>
+            <p className="text-muted-foreground">
+              Análise completa e comparativa do desempenho financeiro de todos os projetos
+            </p>
+          </div>
         </div>
         
         <div className="flex items-center gap-2">

@@ -41,6 +41,7 @@ import { PlanningView } from "@/components/planning-view";
 import { TransactionsView } from "@/components/transactions-view";
 import { HistoryView } from "@/components/history-view";
 import { ReportsView } from "@/components/reports-view";
+import { HomeButton } from "@/components/home-button";
 
 // Mock data for demo purposes
 const mockProject = {
@@ -218,6 +219,7 @@ export default function ProjectDetail() {
             {/* Navegação superior */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
+                <HomeButton />
                 <Button 
                   variant="outline" 
                   size="sm"

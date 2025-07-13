@@ -37,6 +37,7 @@ import { TransactionDialog } from "@/components/transaction-dialog";
 import { PortfolioComparisonDialog } from "@/components/portfolio-comparison-dialog";
 import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { FinancialSummary } from "@/components/financial-summary";
+import { PlanningView } from "@/components/planning-view";
 
 // Mock data for demo purposes
 const mockProject = {
@@ -532,27 +533,30 @@ export default function ProjectDetail() {
 
             {/* Aba Planejamento */}
             <TabsContent value="planejamento" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Planejamento do Projeto</h3>
-              </div>
-
-              <Card>
-                <CardContent className="p-6">
-                  <h4 className="text-lg font-semibold mb-4">Informações Gerais</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Descrição</p>
-                      <p className="font-medium">{project.description || "Sem descrição"}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Status</p>
-                      <Badge className={statusColors[project.status as keyof typeof statusColors]}>
-                        {project.status}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <PlanningView 
+                project={project}
+                baselines={baselines}
+                transactions={transactions}
+                onUpdateForecast={(data) => {
+                  toast({
+                    title: "Previsão Atualizada",
+                    description: "As alterações no planejamento foram salvas.",
+                  });
+                }}
+                onSaveBaseline={(data) => {
+                  handleBaselineAdded();
+                  toast({
+                    title: "Baseline Salva",
+                    description: "Nova baseline criada com sucesso.",
+                  });
+                }}
+                onRevertBaseline={(baselineId) => {
+                  toast({
+                    title: "Baseline Revertida",
+                    description: "Projeto revertido para baseline anterior.",
+                  });
+                }}
+              />
             </TabsContent>
 
             {/* Aba Relatórios */}

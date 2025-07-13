@@ -913,47 +913,6 @@ export default function ProjectDetail() {
                 </CardContent>
               </Card>
 
-              {/* Histórico de Baselines */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <History className="h-5 w-5" />
-                    Histórico de Baselines
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {mockProject.baselines.slice().reverse().map((baseline, index) => (
-                      <div key={baseline.id} className={`flex items-center justify-between p-3 rounded-lg border ${index === 0 ? 'bg-blue-50 border-blue-200' : 'bg-muted/30'}`}>
-                        <div className="flex items-center gap-3">
-                          {index === 0 && (
-                            <Badge variant="default" className="bg-blue-600">
-                              Atual
-                            </Badge>
-                          )}
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{baseline.version}</span>
-                              <span className="text-sm text-muted-foreground">{baseline.date}</span>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{baseline.description}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <div className="text-right">
-                            <div className="font-semibold">{formatCurrency(baseline.budget, mockProject.currency)}</div>
-                          </div>
-                          <Button variant="outline" size="sm" className="gap-2">
-                            <Eye className="h-4 w-4" />
-                            Visualizar
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
 
             {/* Aba Realizados */}

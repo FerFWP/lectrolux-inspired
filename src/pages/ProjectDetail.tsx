@@ -76,7 +76,7 @@ const statusColors = {
 export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("resumo");
+  const [activeTab, setActiveTab] = useState("comando");
   const [transactionFilter, setTransactionFilter] = useState("all");
 
   const formatCurrency = (amount: number, currency: string) => {
@@ -199,7 +199,11 @@ export default function ProjectDetail() {
         {/* Conteúdo principal com abas */}
         <div className="container mx-auto px-6 py-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="comando" className="gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                <span className="hidden sm:inline">Comando</span>
+              </TabsTrigger>
               <TabsTrigger value="resumo" className="gap-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Resumo</span>
@@ -221,6 +225,112 @@ export default function ProjectDetail() {
                 <span className="hidden sm:inline">Relatórios</span>
               </TabsTrigger>
             </TabsList>
+
+            {/* Aba Painel de Comando Executivo */}
+            <TabsContent value="comando" className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Painel de Comando Executivo</h3>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    <Eye className="h-4 w-4 mr-2" />
+                    Comparar com Portfolio
+                  </Button>
+                  <Button size="sm">
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                    Escalar Problema
+                  </Button>
+                </div>
+              </div>
+
+              {/* KPIs Críticos em destaque */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card className="border-l-4 border-l-red-500">
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground">Risco Financeiro</div>
+                    <div className="text-2xl font-bold text-red-600">CRÍTICO</div>
+                    <div className="text-xs text-red-600">Ultrapassou 12.5%</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-l-4 border-l-orange-500">  
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground">Prazo</div>
+                    <div className="text-2xl font-bold text-orange-600">45 dias</div>
+                    <div className="text-xs text-orange-600">Para deadline</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-l-4 border-l-blue-500">
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground">Progresso</div>
+                    <div className="text-2xl font-bold text-blue-600">85%</div>
+                    <div className="text-xs text-blue-600">Execução física</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-l-4 border-l-green-500">
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground">ROI Projetado</div>
+                    <div className="text-2xl font-bold text-green-600">18%</div>
+                    <div className="text-xs text-green-600">Meta: 15%</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Próximas Ações Críticas */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Ações Críticas - Próximos 7 dias
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border-l-4 border-red-500">
+                      <AlertTriangle className="h-5 w-5 text-red-600" />
+                      <div className="flex-1">
+                        <p className="font-medium text-red-800">Reunião emergencial com CFO</p>
+                        <p className="text-sm text-red-600">Aprovar rebalanceamento orçamentário - Até 17/01</p>
+                      </div>
+                      <Button size="sm" variant="outline">Agendar</Button>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                      <Calendar className="h-5 w-5 text-orange-600" />
+                      <div className="flex-1">
+                        <p className="font-medium text-orange-800">Revisão de cronograma</p>
+                        <p className="text-sm text-orange-600">Ajustar marcos para compensar atraso - Até 20/01</p>
+                      </div>
+                      <Button size="sm" variant="outline">Revisar</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Comparação rápida com outros projetos da área */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Benchmark - Projetos TI (Últimos 6 meses)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-red-600">Este Projeto</div>
+                      <div className="text-sm text-muted-foreground">112.5% orçamento</div>
+                    </div>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">Média TI</div>
+                      <div className="text-sm text-muted-foreground">98.2% orçamento</div>
+                    </div>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">Melhor TI</div>
+                      <div className="text-sm text-muted-foreground">91.8% orçamento</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             {/* Aba Resumo Financeiro */}
             <TabsContent value="resumo" className="space-y-6">

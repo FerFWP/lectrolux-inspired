@@ -336,18 +336,20 @@ const PortfolioDynamicReports = () => {
   const insights = useMemo(() => {
     const { projects, totals } = portfolioData;
     const balance = totals.budget - totals.realized;
-    const executionRate = (totals.realized / totals.budget) * 100;
+    const executionRate = totals.budget > 0 ? (totals.realized / totals.budget) * 100 : 0;
     
     const criticalProjects = projects.filter(p => p.critical);
     const overdueProjects = projects.filter(p => p.status === "Em Atraso");
-    const highestSpender = projects.reduce((max, p) => p.realized > max.realized ? p : max);
+    const highestSpender = projects.length > 0 
+      ? projects.reduce((max, p) => p.realized > max.realized ? p : max)
+      : null;
     
     return {
       balance,
       executionRate,
       criticalProjects: criticalProjects.length,
       overdueProjects: overdueProjects.length,
-      highestSpender: highestSpender.name,
+      highestSpender: highestSpender?.name || 'N/A',
       trend: executionRate > 85 ? 'high' : executionRate > 70 ? 'medium' : 'low',
       recommendations: [
         {

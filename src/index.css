@@ -120,4 +120,36 @@ All colors MUST be HSL.
   .menu-item-hover {
     @apply hover:bg-sidebar-accent/30 hover:shadow-sm;
   }
+  
+  /* Sidebar animations and transitions */
+  .sidebar-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-content {
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-content.collapsed {
+    transform: translateX(-100%);
+  }
+
+  /* Prevent content from overlapping sidebar */
+  @media (max-width: 768px) {
+    .sidebar-open {
+      overflow: hidden;
+    }
+  }
+  
+  /* Sidebar icon transitions */
+  .sidebar-icon-transition {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .sidebar-icon-transition:hover {
+    transform: scale(1.1);
+  }
 }

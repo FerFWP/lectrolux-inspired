@@ -17,7 +17,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   LayoutDashboard,
@@ -123,36 +122,31 @@ const inteligenciaSubmenu = [
     title: "Assistente de Perguntas",
     url: "/inteligencia/assistente",
     icon: MessageCircle,
-    description: "Chatbot para dúvidas sobre indicadores, conceitos, status ou procedimentos",
-    badge: "Beta"
+    description: "Chatbot para dúvidas sobre indicadores, conceitos, status ou procedimentos"
   },
   {
     title: "Geração de Relatórios Dinâmicos",
     url: "/inteligencia/relatorios-dinamicos",
     icon: FileBarChart,
-    description: "Solicite análises personalizadas via prompt (ex: projetos com desvio >15%)",
-    badge: "Beta"
+    description: "Solicite análises personalizadas via prompt (ex: projetos com desvio >15%)"
   },
   {
     title: "Explicações de Indicadores",
     url: "/inteligencia/explicacoes",
     icon: HelpCircle,
-    description: "Solicite explicação de métricas, cálculos ou gráficos específicos",
-    badge: "Beta"
+    description: "Solicite explicação de métricas, cálculos ou gráficos específicos"
   },
   {
     title: "Pesquisa Avançada (RAG)",
     url: "/inteligencia/pesquisa-avancada",
     icon: Search,
-    description: "Busca semântica em documentos, atas, anexos usando linguagem natural",
-    badge: "Beta"
+    description: "Busca semântica em documentos, atas, anexos usando linguagem natural"
   },
   {
     title: "Sugestão de Ações",
     url: "/inteligencia/sugestoes",
     icon: Lightbulb,
-    description: "Painel com recomendações e alertas automáticos baseados nos dados",
-    badge: "Beta"
+    description: "Painel com recomendações e alertas automáticos baseados nos dados"
   },
 ];
 
@@ -210,7 +204,7 @@ const SubMenuItemWithTooltip = ({ item, isActive, isCollapsed }: {
     <NavLink
       to={item.url}
       className={`
-        flex items-center justify-between gap-2 px-3 py-2 ml-6 rounded-lg text-sm
+        flex items-center gap-3 px-3 py-2 ml-6 rounded-lg text-sm
         transition-all duration-200 ease-in-out
         ${isActive 
           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-sm border-l-2 border-sidebar-primary" 
@@ -218,35 +212,12 @@ const SubMenuItemWithTooltip = ({ item, isActive, isCollapsed }: {
         }
       `}
     >
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-sidebar-primary" : ""}`} />
-        <span className="truncate">{item.title}</span>
-      </div>
-      {item.badge && (
-        <Badge variant="secondary" className="text-xs px-1.5 py-0.5 bg-sidebar-primary/20 text-sidebar-primary">
-          {item.badge}
-        </Badge>
-      )}
+      <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-sidebar-primary" : ""}`} />
+      <span className="flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis">
+        {item.title}
+      </span>
     </NavLink>
   );
-
-  if (isCollapsed) {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            {content}
-          </TooltipTrigger>
-          <TooltipContent side="right" className="ml-2">
-            <p className="font-medium">{item.title}</p>
-            {item.description && (
-              <p className="text-xs text-muted-foreground mt-1 max-w-xs">{item.description}</p>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
 
   return (
     <TooltipProvider>
@@ -254,8 +225,11 @@ const SubMenuItemWithTooltip = ({ item, isActive, isCollapsed }: {
         <TooltipTrigger asChild>
           {content}
         </TooltipTrigger>
-        <TooltipContent side="right" className="ml-2 max-w-xs">
-          <p className="text-xs">{item.description}</p>
+        <TooltipContent side="right" className="ml-2 max-w-sm">
+          <p className="font-medium">{item.title}</p>
+          {item.description && (
+            <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+          )}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -283,9 +257,10 @@ export function AppSidebar() {
     <TooltipProvider>
       <Sidebar
         className={`
-          ${isCollapsed ? "w-16" : "w-72"} 
+          ${isCollapsed ? "w-16" : "w-80"} 
           transition-all duration-300 ease-in-out
           bg-sidebar border-r border-sidebar-border
+          fixed inset-y-0 left-0 z-50 md:relative md:z-auto
         `}
         collapsible="icon"
       >

@@ -43,8 +43,69 @@ serve(async (req) => {
     if (transactionsError) console.error('Error fetching transactions:', transactionsError);
     if (baselinesError) console.error('Error fetching baselines:', baselinesError);
 
-    // Prepare data context for AI analysis
-    const projectsContext = projects ? projects.map(p => ({
+    // Mock data para sugestões mais consistentes
+    const mockProjectsContext = [
+      {
+        codigo: "MOD-CWB-2024-001",
+        nome: "Modernização Linha Produção Curitiba",
+        lider: "Ana Silva",
+        area: "Produção",
+        status: "Em Andamento",
+        orcamento: 2500000,
+        realizado: 1875000,
+        comprometido: 2200000,
+        progresso: 75,
+        prazo: "2024-12-31",
+        inicio: "2024-01-15",
+        critico: true,
+        moeda: "BRL",
+        desvio_orcamentario: 12.3,
+        bu: 88.0,
+        cpi: 0.85,
+        risco: "Alto"
+      },
+      {
+        codigo: "ERP-ROS-2024-002",
+        nome: "Implementação ERP Rosário",
+        lider: "Carlos Rodriguez",
+        area: "TI",
+        status: "Planejado",
+        orcamento: 850000,
+        realizado: 125000,
+        comprometido: 680000,
+        progresso: 15,
+        prazo: "2025-06-30",
+        inicio: "2024-08-01",
+        critico: false,
+        moeda: "USD",
+        desvio_orcamentario: -5.2,
+        bu: 80.0,
+        cpi: 1.05,
+        risco: "Médio"
+      },
+      {
+        codigo: "EXP-MEX-2024-003",
+        nome: "Expansão Capacidade México",
+        lider: "Maria González",
+        area: "Engenharia",
+        status: "Em Andamento",
+        orcamento: 4200000,
+        realizado: 3150000,
+        comprometido: 3990000,
+        progresso: 85,
+        prazo: "2024-10-15",
+        inicio: "2023-10-01",
+        critico: true,
+        moeda: "USD",
+        desvio_orcamentario: 21.1,
+        bu: 95.0,
+        cpi: 0.79,
+        risco: "Crítico"
+      }
+    ];
+
+    // Use database data if available, otherwise use mock data
+    const projectsContext = projects && projects.length > 0 ? projects.map(p => ({
       codigo: p.project_code,
       nome: p.name,
       lider: p.leader,
@@ -59,23 +120,53 @@ serve(async (req) => {
       critico: p.is_critical,
       moeda: p.currency,
       desvio_orcamentario: p.budget > 0 ? ((p.realized - p.budget) / p.budget * 100).toFixed(2) : 0
-    })) : [];
+    })) : mockProjectsContext;
 
-    const transactionsContext = transactions ? transactions.map(t => ({
+    const transactionsContext = transactions && transactions.length > 0 ? transactions.map(t => ({
       valor: t.amount,
       categoria: t.category,
       descricao: t.description,
       tipo: t.transaction_type,
       data: t.transaction_date,
       projeto_id: t.project_id
-    })) : [];
+    })) : [
+      {
+        valor: 875000,
+        categoria: "Equipamentos",
+        descricao: "Aquisição equipamentos industriais",
+        tipo: "Capex",
+        data: "2024-07-10",
+        projeto_id: "MOD-CWB-2024-001"
+      },
+      {
+        valor: 1200000,
+        categoria: "Infraestrutura",
+        descricao: "Construção civil",
+        tipo: "Capex",
+        data: "2024-07-08",
+        projeto_id: "EXP-MEX-2024-003"
+      }
+    ];
 
-    const baselinesContext = baselines ? baselines.map(b => ({
+    const baselinesContext = baselines && baselines.length > 0 ? baselines.map(b => ({
       versao: b.version,
       orcamento: b.budget,
       descricao: b.description,
       projeto_id: b.project_id
-    })) : [];
+    })) : [
+      {
+        versao: "v2.1",
+        orcamento: 2500000,
+        descricao: "Revisão após aprovação adicional",
+        projeto_id: "MOD-CWB-2024-001"
+      },
+      {
+        versao: "v3.0",
+        orcamento: 4200000,
+        descricao: "Terceira revisão por mudanças de escopo",
+        projeto_id: "EXP-MEX-2024-003"
+      }
+    ];
 
     const contextData = `
 ANÁLISE COMPLETA DO PORTFÓLIO:

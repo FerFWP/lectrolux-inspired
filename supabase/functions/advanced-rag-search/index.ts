@@ -37,62 +37,73 @@ serve(async (req) => {
     const { data: transactions } = await supabase.from('transactions').select('*');
     const { data: baselines } = await supabase.from('baselines').select('*');
 
-    // Mock document database (in production, this would be a vector database)
+    // Base de documentos simulados mais robusta
     const mockDocuments = [
       {
         id: '1',
-        title: 'Ata de Reunião - Projeto Portal do Cliente V2',
+        title: 'Ata Reunião Comitê - Modernização Curitiba',
         type: 'ata',
-        content: 'Reunião realizada em 15/11/2024 para discussão do cronograma do Portal do Cliente V2. Participantes: João Costa (líder), Ana Silva (TI), Carlos Santos (Marketing). Principais pontos: atraso de 2 semanas devido a problemas de integração com API externa. Orçamento atual: R$ 340.000 realizado de R$ 290.000 planejado, representando desvio de 17,2%. Ações: revisar escopo e replanejar entregas.',
-        project: 'Portal do Cliente V2',
-        area: 'TI',
-        date: '2024-11-15',
-        url: '/documents/ata-portal-v2-nov2024.pdf',
-        tags: ['atraso', 'desvio orçamentário', 'integração', 'API']
+        content: 'Reunião realizada em 15/07/2024 para discussão do projeto Modernização Linha Produção Curitiba. Participantes: Ana Silva (líder), João Costa (Produção), Carlos Santos (Qualidade). Principais pontos: projeto com 75% de progresso, desvio orçamentário de 12.3% identificado. Orçamento atual: R$ 2.500.000 com R$ 1.875.000 realizado. CPI atual: 0.85 indica sobre-custo. Ações: implementar controle rigoroso de gastos e revisar fornecedores.',
+        project: 'Modernização Linha Produção Curitiba',
+        area: 'Produção',
+        date: '2024-07-15',
+        url: '/documents/ata-modernizacao-curitiba-jul2024.pdf',
+        tags: ['desvio orçamentário', 'CPI', 'controle gastos', 'fornecedores']
       },
       {
         id: '2',
-        title: 'Relatório de Baseline - Sistema ERP Corporativo',
+        title: 'Baseline ERP Rosário - Versão 1.0',
         type: 'baseline',
-        content: 'Baseline aprovada em março de 2023 para o Sistema ERP Corporativo. Orçamento total: R$ 850.000. Cronograma: 12 meses. Escopo: implementação completa do módulo financeiro, RH e vendas. Critérios de aceitação definidos. ROI esperado: 25% em 2 anos. Riscos identificados: resistência dos usuários e complexidade de migração de dados.',
-        project: 'Sistema ERP Corporativo',
+        content: 'Baseline aprovada em maio de 2024 para o projeto Implementação ERP Rosário. Orçamento total: USD 850.000. Cronograma: 18 meses. Escopo: implementação completa do módulo financeiro, RH e vendas. Líder: Carlos Rodriguez. ROI esperado: 22.1% em 2 anos. Status atual: fase de planejamento com 15% de progresso. Riscos: resistência dos usuários e complexidade de integração com sistemas legados.',
+        project: 'Implementação ERP Rosário',
         area: 'TI',
-        date: '2023-03-15',
-        url: '/documents/baseline-erp-2023.pdf',
-        tags: ['baseline', 'ROI', 'implementação', 'ERP']
+        date: '2024-05-20',
+        url: '/documents/baseline-erp-rosario-v1.pdf',
+        tags: ['baseline', 'ROI', 'integração', 'ERP', 'planejamento']
       },
       {
         id: '3',
-        title: 'Documento Técnico - Modernização Data Center',
-        type: 'documento',
-        content: 'Especificações técnicas para modernização do data center. Investimento CAPEX de R$ 1.200.000. Escopo: atualização de servidores, sistema de refrigeração e redundância elétrica. Economia esperada: 30% em custos operacionais. Cronograma: 8 meses. Aprovações necessárias: diretoria técnica e comitê de investimentos.',
-        project: 'Modernização Data Center',
-        area: 'TI',
-        date: '2023-02-10',
-        url: '/documents/spec-datacenter-2023.pdf',
-        tags: ['CAPEX', 'infraestrutura', 'economia', 'modernização']
+        title: 'Análise de Risco - Expansão México',
+        type: 'analise',
+        content: 'Análise de riscos do projeto Expansão Capacidade México. Orçamento: USD 4.200.000 com USD 3.150.000 já realizado (progresso 85%). Desvio crítico de 21.1% identificado. CPI: 0.79 indica severo sobre-custo. Riscos principais: variação cambial, atraso de fornecedores, custos de construção civil acima do planejado. Líder: Maria González. Prazo: 15/10/2024. Ações urgentes: renegociar contratos e implementar plano de contingência.',
+        project: 'Expansão Capacidade México',
+        area: 'Engenharia',
+        date: '2024-07-10',
+        url: '/documents/analise-risco-expansao-mexico.pdf',
+        tags: ['risco crítico', 'sobre-custo', 'variação cambial', 'contingência']
       },
       {
         id: '4',
-        title: 'Histórico de Mudanças - Campanha Black Friday',
-        type: 'historico',
-        content: 'Histórico completo das alterações no projeto Campanha Black Friday. Versão 1.0: orçamento inicial R$ 180.000. Versão 1.1: aumento para R$ 200.000 devido a expansão do escopo digital. Versão 1.2: ajuste final para R$ 220.000 após inclusão de influenciadores. Status atual: 90% concluído com leve atraso de 5 dias.',
-        project: 'Campanha Black Friday',
-        area: 'Marketing',
-        date: '2024-11-20',
-        url: '/documents/historico-blackfriday-2024.pdf',
-        tags: ['mudança de escopo', 'marketing digital', 'influenciadores']
+        title: 'Manual de Indicadores VMO',
+        type: 'manual',
+        content: 'Manual completo dos indicadores utilizados no sistema VMO. CPI (Cost Performance Index): CPI = EV/AC. Valores <1 indicam sobre-orçamento. Exemplo: Projeto México com CPI 0.79 significa 21% de sobre-custo. BU (Budget Utilization): BU = Realizado/Orçamento * 100. Exemplo: Projeto Curitiba com BU 88% = R$ 1.875.000 / R$ 2.500.000. ROI: Return on Investment calculado como (Benefício - Custo) / Custo * 100.',
+        project: null,
+        area: 'PMO',
+        date: '2024-05-01',
+        url: '/documents/manual-indicadores-vmo.pdf',
+        tags: ['CPI', 'BU', 'ROI', 'indicadores', 'manual']
       },
       {
         id: '5',
-        title: 'Anexo Financeiro - Expansão Logística Sul',
-        type: 'anexo',
-        content: 'Planilha detalhada dos custos da Expansão Logística Sul. Total investido: R$ 615.000 de R$ 650.000 orçado. Economia de 5,4%. Principais itens: equipamentos R$ 400.000, obras civis R$ 180.000, licenças R$ 35.000. Projeto concluído dentro do prazo em novembro de 2024.',
-        project: 'Expansão Logística Sul',
-        area: 'Operações',
-        date: '2024-11-30',
-        url: '/documents/anexo-financeiro-logistica-sul.xlsx',
-        tags: ['economia', 'CAPEX', 'equipamentos', 'obras']
+        title: 'Relatório Transações Julho 2024',
+        type: 'relatorio',
+        content: 'Relatório detalhado das transações de julho 2024. Principais lançamentos: Modernização Curitiba - Equipamentos industriais R$ 875.000 (aprovado), Consultoria R$ 245.000 (pendente). ERP Rosário - Licenças software USD 320.000 (aprovado). Expansão México - Construção civil USD 1.200.000 (em execução). Total de transações: R$ 2.640.000 equivalente. Categoria predominante: Capex (78%). Status: 65% aprovado, 20% em execução, 15% pendente.',
+        project: 'Múltiplos',
+        area: 'Financeiro',
+        date: '2024-07-31',
+        url: '/documents/relatorio-transacoes-jul2024.xlsx',
+        tags: ['transações', 'Capex', 'aprovações', 'lançamentos']
+      },
+      {
+        id: '6',
+        title: 'Histórico Sustentabilidade Energia Verde',
+        type: 'historico',
+        content: 'Histórico completo do projeto Sustentabilidade Energia Verde. Versão 1.0: orçamento inicial USD 1.800.000. Líder: Juliana Santos. Escopo: implementação de painéis solares em múltiplas unidades. Progresso atual: 40% com USD 720.000 realizado. BU: 80%. ROI esperado: 25.3% com payback de 2.1 anos. Status: em andamento com prazo para dezembro 2025. Categoria: Capex ESG.',
+        project: 'Sustentabilidade Energia Verde',
+        area: 'ESG',
+        date: '2024-07-20',
+        url: '/documents/historico-sustentabilidade-verde.pdf',
+        tags: ['sustentabilidade', 'ESG', 'energia verde', 'payback']
       }
     ];
 

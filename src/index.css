@@ -105,4 +105,19 @@ All colors MUST be HSL.
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
   }
+  
+  /* Smooth transitions for sidebar */
+  .sidebar-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  /* Active menu item gradient */
+  .menu-item-active {
+    background: linear-gradient(135deg, hsl(var(--sidebar-accent)) 0%, hsl(var(--sidebar-accent) / 0.8) 100%);
+  }
+  
+  /* Hover effect for menu items */
+  .menu-item-hover {
+    @apply hover:bg-sidebar-accent/30 hover:shadow-sm;
+  }
 }

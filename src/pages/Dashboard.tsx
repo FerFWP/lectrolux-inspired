@@ -441,21 +441,6 @@ const Dashboard = () => {
             <p className="text-sm text-muted-foreground">Visão geral dos projetos financeiros</p>
           </div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            
-            Filtros
-          </Button>
-          <Button variant="outline" size="sm">
-            
-            Relatório
-          </Button>
-          <Button size="sm">
-            
-            Novo Projeto
-          </Button>
-        </div>
       </header>
 
       {/* Barra de Filtros Fixa */}

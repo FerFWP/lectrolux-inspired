@@ -87,7 +87,9 @@ const PortfolioDynamicReports = () => {
         dateCreated: new Date('2023-03-05')
       },
       
-      // 2024 Projects - Current Year
+      // 2024 Projects - Distribuídos para testar filtros de período
+      
+      // Projetos dos Últimos 3 meses (outubro-dezembro 2024)
       {
         id: 4,
         name: "Portal do Cliente V2",
@@ -98,40 +100,12 @@ const PortfolioDynamicReports = () => {
         realized: 340000,
         progress: 95,
         category: "Opex",
-        deadline: "2024-09-30",
+        deadline: "2024-12-30",
         critical: true,
-        dateCreated: new Date('2024-01-20')
+        dateCreated: new Date('2024-10-01') // Últimos 3 meses
       },
       {
         id: 5,
-        name: "Expansão Logística Sul",
-        area: "Operações",
-        status: "Concluído",
-        leader: "Pedro Lima",
-        budget: 650000,
-        realized: 615000,
-        progress: 100,
-        category: "Capex",
-        deadline: "2024-08-15",
-        critical: false,
-        dateCreated: new Date('2024-04-01')
-      },
-      {
-        id: 6,
-        name: "Plataforma E-commerce",
-        area: "TI",
-        status: "Em Andamento",
-        leader: "Ana Silva",
-        budget: 720000,
-        realized: 620000,
-        progress: 86,
-        category: "Capex",
-        deadline: "2024-12-15",
-        critical: false,
-        dateCreated: new Date('2024-05-10')
-      },
-      {
-        id: 7,
         name: "Campanha Black Friday",
         area: "Marketing",
         status: "Em Atraso",
@@ -140,12 +114,70 @@ const PortfolioDynamicReports = () => {
         realized: 220000,
         progress: 90,
         category: "Opex",
-        deadline: "2024-10-30",
+        deadline: "2024-11-30",
         critical: true,
-        dateCreated: new Date('2024-06-01')
+        dateCreated: new Date('2024-10-15') // Últimos 3 meses
       },
       {
+        id: 6,
+        name: "Sistema de Monitoramento",
+        area: "TI",
+        status: "Em Andamento",
+        leader: "Ana Silva",
+        budget: 420000,
+        realized: 350000,
+        progress: 83,
+        category: "Capex",
+        deadline: "2025-01-15",
+        critical: false,
+        dateCreated: new Date('2024-11-10') // Últimos 3 meses
+      },
+      {
+        id: 7,
+        name: "Treinamento Compliance",
+        area: "Recursos Humanos",
+        status: "Em Andamento",
+        leader: "Fernanda Costa",
+        budget: 85000,
+        realized: 75000,
+        progress: 88,
+        category: "Opex",
+        deadline: "2024-12-20",
+        critical: false,
+        dateCreated: new Date('2024-11-20') // Últimos 3 meses
+      },
+      
+      // Projetos dos Últimos 6 meses (julho-dezembro 2024)
+      {
         id: 8,
+        name: "Expansão Logística Sul",
+        area: "Operações",
+        status: "Concluído",
+        leader: "Pedro Lima",
+        budget: 650000,
+        realized: 615000,
+        progress: 100,
+        category: "Capex",
+        deadline: "2024-11-30",
+        critical: false,
+        dateCreated: new Date('2024-07-15') // Últimos 6 meses
+      },
+      {
+        id: 9,
+        name: "Plataforma E-commerce",
+        area: "TI",
+        status: "Em Andamento",
+        leader: "Ana Silva",
+        budget: 720000,
+        realized: 620000,
+        progress: 86,
+        category: "Capex",
+        deadline: "2025-01-31",
+        critical: false,
+        dateCreated: new Date('2024-08-01') // Últimos 6 meses
+      },
+      {
+        id: 10,
         name: "Automação Fábrica SP",
         area: "Operações",
         status: "Em Andamento",
@@ -154,12 +186,12 @@ const PortfolioDynamicReports = () => {
         realized: 420000,
         progress: 87,
         category: "Capex",
-        deadline: "2024-11-20",
+        deadline: "2025-02-15",
         critical: false,
-        dateCreated: new Date('2024-03-05')
+        dateCreated: new Date('2024-08-20') // Últimos 6 meses
       },
       {
-        id: 9,
+        id: 11,
         name: "Sistema de Qualidade",
         area: "Qualidade",
         status: "Em Andamento",
@@ -168,28 +200,28 @@ const PortfolioDynamicReports = () => {
         realized: 320000,
         progress: 84,
         category: "Opex",
-        deadline: "2024-12-30",
+        deadline: "2025-01-30",
         critical: false,
-        dateCreated: new Date('2024-04-15')
+        dateCreated: new Date('2024-09-10') // Últimos 6 meses
       },
       {
-        id: 10,
-        name: "Treinamento Liderança",
-        area: "Recursos Humanos",
+        id: 12,
+        name: "Otimização Energética",
+        area: "Operações",
         status: "Em Andamento",
-        leader: "Fernanda Costa",
-        budget: 120000,
-        realized: 110000,
-        progress: 92,
-        category: "Opex",
-        deadline: "2024-11-30",
+        leader: "Marina Santos",
+        budget: 320000,
+        realized: 280000,
+        progress: 87,
+        category: "Capex",
+        deadline: "2025-03-30",
         critical: false,
-        dateCreated: new Date('2024-07-01')
+        dateCreated: new Date('2024-09-25') // Últimos 6 meses
       },
       
       // 2025 Projects - Future
       {
-        id: 11,
+        id: 13,
         name: "Transformação Digital 2025",
         area: "TI",
         status: "Planejado",
@@ -203,7 +235,7 @@ const PortfolioDynamicReports = () => {
         dateCreated: new Date('2024-11-01')
       },
       {
-        id: 12,
+        id: 14,
         name: "Expansão Internacional",
         area: "Negócios",
         status: "Planejado",
@@ -217,7 +249,7 @@ const PortfolioDynamicReports = () => {
         dateCreated: new Date('2024-10-15')
       },
       {
-        id: 13,
+        id: 15,
         name: "Sustentabilidade Corporativa",
         area: "Operações",
         status: "Planejado",
@@ -231,7 +263,7 @@ const PortfolioDynamicReports = () => {
         dateCreated: new Date('2024-12-01')
       },
       {
-        id: 14,
+        id: 16,
         name: "AI & Machine Learning Hub",
         area: "TI",
         status: "Planejado",
@@ -277,7 +309,7 @@ const PortfolioDynamicReports = () => {
         return false;
       }
       
-      // Period filter (simplified - based on creation date)
+      // Period filter (based on creation date)
       const now = new Date();
       const monthsBack = {
         'last_3_months': 3,
@@ -286,7 +318,8 @@ const PortfolioDynamicReports = () => {
         'ytd': 12
       };
       const monthsToCheck = monthsBack[filters.period as keyof typeof monthsBack] || 6;
-      const cutoffDate = new Date(now.setMonth(now.getMonth() - monthsToCheck));
+      const cutoffDate = new Date();
+      cutoffDate.setMonth(cutoffDate.getMonth() - monthsToCheck);
       
       if (project.dateCreated < cutoffDate) {
         return false;

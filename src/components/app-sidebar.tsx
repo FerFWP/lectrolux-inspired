@@ -167,7 +167,7 @@ const MenuItemWithTooltip = ({ item, isActive, isCollapsed }: {
         }
       `}
     >
-      <item.icon className={`w-5 h-5 ${isActive ? "text-sidebar-primary" : ""}`} />
+      <item.icon className={`w-5 h-5 ${isActive ? "text-sidebar-primary" : ""} flex-shrink-0`} />
       {!isCollapsed && (
         <span className="flex-1 truncate">{item.title}</span>
       )}
@@ -204,8 +204,9 @@ const SubMenuItemWithTooltip = ({ item, isActive, isCollapsed }: {
     <NavLink
       to={item.url}
       className={`
-        flex items-center gap-3 px-3 py-2 ml-6 rounded-lg text-sm
+        flex items-center gap-3 px-3 py-2 rounded-lg text-sm
         transition-all duration-200 ease-in-out
+        ${isCollapsed ? "ml-0" : "ml-6"}
         ${isActive 
           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-sm border-l-2 border-sidebar-primary" 
           : "text-sidebar-foreground/70 hover:bg-sidebar-accent/30 hover:text-sidebar-accent-foreground"
@@ -213,9 +214,11 @@ const SubMenuItemWithTooltip = ({ item, isActive, isCollapsed }: {
       `}
     >
       <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-sidebar-primary" : ""}`} />
-      <span className="flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis">
-        {item.title}
-      </span>
+      {!isCollapsed && (
+        <span className="flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis">
+          {item.title}
+        </span>
+      )}
     </NavLink>
   );
 
@@ -262,25 +265,32 @@ export function AppSidebar() {
         variant="sidebar"
       >
         <SidebarContent className="relative">
-          {/* Header com Logo */}
-          <div className="flex items-center gap-3 p-4 bg-sidebar-accent/30 border-b border-sidebar-border">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
-              <img
-                src={electroluxLogo}
-                alt="Electrolux"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <h2 className="text-sidebar-accent-foreground font-semibold text-sm leading-tight">
-                  Gestão Financeira
-                </h2>
-                <p className="text-sidebar-foreground/60 text-xs">
-                  Electrolux
-                </p>
+          {/* Header com Logo e Toggle */}
+          <div className="flex items-center justify-between p-4 bg-sidebar-accent/30 border-b border-sidebar-border">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
+                <img
+                  src={electroluxLogo}
+                  alt="Electrolux"
+                  className="w-full h-full object-contain"
+                />
               </div>
-            )}
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-sidebar-accent-foreground font-semibold text-sm leading-tight">
+                    Gestão Financeira
+                  </h2>
+                  <p className="text-sidebar-foreground/60 text-xs">
+                    Electrolux
+                  </p>
+                </div>
+              )}
+            </div>
+            <SidebarTrigger className={`
+              p-1.5 rounded-md hover:bg-sidebar-accent/50 
+              transition-colors duration-200
+              ${isCollapsed ? "w-8 h-8 flex items-center justify-center" : ""}
+            `} />
           </div>
 
           {/* Menu Principal */}
@@ -331,7 +341,7 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <Collapsible
-                  open={vmoLatamOpen}
+                  open={isCollapsed || vmoLatamOpen}
                   onOpenChange={setVmoLatamOpen}
                   className="group/collapsible"
                 >
@@ -346,33 +356,45 @@ export function AppSidebar() {
                             : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                           }
                         `}>
-                          <BarChart3 className={`w-5 h-5 ${isVmoLatamActive ? "text-sidebar-primary" : ""}`} />
-                          {!isCollapsed && (
-                            <>
-                              <span className="flex-1">VMO LATAM</span>
-                              <ChevronRight className="w-4 h-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                            </>
-                          )}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-3 w-full">
+                                  <BarChart3 className={`w-5 h-5 ${isVmoLatamActive ? "text-sidebar-primary" : ""} flex-shrink-0`} />
+                                  {!isCollapsed && (
+                                    <>
+                                      <span className="flex-1">VMO LATAM</span>
+                                      <ChevronRight className="w-4 h-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                    </>
+                                  )}
+                                </div>
+                              </TooltipTrigger>
+                              {isCollapsed && (
+                                <TooltipContent side="right" className="ml-2">
+                                  <p className="font-medium">VMO LATAM</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Visão regional e análises estratégicas LATAM.</p>
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
-                    {!isCollapsed && (
-                      <CollapsibleContent className="transition-all duration-200 ease-in-out">
-                        <SidebarMenuSub className="mt-2 space-y-1">
-                          {vmoLatamSubmenu.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild className="p-0">
-                                <SubMenuItemWithTooltip 
-                                  item={subItem} 
-                                  isActive={isActive(subItem.url)} 
-                                  isCollapsed={isCollapsed}
-                                />
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    )}
+                    <CollapsibleContent className="transition-all duration-200 ease-in-out">
+                      <SidebarMenuSub className="mt-2 space-y-1">
+                        {vmoLatamSubmenu.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild className="p-0">
+                              <SubMenuItemWithTooltip 
+                                item={subItem} 
+                                isActive={isActive(subItem.url)} 
+                                isCollapsed={isCollapsed}
+                              />
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
                   </SidebarMenuItem>
                 </Collapsible>
               </SidebarMenu>
@@ -397,7 +419,7 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <Collapsible
-                  open={inteligenciaOpen}
+                  open={isCollapsed || inteligenciaOpen}
                   onOpenChange={setInteligenciaOpen}
                   className="group/collapsible"
                 >
@@ -412,33 +434,45 @@ export function AppSidebar() {
                             : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                           }
                         `}>
-                          <Brain className={`w-5 h-5 ${isInteligenciaActive ? "text-sidebar-primary" : ""}`} />
-                          {!isCollapsed && (
-                            <>
-                              <span className="flex-1">Inteligência</span>
-                              <ChevronRight className="w-4 h-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                            </>
-                          )}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-3 w-full">
+                                  <Brain className={`w-5 h-5 ${isInteligenciaActive ? "text-sidebar-primary" : ""} flex-shrink-0`} />
+                                  {!isCollapsed && (
+                                    <>
+                                      <span className="flex-1">Inteligência</span>
+                                      <ChevronRight className="w-4 h-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                    </>
+                                  )}
+                                </div>
+                              </TooltipTrigger>
+                              {isCollapsed && (
+                                <TooltipContent side="right" className="ml-2">
+                                  <p className="font-medium">Inteligência</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Funcionalidades de IA e automação.</p>
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
-                    {!isCollapsed && (
-                      <CollapsibleContent className="transition-all duration-200 ease-in-out">
-                        <SidebarMenuSub className="mt-2 space-y-1">
-                          {inteligenciaSubmenu.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild className="p-0">
-                                <SubMenuItemWithTooltip 
-                                  item={subItem} 
-                                  isActive={isActive(subItem.url)} 
-                                  isCollapsed={isCollapsed}
-                                />
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    )}
+                    <CollapsibleContent className="transition-all duration-200 ease-in-out">
+                      <SidebarMenuSub className="mt-2 space-y-1">
+                        {inteligenciaSubmenu.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild className="p-0">
+                              <SubMenuItemWithTooltip 
+                                item={subItem} 
+                                isActive={isActive(subItem.url)} 
+                                isCollapsed={isCollapsed}
+                              />
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
                   </SidebarMenuItem>
                 </Collapsible>
               </SidebarMenu>

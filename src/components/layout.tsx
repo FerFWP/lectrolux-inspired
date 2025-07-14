@@ -9,7 +9,7 @@ interface LayoutProps {
 }
 
 function LayoutContent({ children }: { children: ReactNode }) {
-  const { openMobile, open } = useSidebar();
+  const { openMobile } = useSidebar();
   const navigate = useNavigate();
   
   const handleLogoClick = () => {
@@ -20,14 +20,6 @@ function LayoutContent({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex w-full relative">
       <AppSidebar />
       
-      {/* Desktop overlay when sidebar is open */}
-      {open && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-[90] hidden md:block transition-opacity duration-300"
-          onClick={() => {}} // Prevent click through
-        />
-      )}
-      
       {/* Mobile overlay */}
       {openMobile && (
         <div className="fixed inset-0 bg-black/50 z-[90] md:hidden transition-opacity duration-300" />
@@ -37,7 +29,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
         <header className="h-12 flex items-center border-b bg-background px-4 relative z-[85]">
           <div className="flex items-center gap-3">
             <SidebarTrigger />
-            <button
+            <button 
               onClick={handleLogoClick} 
               className="flex items-center gap-3 hover:opacity-80 transition-opacity" 
               aria-label="Voltar ao Dashboard"

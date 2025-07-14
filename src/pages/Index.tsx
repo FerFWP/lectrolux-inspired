@@ -1,7 +1,10 @@
 import { LoginForm } from "@/components/login-form"
 import { toast } from "@/hooks/use-toast"
+import { useNavigate } from "react-router-dom"
 
 const Index = () => {
+  const navigate = useNavigate();
+
   const handleLogin = async (credentials: { username: string; password: string }) => {
     // Simulação de autenticação
     return new Promise<void>((resolve, reject) => {
@@ -14,7 +17,7 @@ const Index = () => {
           });
           // Redirecionar para o dashboard após login bem-sucedido
           setTimeout(() => {
-            window.location.href = "/dashboard";
+            navigate("/dashboard");
           }, 1000);
           resolve();
         } else {

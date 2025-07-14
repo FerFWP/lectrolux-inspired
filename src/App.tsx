@@ -19,6 +19,7 @@ import VmoLatamSimulacao from "./pages/VmoLatamSimulacao";
 import VmoLatamComparativo from "./pages/VmoLatamComparativo";
 import VmoLatamGovernanca from "./pages/VmoLatamGovernanca";
 import AssistenteDePerguntas from "./pages/AssistenteDePerguntas";
+import ExplanationCenter from "./pages/ExplanationCenter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,7 +53,7 @@ const App = () => (
           <Route path="/inteligencia/assistente" element={<Layout><AssistenteDePerguntas /></Layout>} />
           <Route path="/inteligencia/relatorios-dinamicos" element={<Layout><DynamicReportsGenerator /></Layout>} />
           <Route path="/relatorios-avancados" element={<Layout><PortfolioDynamicReports /></Layout>} />
-          <Route path="/inteligencia/explicacoes" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Explicações de Indicadores</h1><p className="text-muted-foreground mt-2">Solicite explicação de métricas, cálculos ou gráficos</p></div></Layout>} />
+          <Route path="/inteligencia/explicacoes" element={<Layout><ExplanationCenter /></Layout>} />
           <Route path="/inteligencia/pesquisa-avancada" element={<Layout><AdvancedSearch /></Layout>} />
           <Route path="/inteligencia/sugestoes" element={<Layout><ActionSuggestions /></Layout>} />
           

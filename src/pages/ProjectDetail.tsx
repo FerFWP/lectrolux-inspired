@@ -116,7 +116,7 @@ const generateMockProject = (projectId: string) => {
       budget: 3500000,
       realized: 2100000,
       committed: 800000,
-      currency: "EUR",
+      currency: "BRL",
       is_critical: true,
       progress: 45,
       deadline: new Date("2025-04-30"),
@@ -288,7 +288,7 @@ export default function ProjectDetail() {
   const { toast } = useToast();
 
   const formatCurrency = (amount: number, currency: string) => {
-    const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
+    const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
     return `${symbols[currency as keyof typeof symbols]} ${amount.toLocaleString("pt-BR")}`;
   };
 

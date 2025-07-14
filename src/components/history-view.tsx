@@ -36,7 +36,7 @@ export function HistoryView({ project, baselines, onRestoreBaseline }: HistoryVi
   const { toast } = useToast();
 
   const formatCurrency = (amount: number, currency: string = "BRL") => {
-    const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
+    const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
     return `${symbols[currency as keyof typeof symbols]} ${amount.toLocaleString("pt-BR")}`;
   };
 

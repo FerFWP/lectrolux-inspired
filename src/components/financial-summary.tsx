@@ -83,7 +83,7 @@ export function FinancialSummary({
   const [selectedChart, setSelectedChart] = useState("combined");
 
   const formatCurrency = (amount: number, currency: string = project.currency) => {
-    const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
+    const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
     return `${symbols[currency as keyof typeof symbols]} ${amount.toLocaleString("pt-BR")}`;
   };
 
@@ -153,9 +153,9 @@ export function FinancialSummary({
 
   // Taxa de câmbio (simulada)
   const exchangeRate = {
-    currency: "USD/BRL",
-    rate: 5.25,
-    variation: +0.15,
+    currency: "SEK/BRL",
+    rate: 0.48,
+    variation: +0.02,
     lastUpdate: new Date()
   };
 

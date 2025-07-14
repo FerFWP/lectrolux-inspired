@@ -24,7 +24,7 @@ interface Project {
   realized: number;
   committed: number;
   balance: number;
-  currency: "BRL" | "USD" | "EUR" | "SEK";
+  currency: "BRL" | "USD" | "SEK";
   isCritical: boolean;
   progress: number;
   deadline: string;
@@ -98,7 +98,7 @@ const mockProjects: Project[] = [
     realized: 2100000,
     committed: 800000,
     balance: 600000,
-    currency: "EUR",
+    currency: "BRL",
     isCritical: true,
     progress: 45,
     deadline: "30/04/2025",
@@ -187,7 +187,7 @@ export default function ProjectsList() {
   const navigate = useNavigate();
 
   const formatCurrency = (amount: number, currency: string) => {
-    const symbols = { BRL: "R$", USD: "$", EUR: "€", SEK: "kr" };
+    const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
     return `${symbols[currency as keyof typeof symbols]} ${amount.toLocaleString("pt-BR")}`;
   };
 
@@ -473,7 +473,7 @@ export default function ProjectsList() {
                   <SelectContent>
                     <SelectItem value="BRL">Real (BRL)</SelectItem>
                     <SelectItem value="USD">Dólar (USD)</SelectItem>
-                    <SelectItem value="EUR">Euro (EUR)</SelectItem>
+                    
                     <SelectItem value="SEK">Coroa Sueca (SEK)</SelectItem>
                   </SelectContent>
                 </Select>

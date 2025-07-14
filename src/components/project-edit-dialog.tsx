@@ -188,7 +188,7 @@ export function ProjectEditDialog({ project, onProjectUpdate }: ProjectEditDialo
                 <SelectContent>
                   <SelectItem value="BRL">BRL</SelectItem>
                   <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="EUR">EUR</SelectItem>
+                  
                 </SelectContent>
               </Select>
             </div>

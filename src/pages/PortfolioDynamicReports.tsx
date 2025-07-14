@@ -787,7 +787,7 @@ const PortfolioDynamicReports = () => {
                 <SelectContent>
                   <SelectItem value="BRL">Real (R$)</SelectItem>
                   <SelectItem value="USD">Dólar ($)</SelectItem>
-                  <SelectItem value="EUR">Euro (€)</SelectItem>
+                  
                 </SelectContent>
               </Select>
             </div>
@@ -1214,7 +1214,7 @@ const PortfolioDynamicReports = () => {
             <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm">
               <p className="font-medium text-orange-800">⚠️ Atenção: Maior Desvio</p>
-              <p className="text-orange-700">O projeto 'Portal do Cliente' registrou desvio de +€50.000 (17%) em Janeiro. Recomenda-se análise urgente dos custos de consultoria.</p>
+              <p className="text-orange-700">O projeto 'Portal do Cliente' registrou desvio de +R$ 50.000 (17%) em Janeiro. Recomenda-se análise urgente dos custos de consultoria.</p>
             </div>
           </div>
           
@@ -1222,7 +1222,7 @@ const PortfolioDynamicReports = () => {
             <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm">
               <p className="font-medium text-red-800">🚨 Saldo Crítico</p>
-              <p className="text-red-700">2 projetos apresentam saldo negativo totalizando -€50.000. Ação imediata necessária para contenção de custos.</p>
+              <p className="text-red-700">2 projetos apresentam saldo negativo totalizando -R$ 50.000. Ação imediata necessária para contenção de custos.</p>
             </div>
           </div>
           

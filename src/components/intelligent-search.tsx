@@ -15,7 +15,7 @@ interface Project {
   realized: number;
   committed: number;
   balance: number;
-  currency: "BRL" | "USD" | "EUR" | "SEK";
+  currency: "BRL" | "USD" | "SEK";
   isCritical: boolean;
   progress: number;
   deadline: string;

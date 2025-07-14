@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -14,20 +15,55 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from '@/hooks/use-toast';
 
+interface UserProfile {
+  display_name: string | null;
+  email: string | null;
+}
+
 export const UserProfileMenu = () => {
   const { user, signOut } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('display_name, email')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return;
+      }
+
+      setUserProfile(data);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   if (!user) return null;
 
-  const getInitials = (email: string) => {
-    const name = email.split('@')[0];
-    return name.charAt(0).toUpperCase();
+  const getInitials = (name: string) => {
+    if (!name) return user.email?.charAt(0).toUpperCase() || 'U';
+    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
   };
 
-  const getDisplayName = (email: string) => {
-    const name = email.split('@')[0];
-    return name.charAt(0).toUpperCase() + name.slice(1);
+  const getDisplayName = () => {
+    if (userProfile?.display_name) {
+      return userProfile.display_name;
+    }
+    return user.email?.split('@')[0] || 'Usuário';
   };
 
   const handleSignOut = async () => {
@@ -68,7 +104,7 @@ export const UserProfileMenu = () => {
       <div className="flex items-center gap-3">
         {/* Nome do usuário (escondido em mobile) */}
         <span className="hidden sm:block text-sm font-medium text-foreground">
-          {getDisplayName(user.email || '')}
+          {getDisplayName()}
         </span>
 
         {/* Menu do perfil */}
@@ -80,7 +116,7 @@ export const UserProfileMenu = () => {
                   <Avatar className="h-10 w-10">
                     <AvatarImage src="" alt="Profile" />
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      {getInitials(user.email || '')}
+                      {getInitials(userProfile?.display_name || user.email || '')}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -95,7 +131,7 @@ export const UserProfileMenu = () => {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">
-                  {getDisplayName(user.email || '')}
+                  {getDisplayName()}
                 </p>
                 <p className="text-xs leading-none text-muted-foreground">
                   {user.email}

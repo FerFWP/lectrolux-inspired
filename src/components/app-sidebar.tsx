@@ -28,6 +28,12 @@ import {
   Shield,
   Target,
   Building2,
+  Brain,
+  MessageCircle,
+  FileBarChart,
+  HelpCircle,
+  Search,
+  Lightbulb,
 } from "lucide-react";
 
 const mainMenuItems = [
@@ -92,6 +98,44 @@ const vmoLatamSubmenu = [
   },
 ];
 
+const inteligenciaSubmenu = [
+  {
+    title: "Assistente de Perguntas",
+    url: "/inteligencia/assistente",
+    icon: MessageCircle,
+    description: "Chatbot para dúvidas sobre indicadores, conceitos, status ou procedimentos",
+    badge: "Beta"
+  },
+  {
+    title: "Geração de Relatórios Dinâmicos",
+    url: "/inteligencia/relatorios-dinamicos",
+    icon: FileBarChart,
+    description: "Solicite análises personalizadas via prompt (ex: projetos com desvio >15%)",
+    badge: "Beta"
+  },
+  {
+    title: "Explicações de Indicadores",
+    url: "/inteligencia/explicacoes",
+    icon: HelpCircle,
+    description: "Solicite explicação de métricas, cálculos ou gráficos específicos",
+    badge: "Beta"
+  },
+  {
+    title: "Pesquisa Avançada (RAG)",
+    url: "/inteligencia/pesquisa-avancada",
+    icon: Search,
+    description: "Busca semântica em documentos, atas, anexos usando linguagem natural",
+    badge: "Beta"
+  },
+  {
+    title: "Sugestão de Ações",
+    url: "/inteligencia/sugestoes",
+    icon: Lightbulb,
+    description: "Painel com recomendações e alertas automáticos baseados nos dados",
+    badge: "Beta"
+  },
+];
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -100,9 +144,13 @@ export function AppSidebar() {
   const [vmoLatamOpen, setVmoLatamOpen] = useState(
     currentPath.startsWith("/vmo-latam")
   );
+  const [inteligenciaOpen, setInteligenciaOpen] = useState(
+    currentPath.startsWith("/inteligencia")
+  );
 
   const isActive = (path: string) => currentPath === path;
   const isVmoLatamActive = currentPath.startsWith("/vmo-latam");
+  const isInteligenciaActive = currentPath.startsWith("/inteligencia");
 
   const getNavClassName = (isActive: boolean) =>
     isActive
@@ -202,6 +250,69 @@ export function AppSidebar() {
                               >
                                 <subItem.icon className="w-4 h-4" />
                                 <span className="text-sm">{subItem.title}</span>
+                              </NavLink>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  )}
+                </SidebarMenuItem>
+              </Collapsible>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Inteligência Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel className={isCollapsed ? "sr-only" : ""}>
+            Inteligência
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <Collapsible
+                open={inteligenciaOpen}
+                onOpenChange={setInteligenciaOpen}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      className={`${
+                        isInteligenciaActive
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "hover:bg-muted/50"
+                      } ${isCollapsed ? "justify-center" : ""}`}
+                    >
+                      <Brain className="w-4 h-4" />
+                      {!isCollapsed && (
+                        <>
+                          <span>Inteligência</span>
+                          <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                        </>
+                      )}
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  {!isCollapsed && (
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {inteligenciaSubmenu.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild>
+                              <NavLink
+                                to={subItem.url}
+                                className={`${getSubNavClassName(isActive(subItem.url))} flex items-center justify-between`}
+                                title={subItem.description}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <subItem.icon className="w-4 h-4" />
+                                  <span className="text-sm">{subItem.title}</span>
+                                </div>
+                                {subItem.badge && (
+                                  <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+                                    {subItem.badge}
+                                  </span>
+                                )}
                               </NavLink>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>

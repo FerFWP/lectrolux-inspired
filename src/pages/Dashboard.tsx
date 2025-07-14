@@ -718,24 +718,52 @@ const Dashboard = () => {
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
-                          <Pie data={projectsByStatus} cx="50%" cy="50%" outerRadius={100} dataKey="value" label={({
-                    name,
-                    value
-                  }) => `${name}: ${value}%`} stroke="hsl(var(--background))" strokeWidth={2}>
-                            {projectsByStatus.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.name === "Em Atraso" ? "hsl(351, 83%, 50%)" : entry.color} strokeWidth={entry.name === "Em Atraso" ? 3 : 1} />)}
+                          <Pie 
+                            data={projectsByStatus} 
+                            cx="50%" 
+                            cy="50%" 
+                            outerRadius={100} 
+                            dataKey="value"
+                            stroke="hsl(var(--background))" 
+                            strokeWidth={2}
+                          >
+                            {projectsByStatus.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={entry.color} 
+                                stroke={entry.name === "Em Atraso" ? "hsl(351, 83%, 50%)" : entry.color} 
+                                strokeWidth={entry.name === "Em Atraso" ? 3 : 1} 
+                              />
+                            ))}
                           </Pie>
-                          <RechartsTooltip />
+                          <RechartsTooltip 
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+                                    <p className="font-semibold text-foreground mb-1">{data.name}</p>
+                                    <p className="text-sm text-muted-foreground">{data.value}%</p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
                         </PieChart>
                       </ResponsiveContainer>
                       <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
-                        {projectsByStatus.map((status, index) => <div key={index} className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-sm" style={{
-                    backgroundColor: status.color
-                  }}></div>
+                        {projectsByStatus.map((status, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-sm" 
+                              style={{ backgroundColor: status.color }}
+                            ></div>
                             <span className={status.name === "Em Atraso" ? "font-semibold text-destructive" : ""}>
                               {status.name}: {status.value}%
                             </span>
-                          </div>)}
+                          </div>
+                        ))}
                       </div>
                     </CardContent>
                   </Card>

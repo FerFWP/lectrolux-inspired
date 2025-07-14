@@ -49,7 +49,10 @@ const AssistenteDePerguntas = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('chat-assistant', {
-        body: { question: question.trim() }
+        body: { question: question.trim() },
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
       });
 
       if (error) {

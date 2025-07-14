@@ -1,7 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.5';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,6 +30,89 @@ serve(async (req) => {
 
     console.log('Processing question:', question);
 
+    // Create Supabase client
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get user context from request headers
+    const authHeader = req.headers.get('authorization');
+    let userId = null;
+    
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.replace('Bearer ', '');
+        const { data } = await supabase.auth.getUser(token);
+        userId = data.user?.id;
+        console.log('User ID from token:', userId);
+      } catch (error) {
+        console.error('Error getting user from token:', error);
+      }
+    }
+
+    // Get relevant data based on the question
+    let contextData = '';
+    
+    try {
+      // Get projects data
+      const { data: projects, error: projectsError } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', userId || '')
+        .limit(50);
+
+      if (projectsError) {
+        console.error('Error fetching projects:', projectsError);
+      } else {
+        console.log('Found projects:', projects?.length || 0);
+      }
+
+      // Get transactions data
+      const { data: transactions, error: transactionsError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId || '')
+        .limit(100);
+
+      if (transactionsError) {
+        console.error('Error fetching transactions:', transactionsError);
+      } else {
+        console.log('Found transactions:', transactions?.length || 0);
+      }
+
+      // Get baselines data
+      const { data: baselines, error: baselinesError } = await supabase
+        .from('baselines')
+        .select('*')
+        .eq('user_id', userId || '')
+        .limit(50);
+
+      if (baselinesError) {
+        console.error('Error fetching baselines:', baselinesError);
+      } else {
+        console.log('Found baselines:', baselines?.length || 0);
+      }
+
+      // Build context data
+      if (projects && projects.length > 0) {
+        contextData += `\n\nDADOS DOS PROJETOS ATUAIS:\n${JSON.stringify(projects, null, 2)}`;
+      }
+      
+      if (transactions && transactions.length > 0) {
+        contextData += `\n\nTRANSAÇÕES RECENTES:\n${JSON.stringify(transactions, null, 2)}`;
+      }
+      
+      if (baselines && baselines.length > 0) {
+        contextData += `\n\nBASELINES DOS PROJETOS:\n${JSON.stringify(baselines, null, 2)}`;
+      }
+
+      if (contextData) {
+        contextData = `\n\nCONTEXTO DOS DADOS DISPONÍVEIS:${contextData}`;
+      }
+      
+    } catch (dataError) {
+      console.error('Error fetching context data:', dataError);
+      contextData = '\n\nNota: Não foi possível acessar os dados do usuário no momento.';
+    }
+
     const systemPrompt = `Você é um assistente especializado em gestão de projetos e portfólio para um sistema VMO (Value Management Office) corporativo.
 
 Contexto do sistema:
@@ -37,15 +123,33 @@ Contexto do sistema:
 - Atende unidades no Brasil (Curitiba, São Carlos, Manaus), Argentina (Rosário) e Chile (Santiago)
 - Usa metodologias de PMO e governança corporativa
 
-Diretrizes para suas respostas:
-1. Seja prático e objetivo
-2. Use linguagem técnica apropriada mas acessível
-3. Inclua exemplos quando relevante
-4. Sugira próximos passos quando aplicável
-5. Mantenha foco no contexto de gestão de projetos e portfólio
-6. Se não souber algo específico do sistema, seja honesto mas ofereça orientações gerais
+DADOS DISPONÍVEIS:
+- Projetos: id, name, project_code, area, leader, status, budget, realized, committed, progress, currency, start_date, deadline, is_critical
+- Transações: amount, category, description, transaction_date, transaction_type, project_id
+- Baselines: version, budget, description, project_id
 
-Responda sempre em português brasileiro e de forma profissional.`;
+Diretrizes para suas respostas:
+1. SEMPRE use os dados reais fornecidos no contexto quando disponíveis
+2. Seja específico com números, datas e valores dos dados reais
+3. Identifique projetos pelo nome e código quando mencioná-los
+4. Calcule métricas e indicadores usando os dados fornecidos
+5. Seja prático e objetivo
+6. Use linguagem técnica apropriada mas acessível
+7. Inclua exemplos baseados nos dados reais quando relevante
+8. Sugira próximos passos quando aplicável
+9. Se não houver dados suficientes, seja claro sobre as limitações
+10. Mantenha foco no contexto de gestão de projetos e portfólio
+
+Quando analisar dados:
+- Calcule desvios: (Realizado - Orçado) / Orçado * 100
+- Identifique projetos críticos por status ou flag is_critical
+- Agrupe por área, líder ou unidade quando relevante
+- Compare realizados vs. budget vs. committed
+- Analise tendências temporais quando datas estão disponíveis
+
+Responda sempre em português brasileiro e de forma profissional.${contextData}`;
+
+    const userMessage = question;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -57,7 +161,7 @@ Responda sempre em português brasileiro e de forma profissional.`;
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: question }
+          { role: 'user', content: userMessage }
         ],
         temperature: 0.7,
         max_tokens: 1000,

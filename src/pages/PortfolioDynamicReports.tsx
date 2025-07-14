@@ -238,20 +238,22 @@ const PortfolioDynamicReports = () => {
     }
 
     // Generate monthly evolution based on filtered projects
-    const monthlyEvolution = [
+    const monthlyEvolution = projects.length > 0 ? [
       { month: 'Jan', budget: projects.reduce((sum, p) => sum + p.budget * 0.15, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.12, 0) },
       { month: 'Fev', budget: projects.reduce((sum, p) => sum + p.budget * 0.18, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.16, 0) },
       { month: 'Mar', budget: projects.reduce((sum, p) => sum + p.budget * 0.22, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.21, 0) },
       { month: 'Abr', budget: projects.reduce((sum, p) => sum + p.budget * 0.25, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.28, 0) },
       { month: 'Mai', budget: projects.reduce((sum, p) => sum + p.budget * 0.28, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.32, 0) },
       { month: 'Jun', budget: projects.reduce((sum, p) => sum + p.budget * 0.30, 0), realized: projects.reduce((sum, p) => sum + p.realized * 0.29, 0) }
-    ].map(item => ({ ...item, variance: item.realized - item.budget }));
+    ].map(item => ({ ...item, variance: item.realized - item.budget })) : [];
 
     // Calculate category distribution
-    const categoryTotals = projects.reduce((acc, project) => {
-      acc[project.category] = (acc[project.category] || 0) + project.realized;
-      return acc;
-    }, {} as Record<string, number>);
+    const categoryTotals = projects.length > 0 
+      ? projects.reduce((acc, project) => {
+          acc[project.category] = (acc[project.category] || 0) + project.realized;
+          return acc;
+        }, {} as Record<string, number>)
+      : {};
 
     const categoryDistribution = Object.entries(categoryTotals).map(([name, value], index) => ({
       name,
@@ -261,15 +263,17 @@ const PortfolioDynamicReports = () => {
     }));
 
     // Calculate area distribution
-    const areaTotals = projects.reduce((acc, project) => {
-      if (!acc[project.area]) {
-        acc[project.area] = { budget: 0, realized: 0, projects: 0 };
-      }
-      acc[project.area].budget += project.budget;
-      acc[project.area].realized += project.realized;
-      acc[project.area].projects += 1;
-      return acc;
-    }, {} as Record<string, { budget: number; realized: number; projects: number }>);
+    const areaTotals = projects.length > 0 
+      ? projects.reduce((acc, project) => {
+          if (!acc[project.area]) {
+            acc[project.area] = { budget: 0, realized: 0, projects: 0 };
+          }
+          acc[project.area].budget += project.budget;
+          acc[project.area].realized += project.realized;
+          acc[project.area].projects += 1;
+          return acc;
+        }, {} as Record<string, { budget: number; realized: number; projects: number }>)
+      : {};
 
     const areaDistribution = Object.entries(areaTotals).map(([name, data]) => ({
       name,
@@ -283,8 +287,8 @@ const PortfolioDynamicReports = () => {
       areaDistribution,
       totals: {
         projects: projects.length,
-        budget: projects.reduce((sum, p) => sum + p.budget, 0),
-        realized: projects.reduce((sum, p) => sum + p.realized, 0),
+        budget: projects.length > 0 ? projects.reduce((sum, p) => sum + p.budget, 0) : 0,
+        realized: projects.length > 0 ? projects.reduce((sum, p) => sum + p.realized, 0) : 0,
         critical: projects.filter(p => p.critical).length
       }
     };

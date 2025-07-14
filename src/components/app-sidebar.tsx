@@ -256,41 +256,31 @@ export function AppSidebar() {
   return (
     <TooltipProvider>
       <Sidebar
-        className={`
-          ${isCollapsed ? "w-16" : "w-80"} 
-          transition-all duration-300 ease-in-out
-          bg-sidebar border-r border-sidebar-border
-          fixed inset-y-0 left-0 z-50 md:relative md:z-auto
-        `}
+        className="transition-all duration-300 ease-in-out bg-sidebar border-r border-sidebar-border"
         collapsible="icon"
+        side="left"
+        variant="sidebar"
       >
         <SidebarContent className="relative">
-          {/* Header com Logo e Toggle */}
-          <div className="flex items-center justify-between p-4 bg-sidebar-accent/30 border-b border-sidebar-border">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
-                <img
-                  src={electroluxLogo}
-                  alt="Electrolux"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              {!isCollapsed && (
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-sidebar-accent-foreground font-semibold text-sm leading-tight">
-                    Gestão Financeira
-                  </h2>
-                  <p className="text-sidebar-foreground/60 text-xs">
-                    Electrolux
-                  </p>
-                </div>
-              )}
+          {/* Header com Logo */}
+          <div className="flex items-center gap-3 p-4 bg-sidebar-accent/30 border-b border-sidebar-border">
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
+              <img
+                src={electroluxLogo}
+                alt="Electrolux"
+                className="w-full h-full object-contain"
+              />
             </div>
-            <SidebarTrigger className={`
-              p-1.5 rounded-md hover:bg-sidebar-accent/50 
-              transition-colors duration-200
-              ${isCollapsed ? "mx-auto" : ""}
-            `} />
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <h2 className="text-sidebar-accent-foreground font-semibold text-sm leading-tight">
+                  Gestão Financeira
+                </h2>
+                <p className="text-sidebar-foreground/60 text-xs">
+                  Electrolux
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Menu Principal */}

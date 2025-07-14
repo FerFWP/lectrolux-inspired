@@ -9,7 +9,7 @@ interface LayoutProps {
 }
 
 function LayoutContent({ children }: { children: ReactNode }) {
-  const { openMobile } = useSidebar();
+  const { openMobile, open } = useSidebar();
   const navigate = useNavigate();
   
   const handleLogoClick = () => {
@@ -20,16 +20,24 @@ function LayoutContent({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex w-full relative">
       <AppSidebar />
       
-      {/* Mobile overlay */}
-      {openMobile && (
-        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" />
+      {/* Desktop overlay when sidebar is open */}
+      {open && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-[90] hidden md:block transition-opacity duration-300"
+          onClick={() => {}} // Prevent click through
+        />
       )}
       
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-12 flex items-center border-b bg-background px-4 relative z-30">
+      {/* Mobile overlay */}
+      {openMobile && (
+        <div className="fixed inset-0 bg-black/50 z-[90] md:hidden transition-opacity duration-300" />
+      )}
+      
+      <div className="flex-1 flex flex-col min-w-0 relative z-[80]">
+        <header className="h-12 flex items-center border-b bg-background px-4 relative z-[85]">
           <div className="flex items-center gap-3">
-            <SidebarTrigger className="md:hidden" />
-            <button 
+            <SidebarTrigger />
+            <button
               onClick={handleLogoClick} 
               className="flex items-center gap-3 hover:opacity-80 transition-opacity" 
               aria-label="Voltar ao Dashboard"
@@ -48,7 +56,11 @@ function LayoutContent({ children }: { children: ReactNode }) {
             </button>
           </div>
         </header>
-        <main className="flex-1 relative">{children}</main>
+        <main className="flex-1 relative bg-background">
+          <div className="h-full w-full overflow-auto">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

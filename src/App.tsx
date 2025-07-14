@@ -32,8 +32,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Public Routes - With Sidebar */}
-          <Route path="/" element={<Layout><Index /></Layout>} />
+          {/* Public Routes - Without Sidebar */}
+          <Route path="/" element={<Index />} />
           
           {/* Protected Routes - With Sidebar */}
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />

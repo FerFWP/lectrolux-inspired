@@ -20,11 +20,11 @@ export function Layout({ children }: LayoutProps) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-12 flex items-center justify-between border-b bg-background px-4">
-            <div className="flex items-center gap-4">
+          <header className="h-12 flex items-center border-b bg-background px-4">
+            <div className="flex items-center gap-3">
               <button
                 onClick={handleLogoClick}
-                className="flex items-center hover:opacity-80 transition-opacity"
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                 aria-label="Voltar ao Dashboard"
               >
                 <img
@@ -32,10 +32,12 @@ export function Layout({ children }: LayoutProps) {
                   alt="Electrolux"
                   className="h-6 w-auto object-contain md:h-8"
                 />
+                <span className="font-semibold text-sm md:text-base">
+                  Gestão Financeira Electrolux
+                </span>
               </button>
-              <SidebarTrigger className="ml-2" />
+              <SidebarTrigger className="ml-4" />
             </div>
-            <h1 className="font-semibold text-sm md:text-base">Sistema de Gestão Financeira</h1>
           </header>
           <main className="flex-1">{children}</main>
         </div>

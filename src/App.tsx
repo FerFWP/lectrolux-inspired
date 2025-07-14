@@ -11,6 +11,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import PortfolioDynamicReports from "./pages/PortfolioDynamicReports";
 import UserAdministration from "./pages/UserAdministration";
 import VmoLatamDashboard from "./pages/VmoLatamDashboard";
+import VmoLatamMultiMoeda from "./pages/VmoLatamMultiMoeda";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,7 +35,7 @@ const App = () => (
           
           {/* VMO LATAM Routes - With Sidebar */}
           <Route path="/vmo-latam/dashboard-consolidado" element={<Layout><VmoLatamDashboard /></Layout>} />
-          <Route path="/vmo-latam/multi-moeda-cambio" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Multi-moeda & Câmbio</h1><p className="text-muted-foreground mt-2">Análise de variações cambiais e orçamentos em moedas diferentes</p></div></Layout>} />
+          <Route path="/vmo-latam/multi-moeda-cambio" element={<Layout><VmoLatamMultiMoeda /></Layout>} />
           <Route path="/vmo-latam/simulacao-cenarios" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Simulação de Cenários</h1><p className="text-muted-foreground mt-2">Tela para simulação orçamentária ('what-if') com ajustes e impacto</p></div></Layout>} />
           <Route path="/vmo-latam/comparativo-valor" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Comparativo de Valor</h1><p className="text-muted-foreground mt-2">Painel comparativo de ROI, valor agregado e performance por região/área</p></div></Layout>} />
           <Route path="/vmo-latam/governanca-auditoria" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Governança & Auditoria</h1><p className="text-muted-foreground mt-2">Logs, registros de decisões, justificativas e exportação para compliance</p></div></Layout>} />

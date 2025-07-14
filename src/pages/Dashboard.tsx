@@ -25,6 +25,7 @@ import {
   Clock
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { WelcomeMessage } from "@/components/welcome-message";
 
 // Função para gerar dados dinâmicos baseados nos filtros
 const getFilteredData = (area: string, year: string, status: string) => {
@@ -275,7 +276,7 @@ const Dashboard = () => {
       <header className="bg-card border-b border-border p-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-primary">Dashboard Portfólio</h1>
+            <WelcomeMessage />
             <p className="text-sm text-muted-foreground">Visão geral dos projetos financeiros</p>
           </div>
         </div>

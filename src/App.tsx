@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { AuthProvider } from "@/contexts/auth-context";
+import { ProtectedRoute } from "@/components/protected-route";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import ProjectsList from "./pages/ProjectsList";
@@ -28,41 +30,43 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
           {/* Public Routes - Without Sidebar */}
           <Route path="/" element={<Index />} />
           
           {/* Protected Routes - With Sidebar */}
-          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/projetos" element={<Layout><ProjectsList /></Layout>} />
-          <Route path="/projetos/:id" element={<Layout><ProjectDetail /></Layout>} />
-          <Route path="/relatorios-dinamicos" element={<Layout><PortfolioDynamicReports /></Layout>} />
-          <Route path="/gamificacao" element={<Layout><Gamificacao /></Layout>} />
-          <Route path="/administracao" element={<Layout><UserAdministration /></Layout>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+          <Route path="/projetos" element={<ProtectedRoute><Layout><ProjectsList /></Layout></ProtectedRoute>} />
+          <Route path="/projetos/:id" element={<ProtectedRoute><Layout><ProjectDetail /></Layout></ProtectedRoute>} />
+          <Route path="/relatorios-dinamicos" element={<ProtectedRoute><Layout><PortfolioDynamicReports /></Layout></ProtectedRoute>} />
+          <Route path="/gamificacao" element={<ProtectedRoute><Layout><Gamificacao /></Layout></ProtectedRoute>} />
+          <Route path="/administracao" element={<ProtectedRoute><Layout><UserAdministration /></Layout></ProtectedRoute>} />
           
           {/* VMO LATAM Routes - With Sidebar */}
-          <Route path="/vmo-latam/dashboard-consolidado" element={<Layout><VmoLatamDashboard /></Layout>} />
-          <Route path="/vmo-latam/multi-moeda-cambio" element={<Layout><VmoLatamMultiMoeda /></Layout>} />
-          <Route path="/vmo-latam/simulacao-cenarios" element={<Layout><VmoLatamSimulacao /></Layout>} />
-          <Route path="/vmo-latam/comparativo-valor" element={<Layout><VmoLatamComparativo /></Layout>} />
-          <Route path="/vmo-latam/governanca-auditoria" element={<Layout><VmoLatamGovernanca /></Layout>} />
-          <Route path="/vmo-latam/clusters-estrategicos" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Clusters Estratégicos</h1><p className="text-muted-foreground mt-2">Visualização e análise dos projetos por temas estratégicos (inovação, ESG, eficiência)</p></div></Layout>} />
+          <Route path="/vmo-latam/dashboard-consolidado" element={<ProtectedRoute><Layout><VmoLatamDashboard /></Layout></ProtectedRoute>} />
+          <Route path="/vmo-latam/multi-moeda-cambio" element={<ProtectedRoute><Layout><VmoLatamMultiMoeda /></Layout></ProtectedRoute>} />
+          <Route path="/vmo-latam/simulacao-cenarios" element={<ProtectedRoute><Layout><VmoLatamSimulacao /></Layout></ProtectedRoute>} />
+          <Route path="/vmo-latam/comparativo-valor" element={<ProtectedRoute><Layout><VmoLatamComparativo /></Layout></ProtectedRoute>} />
+          <Route path="/vmo-latam/governanca-auditoria" element={<ProtectedRoute><Layout><VmoLatamGovernanca /></Layout></ProtectedRoute>} />
+          <Route path="/vmo-latam/clusters-estrategicos" element={<ProtectedRoute><Layout><div className="p-6"><h1 className="text-2xl font-bold">Clusters Estratégicos</h1><p className="text-muted-foreground mt-2">Visualização e análise dos projetos por temas estratégicos (inovação, ESG, eficiência)</p></div></Layout></ProtectedRoute>} />
           
           {/* Inteligência Routes - With Sidebar */}
-          <Route path="/inteligencia/assistente" element={<Layout><AssistenteDePerguntas /></Layout>} />
-          <Route path="/inteligencia/relatorios-dinamicos" element={<Layout><DynamicReportsGenerator /></Layout>} />
-          <Route path="/relatorios-avancados" element={<Layout><PortfolioDynamicReports /></Layout>} />
-          <Route path="/inteligencia/explicacoes" element={<Layout><ExplanationCenter /></Layout>} />
-          <Route path="/inteligencia/pesquisa-avancada" element={<Layout><AdvancedSearch /></Layout>} />
-          <Route path="/inteligencia/sugestoes" element={<Layout><ActionSuggestions /></Layout>} />
+          <Route path="/inteligencia/assistente" element={<ProtectedRoute><Layout><AssistenteDePerguntas /></Layout></ProtectedRoute>} />
+          <Route path="/inteligencia/relatorios-dinamicos" element={<ProtectedRoute><Layout><DynamicReportsGenerator /></Layout></ProtectedRoute>} />
+          <Route path="/relatorios-avancados" element={<ProtectedRoute><Layout><PortfolioDynamicReports /></Layout></ProtectedRoute>} />
+          <Route path="/inteligencia/explicacoes" element={<ProtectedRoute><Layout><ExplanationCenter /></Layout></ProtectedRoute>} />
+          <Route path="/inteligencia/pesquisa-avancada" element={<ProtectedRoute><Layout><AdvancedSearch /></Layout></ProtectedRoute>} />
+          <Route path="/inteligencia/sugestoes" element={<ProtectedRoute><Layout><ActionSuggestions /></Layout></ProtectedRoute>} />
           
           {/* 404 Route - With Sidebar */}
-          <Route path="*" element={<Layout><NotFound /></Layout>} />
+          <Route path="*" element={<ProtectedRoute><Layout><NotFound /></Layout></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

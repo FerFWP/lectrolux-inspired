@@ -11,6 +11,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import PortfolioDynamicReports from "./pages/PortfolioDynamicReports";
 import DynamicReportsGenerator from "./pages/DynamicReportsGenerator";
 import AdvancedSearch from "./pages/AdvancedSearch";
+import ActionSuggestions from "./pages/ActionSuggestions";
 import UserAdministration from "./pages/UserAdministration";
 import VmoLatamDashboard from "./pages/VmoLatamDashboard";
 import VmoLatamMultiMoeda from "./pages/VmoLatamMultiMoeda";
@@ -53,7 +54,7 @@ const App = () => (
           <Route path="/relatorios-avancados" element={<Layout><PortfolioDynamicReports /></Layout>} />
           <Route path="/inteligencia/explicacoes" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Explicações de Indicadores</h1><p className="text-muted-foreground mt-2">Solicite explicação de métricas, cálculos ou gráficos</p></div></Layout>} />
           <Route path="/inteligencia/pesquisa-avancada" element={<Layout><AdvancedSearch /></Layout>} />
-          <Route path="/inteligencia/sugestoes" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Sugestão de Ações</h1><p className="text-muted-foreground mt-2">Painel com recomendações e alertas automáticos</p></div></Layout>} />
+          <Route path="/inteligencia/sugestoes" element={<Layout><ActionSuggestions /></Layout>} />
           
           {/* 404 Route - With Sidebar */}
           <Route path="*" element={<Layout><NotFound /></Layout>} />

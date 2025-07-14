@@ -14,6 +14,7 @@ import VmoLatamDashboard from "./pages/VmoLatamDashboard";
 import VmoLatamMultiMoeda from "./pages/VmoLatamMultiMoeda";
 import VmoLatamSimulacao from "./pages/VmoLatamSimulacao";
 import VmoLatamComparativo from "./pages/VmoLatamComparativo";
+import VmoLatamGovernanca from "./pages/VmoLatamGovernanca";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,7 +41,7 @@ const App = () => (
           <Route path="/vmo-latam/multi-moeda-cambio" element={<Layout><VmoLatamMultiMoeda /></Layout>} />
           <Route path="/vmo-latam/simulacao-cenarios" element={<Layout><VmoLatamSimulacao /></Layout>} />
           <Route path="/vmo-latam/comparativo-valor" element={<Layout><VmoLatamComparativo /></Layout>} />
-          <Route path="/vmo-latam/governanca-auditoria" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Governança & Auditoria</h1><p className="text-muted-foreground mt-2">Logs, registros de decisões, justificativas e exportação para compliance</p></div></Layout>} />
+          <Route path="/vmo-latam/governanca-auditoria" element={<Layout><VmoLatamGovernanca /></Layout>} />
           <Route path="/vmo-latam/clusters-estrategicos" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Clusters Estratégicos</h1><p className="text-muted-foreground mt-2">Visualização e análise dos projetos por temas estratégicos (inovação, ESG, eficiência)</p></div></Layout>} />
           
           {/* 404 Route - With Sidebar */}

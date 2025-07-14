@@ -10,6 +10,7 @@ import ProjectsList from "./pages/ProjectsList";
 import ProjectDetail from "./pages/ProjectDetail";
 import PortfolioDynamicReports from "./pages/PortfolioDynamicReports";
 import DynamicReportsGenerator from "./pages/DynamicReportsGenerator";
+import AdvancedSearch from "./pages/AdvancedSearch";
 import UserAdministration from "./pages/UserAdministration";
 import VmoLatamDashboard from "./pages/VmoLatamDashboard";
 import VmoLatamMultiMoeda from "./pages/VmoLatamMultiMoeda";
@@ -51,7 +52,7 @@ const App = () => (
           <Route path="/inteligencia/relatorios-dinamicos" element={<Layout><DynamicReportsGenerator /></Layout>} />
           <Route path="/relatorios-avancados" element={<Layout><PortfolioDynamicReports /></Layout>} />
           <Route path="/inteligencia/explicacoes" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Explicações de Indicadores</h1><p className="text-muted-foreground mt-2">Solicite explicação de métricas, cálculos ou gráficos</p></div></Layout>} />
-          <Route path="/inteligencia/pesquisa-avancada" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Pesquisa Avançada (RAG)</h1><p className="text-muted-foreground mt-2">Busca semântica em documentos usando linguagem natural</p></div></Layout>} />
+          <Route path="/inteligencia/pesquisa-avancada" element={<Layout><AdvancedSearch /></Layout>} />
           <Route path="/inteligencia/sugestoes" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Sugestão de Ações</h1><p className="text-muted-foreground mt-2">Painel com recomendações e alertas automáticos</p></div></Layout>} />
           
           {/* 404 Route - With Sidebar */}

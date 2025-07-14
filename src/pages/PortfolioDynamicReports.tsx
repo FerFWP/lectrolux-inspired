@@ -280,16 +280,20 @@ const PortfolioDynamicReports = () => {
 
     // Apply filters
     let filteredProjects = allProjects.filter(project => {
-      // Area filter
-      if (!filters.areas.includes('all') && !filters.areas.includes(project.area.toLowerCase())) {
-        return false;
+      // Area filter - normalize both sides for comparison
+      if (!filters.areas.includes('all')) {
+        const projectArea = project.area.toLowerCase();
+        const filterAreas = filters.areas.map(area => area.toLowerCase());
+        if (!filterAreas.includes(projectArea)) {
+          return false;
+        }
       }
       
       // Status filter
       if (!filters.status.includes('all')) {
         const statusMap = {
           'progress': 'Em Andamento',
-          'planned': 'Planejado',
+          'planned': 'Planejado', 
           'completed': 'Concluído',
           'delayed': 'Em Atraso'
         };
@@ -299,34 +303,53 @@ const PortfolioDynamicReports = () => {
         }
       }
       
-      // Category filter
-      if (filters.category !== 'all' && project.category.toLowerCase() !== filters.category) {
-        return false;
+      // Category filter - normalize both sides
+      if (filters.category !== 'all') {
+        const projectCategory = project.category.toLowerCase();
+        const filterCategory = filters.category.toLowerCase();
+        if (projectCategory !== filterCategory) {
+          return false;
+        }
       }
       
-      // Leader filter
-      if (!filters.leaders.includes('all') && !filters.leaders.includes(project.leader.toLowerCase().replace(' ', ''))) {
-        return false;
+      // Leader filter - normalize names properly
+      if (!filters.leaders.includes('all')) {
+        const projectLeader = project.leader.toLowerCase().replace(/\s+/g, '');
+        const filterLeaders = filters.leaders.map(leader => leader.toLowerCase().replace(/\s+/g, ''));
+        if (!filterLeaders.includes(projectLeader)) {
+          return false;
+        }
       }
       
-      // Period filter (based on creation date)
-      const now = new Date();
-      const monthsBack = {
-        'last_3_months': 3,
-        'last_6_months': 6,
-        'last_12_months': 12,
-        'ytd': 12
-      };
-      const monthsToCheck = monthsBack[filters.period as keyof typeof monthsBack] || 6;
-      const cutoffDate = new Date();
-      cutoffDate.setMonth(cutoffDate.getMonth() - monthsToCheck);
-      
-      if (project.dateCreated < cutoffDate) {
-        return false;
+      // Period filter - fix date comparison
+      if (filters.period !== 'all') {
+        const now = new Date();
+        const monthsBack = {
+          'last_3_months': 3,
+          'last_6_months': 6,
+          'last_12_months': 12,
+          'ytd': 12
+        };
+        const monthsToCheck = monthsBack[filters.period as keyof typeof monthsBack];
+        
+        if (monthsToCheck) {
+          const cutoffDate = new Date();
+          cutoffDate.setMonth(cutoffDate.getMonth() - monthsToCheck);
+          
+          if (project.dateCreated < cutoffDate) {
+            return false;
+          }
+        }
       }
       
       return true;
     });
+
+    // Debug: Log filtered results
+    console.log('Total projects:', allProjects.length);
+    console.log('Filtered projects:', filteredProjects.length);
+    console.log('Current filters:', filters);
+    console.log('Filtered projects data:', filteredProjects);
 
     // Apply search filter
     if (searchTerm) {
@@ -344,7 +367,10 @@ const PortfolioDynamicReports = () => {
   const portfolioData = useMemo(() => {
     const projects = generateFilteredData;
     
+    console.log('Portfolio data - projects count:', projects.length);
+    
     if (projects.length === 0) {
+      console.log('No projects found - returning empty state');
       return {
         projects: [],
         monthlyEvolution: [],

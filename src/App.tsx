@@ -20,6 +20,7 @@ import VmoLatamComparativo from "./pages/VmoLatamComparativo";
 import VmoLatamGovernanca from "./pages/VmoLatamGovernanca";
 import AssistenteDePerguntas from "./pages/AssistenteDePerguntas";
 import ExplanationCenter from "./pages/ExplanationCenter";
+import Gamificacao from "./pages/Gamificacao";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/projetos" element={<Layout><ProjectsList /></Layout>} />
           <Route path="/projetos/:id" element={<Layout><ProjectDetail /></Layout>} />
           <Route path="/relatorios-dinamicos" element={<Layout><PortfolioDynamicReports /></Layout>} />
+          <Route path="/gamificacao" element={<Layout><Gamificacao /></Layout>} />
           <Route path="/administracao" element={<Layout><UserAdministration /></Layout>} />
           
           {/* VMO LATAM Routes - With Sidebar */}

@@ -37,6 +37,7 @@ import {
   HelpCircle,
   Search,
   Lightbulb,
+  Award,
 } from "lucide-react";
 import { 
   Tooltip,
@@ -63,6 +64,12 @@ const mainMenuItems = [
     url: "/relatorios-dinamicos",
     icon: FileText,
     description: "Relatórios personalizados"
+  },
+  {
+    title: "Gamificação",
+    url: "/gamificacao",
+    icon: Award,
+    description: "Badges, conquistas e engajamento"
   },
   {
     title: "Administração",

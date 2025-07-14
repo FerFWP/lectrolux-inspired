@@ -33,8 +33,8 @@ interface ProjectData {
 }
 
 const VmoLatamMultiMoeda = () => {
-  const [selectedCountry, setSelectedCountry] = useState<string>('');
-  const [selectedUnit, setSelectedUnit] = useState<string>('');
+  const [selectedCountry, setSelectedCountry] = useState<string>('all');
+  const [selectedUnit, setSelectedUnit] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>('2024');
   const [selectedCurrency, setSelectedCurrency] = useState<string>('BRL');
   const [showRateModal, setShowRateModal] = useState(false);
@@ -207,7 +207,7 @@ const VmoLatamMultiMoeda = () => {
                   <SelectValue placeholder="Todos os países" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {countries.map((country) => (
                     <SelectItem key={country} value={country}>
                       {country}
@@ -223,7 +223,7 @@ const VmoLatamMultiMoeda = () => {
                   <SelectValue placeholder="Todas as unidades" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="all">Todas</SelectItem>
                   {units.map((unit) => (
                     <SelectItem key={unit} value={unit}>
                       {unit}

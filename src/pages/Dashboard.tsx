@@ -75,36 +75,42 @@ const getFilteredData = (area: string, year: string, status: string) => {
     month: "Jan",
     planejado: Math.round(180000 * areaData.budget * yearData.budget),
     realizado: Math.round(165000 * areaData.realized * yearData.realized),
+    comprometido: Math.round(50000 * areaData.committed * yearData.committed),
     bu: Math.round(95 * areaData.realized),
     underPerformed: areaData.realized < 0.8
   }, {
     month: "Fev",
     planejado: Math.round(220000 * areaData.budget * yearData.budget),
     realizado: Math.round(198000 * areaData.realized * yearData.realized),
+    comprometido: Math.round(65000 * areaData.committed * yearData.committed),
     bu: Math.round(90 * areaData.realized),
     underPerformed: areaData.realized < 0.85
   }, {
     month: "Mar",
     planejado: Math.round(280000 * areaData.budget * yearData.budget),
     realizado: Math.round(245000 * areaData.realized * yearData.realized),
+    comprometido: Math.round(85000 * areaData.committed * yearData.committed),
     bu: Math.round(87 * areaData.realized),
     underPerformed: areaData.realized < 0.87
   }, {
     month: "Abr",
     planejado: Math.round(310000 * areaData.budget * yearData.budget),
     realizado: Math.round(280000 * areaData.realized * yearData.realized),
+    comprometido: Math.round(95000 * areaData.committed * yearData.committed),
     bu: Math.round(90 * areaData.realized),
     underPerformed: areaData.realized < 0.9
   }, {
     month: "Mai",
     planejado: Math.round(350000 * areaData.budget * yearData.budget),
     realizado: Math.round(320000 * areaData.realized * yearData.realized),
+    comprometido: Math.round(110000 * areaData.committed * yearData.committed),
     bu: Math.round(91 * areaData.realized),
     underPerformed: areaData.realized < 0.91
   }, {
     month: "Jun",
     planejado: Math.round(400000 * areaData.budget * yearData.budget),
     realizado: Math.round(380000 * areaData.realized * yearData.realized),
+    comprometido: Math.round(125000 * areaData.committed * yearData.committed),
     bu: Math.round(95 * areaData.realized),
     underPerformed: areaData.realized < 0.95
   }];
@@ -654,30 +660,51 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow duration-200">
                     <CardHeader>
-                      <CardTitle>Realizado vs Planejado</CardTitle>
-                      <CardDescription>Comparativo mensal - destaque para meses com underperformance</CardDescription>
+                      <CardTitle>Realizado vs Planejado vs Comprometido</CardTitle>
+                      <CardDescription>Comparativo mensal completo - valores planejados, realizados e comprometidos</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={chartData}>
+                        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="month" />
                           <YAxis />
-                          <RechartsTooltip formatter={(value, name) => [formatCurrency(Number(value)), name === "planejado" ? "Planejado" : "Realizado"]} />
-                          <Bar dataKey="planejado" fill="hsl(213, 38%, 91%)" name="Planejado" />
-                          <Bar dataKey="realizado" name="Realizado">
-                            {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.underPerformed ? "hsl(351, 83%, 50%)" : "hsl(210, 100%, 18%)"} />)}
-                          </Bar>
+                          <RechartsTooltip 
+                            formatter={(value, name) => [formatCurrency(Number(value)), name === "planejado" ? "Planejado" : name === "realizado" ? "Realizado" : "Comprometido"]}
+                            labelFormatter={(label) => `Mês: ${label}`}
+                            content={({ active, payload, label }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+                                    <p className="font-semibold text-foreground mb-2">{`Mês: ${label}`}</p>
+                                    {payload.map((entry, index) => (
+                                      <p key={index} className="text-sm" style={{ color: entry.color }}>
+                                        {entry.name === "planejado" ? "Planejado" : entry.name === "realizado" ? "Realizado" : "Comprometido"}: {formatCurrency(Number(entry.value))}
+                                      </p>
+                                    ))}
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Bar dataKey="planejado" fill="hsl(213, 38%, 91%)" name="planejado" />
+                          <Bar dataKey="realizado" fill="hsl(210, 100%, 18%)" name="realizado" />
+                          <Bar dataKey="comprometido" fill="hsl(25, 95%, 53%)" name="comprometido" />
                         </BarChart>
                       </ResponsiveContainer>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
-                          <div className="w-3 h-3 bg-[hsl(210,100%,18%)] rounded-sm"></div>
-                          <span>Performance Normal</span>
+                          <div className="w-3 h-3 bg-[hsl(213,38%,91%)] rounded-sm border border-border"></div>
+                          <span>Planejado</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div className="w-3 h-3 bg-[hsl(351,83%,50%)] rounded-sm"></div>
-                          <span>Abaixo do Planejado</span>
+                          <div className="w-3 h-3 bg-[hsl(210,100%,18%)] rounded-sm"></div>
+                          <span>Realizado</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 bg-[hsl(25,95%,53%)] rounded-sm"></div>
+                          <span>Comprometido</span>
                         </div>
                       </div>
                     </CardContent>

@@ -31,7 +31,10 @@ export function TransactionDialog({ projectId, onTransactionAdded, trigger }: Tr
     transaction_type: 'manual',
     transaction_date: new Date(),
     notes: '',
-    reference_number: ''
+    reference_number: '',
+    capex_opex: '',
+    asset_nature: '',
+    attachments: [] as File[]
   });
   const { toast } = useToast();
 
@@ -68,7 +71,10 @@ export function TransactionDialog({ projectId, onTransactionAdded, trigger }: Tr
         transaction_type: 'manual',
         transaction_date: new Date(),
         notes: '',
-        reference_number: ''
+        reference_number: '',
+        capex_opex: '',
+        asset_nature: '',
+        attachments: []
       });
       toast({
         title: "Lançamento adicionado",
@@ -202,6 +208,61 @@ export function TransactionDialog({ projectId, onTransactionAdded, trigger }: Tr
                 </Select>
               </div>
             </div>
+
+            {/* Classificação CAPEX/OPEX */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Classificação CAPEX/OPEX *</Label>
+                <Select 
+                  value={formData.capex_opex || ''} 
+                  onValueChange={(value) => setFormData({ ...formData, capex_opex: value })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Selecionar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CAPEX">
+                      <div className="flex flex-col">
+                        <span>CAPEX</span>
+                        <span className="text-xs text-muted-foreground">Investimento de capital</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="OPEX">
+                      <div className="flex flex-col">
+                        <span>OPEX</span>
+                        <span className="text-xs text-muted-foreground">Gasto operacional</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label>Natureza do Ativo</Label>
+                <Select 
+                  value={formData.asset_nature || ''} 
+                  onValueChange={(value) => setFormData({ ...formData, asset_nature: value })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Selecionar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Tangível">
+                      <div className="flex flex-col">
+                        <span>Tangível</span>
+                        <span className="text-xs text-muted-foreground">Ativo físico</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="Intangível">
+                      <div className="flex flex-col">
+                        <span>Intangível</span>
+                        <span className="text-xs text-muted-foreground">Software, licenças</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
 
           {/* Informações Adicionais */}
@@ -270,17 +331,67 @@ export function TransactionDialog({ projectId, onTransactionAdded, trigger }: Tr
             </div>
           </div>
 
-          {/* Anexos */}
+          {/* Anexos com Drag & Drop */}
           <div className="space-y-4">
-            <h4 className="text-sm font-medium text-muted-foreground">Documentos</h4>
-            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-              <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Clique para anexar comprovantes, notas fiscais ou documentos relacionados
+            <h4 className="text-sm font-medium text-muted-foreground">Documentos e Comprovantes</h4>
+            <div 
+              className="border-2 border-dashed border-primary/25 rounded-lg p-6 text-center transition-colors hover:border-primary/50 cursor-pointer bg-primary/5"
+              onDrop={(e) => {
+                e.preventDefault();
+                const files = Array.from(e.dataTransfer.files);
+                setFormData({ ...formData, attachments: [...formData.attachments, ...files] });
+              }}
+              onDragOver={(e) => e.preventDefault()}
+              onClick={() => document.getElementById('file-upload')?.click()}
+            >
+              <Upload className="h-8 w-8 mx-auto text-primary mb-2" />
+              <p className="text-sm font-medium text-primary mb-1">
+                Arraste arquivos aqui ou clique para selecionar
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                PDF, JPG, PNG até 10MB
+              <p className="text-xs text-muted-foreground">
+                PDF, JPG, PNG, XLSX até 10MB cada • Múltiplos arquivos aceitos
               </p>
+              <input
+                id="file-upload"
+                type="file"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    const files = Array.from(e.target.files);
+                    setFormData({ ...formData, attachments: [...formData.attachments, ...files] });
+                  }
+                }}
+              />
+            </div>
+            
+            {/* Lista de arquivos selecionados */}
+            {formData.attachments.length > 0 && (
+              <div className="space-y-2">
+                <h5 className="text-sm font-medium">Arquivos Selecionados:</h5>
+                {formData.attachments.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded text-sm">
+                    <span>{file.name}</span>
+                    <Button 
+                      type="button"
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => {
+                        const newAttachments = formData.attachments.filter((_, i) => i !== index);
+                        setFormData({ ...formData, attachments: newAttachments });
+                      }}
+                    >
+                      ×
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Validação visual */}
+            <div className="text-xs text-muted-foreground">
+              ✅ Comprovantes anexados aumentam a confiabilidade do lançamento
             </div>
           </div>
 

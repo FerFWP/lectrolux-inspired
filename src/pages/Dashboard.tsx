@@ -60,7 +60,8 @@ const getFilteredData = (area: string, year: string, status: string) => {
     realized,
     committed,
     available,
-    budgetUnit: Math.round(85 * areaData.realized * yearData.realized)
+    budgetUnit: Math.round(budget * 0.85), // Linha BU - teto anual aprovado
+    budgetUtilization: ((realized + committed) / budget) * 100
   };
 
   // Dados do gráfico (últimos 6 meses)
@@ -225,9 +226,50 @@ const Dashboard = () => {
   };
 
   const handleCardClick = (cardType: string) => {
-    console.log(`Navigating to ${cardType} details`);
-    // Aqui seria implementada a navegação para drill-down
+    // Navegar para lista filtrada
+    const filterMapping = {
+      budget: { status: "all" },
+      realized: { status: "Em Andamento" },
+      committed: { status: "Planejado" },
+      available: { status: "critical" }
+    };
+    
+    const filter = filterMapping[cardType as keyof typeof filterMapping];
+    if (filter) {
+      const params = new URLSearchParams();
+      Object.entries({ area: selectedArea, year: selectedYear, ...filter }).forEach(([key, value]) => {
+        if (value !== "all") params.set(key, value);
+      });
+      window.location.href = `/projetos?${params.toString()}`;
+    }
   };
+
+  // Gerenciar alertas dinâmicos
+  const getPortfolioAlerts = () => {
+    const alerts = [];
+    
+    if (portfolioData.budgetUtilization >= 90) {
+      alerts.push({
+        type: "critical",
+        message: `⚠️ Portfólio atingiu ${portfolioData.budgetUtilization.toFixed(1)}% do orçamento`,
+        action: "Ver detalhes",
+        onClick: () => handleCardClick("budget")
+      });
+    }
+    
+    if (portfolioData.available <= portfolioData.budget * 0.1) {
+      alerts.push({
+        type: "warning", 
+        message: "💰 Saldo disponível baixo - considere reavaliação de prioridades",
+        action: "Analisar",
+        onClick: () => handleCardClick("available")
+      });
+    }
+    
+    return alerts;
+  };
+
+  const portfolioAlerts = getPortfolioAlerts();
 
   const getAreaLabel = (area: string) => {
     switch (area) {
@@ -378,6 +420,27 @@ const Dashboard = () => {
 
           {/* Content */}
           <main className="flex-1 p-6 space-y-6">
+            {/* Alertas Dinâmicos */}
+            {portfolioAlerts.length > 0 && (
+              <div className="space-y-2">
+                {portfolioAlerts.map((alert, index) => (
+                  <div 
+                    key={index}
+                    className={`p-4 rounded-lg border flex items-center justify-between ${
+                      alert.type === "critical" 
+                        ? "bg-destructive/10 border-destructive/20 text-destructive-foreground" 
+                        : "bg-yellow-50 border-yellow-200 text-yellow-800"
+                    }`}
+                  >
+                    <span className="text-sm font-medium">{alert.message}</span>
+                    <Button size="sm" variant="outline" onClick={alert.onClick}>
+                      {alert.action}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {viewMode === "cards" ? (
               <TooltipProvider>
                 {/* Cards Principais KPI */}

@@ -28,6 +28,9 @@ interface Project {
   isCritical: boolean;
   progress: number;
   deadline: string;
+  category: "CAPEX" | "OPEX" | "P&D";
+  type: "Tangível" | "Intangível";
+  budgetUnit: number; // BU - valor aprovado
 }
 
 const mockProjects: Project[] = [
@@ -44,7 +47,10 @@ const mockProjects: Project[] = [
     currency: "BRL",
     isCritical: false,
     progress: 72,
-    deadline: "15/03/2025"
+    deadline: "15/03/2025",
+    category: "CAPEX",
+    type: "Tangível",
+    budgetUnit: 2400000
   },
   {
     id: "PRJ-002", 
@@ -59,7 +65,10 @@ const mockProjects: Project[] = [
     currency: "BRL",
     isCritical: true,
     progress: 85,
-    deadline: "28/02/2025"
+    deadline: "28/02/2025",
+    category: "OPEX",
+    type: "Intangível",
+    budgetUnit: 1100000
   },
   {
     id: "PRJ-003",
@@ -74,7 +83,10 @@ const mockProjects: Project[] = [
     currency: "BRL",
     isCritical: false,
     progress: 100,
-    deadline: "31/01/2025"
+    deadline: "31/01/2025",
+    category: "OPEX",
+    type: "Intangível",
+    budgetUnit: 750000
   },
   {
     id: "PRJ-004",

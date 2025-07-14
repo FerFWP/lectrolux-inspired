@@ -43,39 +43,231 @@ import { HistoryView } from "@/components/history-view";
 import { ReportsView } from "@/components/reports-view";
 import { HomeButton } from "@/components/home-button";
 
-// Mock data for demo purposes
-const mockProject = {
-  id: "mock-uuid-001",
-  project_code: "PRJ-002",
-  name: "Sistema ERP Integrado",
-  leader: "João Santos", 
-  status: "Crítico",
-  area: "TI",
-  budget: 1200000,
-  realized: 1350000,
-  committed: 200000,
-  currency: "BRL",
-  is_critical: true,
-  progress: 85,
-  deadline: new Date("2025-02-28"),
-  description: "Implementação completa do novo sistema ERP para integração de todos os processos corporativos",
-  start_date: new Date("2024-06-01"),
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-  user_id: "mock-user-id"
+// Mock data for demo purposes - generates dynamic data based on project ID  
+const generateMockProject = (projectId: string) => {
+  const projectsData = {
+    "PRJ-001": {
+      id: "mock-uuid-001",
+      project_code: "PRJ-001",
+      name: "Modernização Linha Produção A",
+      leader: "Maria Silva",
+      status: "Em Andamento",
+      area: "Produção",
+      budget: 2500000,
+      realized: 1800000,
+      committed: 500000,
+      currency: "BRL",
+      is_critical: false,
+      progress: 72,
+      deadline: new Date("2025-03-15"),
+      description: "Modernização completa da linha de produção A com novas tecnologias e equipamentos automatizados",
+      start_date: new Date("2024-05-01"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: "mock-user-id"
+    },
+    "PRJ-002": {
+      id: "mock-uuid-002",
+      project_code: "PRJ-002",
+      name: "Sistema ERP Integrado",
+      leader: "João Santos",
+      status: "Crítico",
+      area: "TI",
+      budget: 1200000,
+      realized: 1350000,
+      committed: 200000,
+      currency: "BRL",
+      is_critical: true,
+      progress: 85,
+      deadline: new Date("2025-02-28"),
+      description: "Implementação completa do novo sistema ERP para integração de todos os processos corporativos",
+      start_date: new Date("2024-06-01"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: "mock-user-id"
+    },
+    "PRJ-003": {
+      id: "mock-uuid-003",
+      project_code: "PRJ-003",
+      name: "Campanha Marketing Digital Q1",
+      leader: "Ana Costa",
+      status: "Concluído",
+      area: "Marketing",
+      budget: 800000,
+      realized: 750000,
+      committed: 0,
+      currency: "BRL",
+      is_critical: false,
+      progress: 100,
+      deadline: new Date("2025-01-31"),
+      description: "Campanha de marketing digital integrada para o primeiro trimestre com foco em redes sociais",
+      start_date: new Date("2024-10-01"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: "mock-user-id"
+    },
+    "PRJ-004": {
+      id: "mock-uuid-004",
+      project_code: "PRJ-004",
+      name: "Expansão Mercado Europeu",
+      leader: "Pedro Oliveira",
+      status: "Em Atraso",
+      area: "Comercial",
+      budget: 3500000,
+      realized: 2100000,
+      committed: 800000,
+      currency: "EUR",
+      is_critical: true,
+      progress: 45,
+      deadline: new Date("2025-04-30"),
+      description: "Expansão das operações para o mercado europeu com abertura de filiais e parcerias estratégicas",
+      start_date: new Date("2024-01-15"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: "mock-user-id"
+    },
+    "PRJ-005": {
+      id: "mock-uuid-005",
+      project_code: "PRJ-005",
+      name: "Automação Linha Refrigeradores",
+      leader: "Carlos Mendes",
+      status: "Planejado",
+      area: "Produção",
+      budget: 1800000,
+      realized: 0,
+      committed: 450000,
+      currency: "BRL",
+      is_critical: false,
+      progress: 15,
+      deadline: new Date("2025-06-15"),
+      description: "Implementação de sistema de automação completa na linha de produção de refrigeradores",
+      start_date: new Date("2025-02-01"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: "mock-user-id"
+    },
+    "PRJ-006": {
+      id: "mock-uuid-006",
+      project_code: "PRJ-006",
+      name: "Digitalização Processos RH",
+      leader: "Lucia Ferreira",
+      status: "Em Andamento",
+      area: "RH",
+      budget: 650000,
+      realized: 320000,
+      committed: 180000,
+      currency: "BRL",
+      is_critical: false,
+      progress: 55,
+      deadline: new Date("2025-05-20"),
+      description: "Digitalização completa dos processos de recursos humanos com implementação de novos sistemas",
+      start_date: new Date("2024-08-01"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: "mock-user-id"
+    },
+    "PRJ-007": {
+      id: "mock-uuid-007",
+      project_code: "PRJ-007",
+      name: "Expansão Suécia",
+      leader: "Erik Johansson",
+      status: "Em Andamento",
+      area: "Internacional",
+      budget: 5200000,
+      realized: 2800000,
+      committed: 1200000,
+      currency: "SEK",
+      is_critical: false,
+      progress: 68,
+      deadline: new Date("2025-09-30"),
+      description: "Expansão das operações na Suécia com nova fábrica e centro de distribuição",
+      start_date: new Date("2024-03-01"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: "mock-user-id"
+    }
+  };
+
+  return projectsData[projectId as keyof typeof projectsData] || projectsData["PRJ-002"];
 };
 
-const mockTransactions = [
-  { id: "trans-1", transaction_date: new Date("2025-01-15"), description: "Licenças Software SAP", amount: 450000, category: "Software", transaction_type: "manual" },
-  { id: "trans-2", transaction_date: new Date("2025-01-10"), description: "Consultoria Especializada", amount: 280000, category: "Serviços", transaction_type: "imported" },
-  { id: "trans-3", transaction_date: new Date("2025-01-05"), description: "Hardware Servidores", amount: 320000, category: "Hardware", transaction_type: "manual" },
-];
+const generateMockTransactions = (projectCode: string) => {
+  const transactionsData = {
+    "PRJ-001": [
+      { id: "trans-1-1", transaction_date: new Date("2025-01-15"), description: "Aquisição Equipamentos Linha A", amount: 850000, category: "Equipamentos", transaction_type: "manual" },
+      { id: "trans-1-2", transaction_date: new Date("2025-01-10"), description: "Instalação e Configuração", amount: 320000, category: "Serviços", transaction_type: "imported" },
+      { id: "trans-1-3", transaction_date: new Date("2025-01-05"), description: "Treinamento Operadores", amount: 45000, category: "Treinamento", transaction_type: "manual" },
+    ],
+    "PRJ-002": [
+      { id: "trans-2-1", transaction_date: new Date("2025-01-15"), description: "Licenças Software SAP", amount: 450000, category: "Software", transaction_type: "manual" },
+      { id: "trans-2-2", transaction_date: new Date("2025-01-10"), description: "Consultoria Especializada", amount: 280000, category: "Serviços", transaction_type: "imported" },
+      { id: "trans-2-3", transaction_date: new Date("2025-01-05"), description: "Hardware Servidores", amount: 320000, category: "Hardware", transaction_type: "manual" },
+    ],
+    "PRJ-003": [
+      { id: "trans-3-1", transaction_date: new Date("2024-12-20"), description: "Mídia Paga Facebook/Instagram", amount: 180000, category: "Publicidade", transaction_type: "manual" },
+      { id: "trans-3-2", transaction_date: new Date("2024-12-15"), description: "Produção de Conteúdo", amount: 95000, category: "Criação", transaction_type: "manual" },
+      { id: "trans-3-3", transaction_date: new Date("2024-12-10"), description: "Analytics e Monitoramento", amount: 25000, category: "Ferramentas", transaction_type: "imported" },
+    ],
+    "PRJ-004": [
+      { id: "trans-4-1", transaction_date: new Date("2025-01-12"), description: "Abertura Filial Amsterdam", amount: 420000, category: "Infraestrutura", transaction_type: "manual" },
+      { id: "trans-4-2", transaction_date: new Date("2025-01-08"), description: "Contratação Equipe Local", amount: 180000, category: "RH", transaction_type: "manual" },
+      { id: "trans-4-3", transaction_date: new Date("2025-01-03"), description: "Licenças e Certificações", amount: 65000, category: "Regulatório", transaction_type: "imported" },
+    ],
+    "PRJ-005": [
+      { id: "trans-5-1", transaction_date: new Date("2025-01-20"), description: "Estudos de Viabilidade", amount: 85000, category: "Consultoria", transaction_type: "manual" },
+      { id: "trans-5-2", transaction_date: new Date("2025-01-15"), description: "Projeto Detalhado", amount: 120000, category: "Engenharia", transaction_type: "manual" },
+    ],
+    "PRJ-006": [
+      { id: "trans-6-1", transaction_date: new Date("2025-01-18"), description: "Sistema HRIS", amount: 150000, category: "Software", transaction_type: "manual" },
+      { id: "trans-6-2", transaction_date: new Date("2025-01-12"), description: "Migração de Dados", amount: 85000, category: "Serviços", transaction_type: "imported" },
+      { id: "trans-6-3", transaction_date: new Date("2025-01-08"), description: "Treinamento Usuários", amount: 35000, category: "Treinamento", transaction_type: "manual" },
+    ],
+    "PRJ-007": [
+      { id: "trans-7-1", transaction_date: new Date("2025-01-14"), description: "Aquisição Terreno", amount: 1200000, category: "Infraestrutura", transaction_type: "manual" },
+      { id: "trans-7-2", transaction_date: new Date("2025-01-09"), description: "Licenças Construção", amount: 95000, category: "Regulatório", transaction_type: "imported" },
+      { id: "trans-7-3", transaction_date: new Date("2025-01-04"), description: "Projeto Arquitetônico", amount: 180000, category: "Consultoria", transaction_type: "manual" },
+    ]
+  };
 
-const mockBaselines = [
-  { id: "base-1", version: "v1.0", created_at: new Date("2024-06-01").toISOString(), budget: 1000000, description: "Baseline inicial aprovada" },
-  { id: "base-2", version: "v1.1", created_at: new Date("2024-09-15").toISOString(), budget: 1100000, description: "Ajuste por escopo adicional" },
-  { id: "base-3", version: "v1.2", created_at: new Date("2024-12-01").toISOString(), budget: 1200000, description: "Baseline atual - revisão Q4" },
-];
+  return transactionsData[projectCode as keyof typeof transactionsData] || transactionsData["PRJ-002"];
+};
+
+const generateMockBaselines = (projectCode: string) => {
+  const baselinesData = {
+    "PRJ-001": [
+      { id: "base-1-1", version: "v1.0", created_at: new Date("2024-05-01").toISOString(), budget: 2200000, description: "Baseline inicial - modernização básica" },
+      { id: "base-1-2", version: "v1.1", created_at: new Date("2024-08-15").toISOString(), budget: 2400000, description: "Ajuste por equipamentos adicionais" },
+      { id: "base-1-3", version: "v1.2", created_at: new Date("2024-11-01").toISOString(), budget: 2500000, description: "Baseline atual - escopo completo" },
+    ],
+    "PRJ-002": [
+      { id: "base-2-1", version: "v1.0", created_at: new Date("2024-06-01").toISOString(), budget: 1000000, description: "Baseline inicial aprovada" },
+      { id: "base-2-2", version: "v1.1", created_at: new Date("2024-09-15").toISOString(), budget: 1100000, description: "Ajuste por escopo adicional" },
+      { id: "base-2-3", version: "v1.2", created_at: new Date("2024-12-01").toISOString(), budget: 1200000, description: "Baseline atual - revisão Q4" },
+    ],
+    "PRJ-003": [
+      { id: "base-3-1", version: "v1.0", created_at: new Date("2024-10-01").toISOString(), budget: 750000, description: "Baseline inicial - campanha Q1" },
+      { id: "base-3-2", version: "v1.1", created_at: new Date("2024-11-15").toISOString(), budget: 800000, description: "Baseline final - canais adicionais" },
+    ],
+    "PRJ-004": [
+      { id: "base-4-1", version: "v1.0", created_at: new Date("2024-01-15").toISOString(), budget: 3000000, description: "Baseline inicial - expansão Europa" },
+      { id: "base-4-2", version: "v1.1", created_at: new Date("2024-06-01").toISOString(), budget: 3300000, description: "Ajuste por regulamentações locais" },
+      { id: "base-4-3", version: "v1.2", created_at: new Date("2024-10-15").toISOString(), budget: 3500000, description: "Baseline atual - mercados adicionais" },
+    ],
+    "PRJ-005": [
+      { id: "base-5-1", version: "v1.0", created_at: new Date("2024-12-01").toISOString(), budget: 1800000, description: "Baseline inicial - automação refrigeradores" },
+    ],
+    "PRJ-006": [
+      { id: "base-6-1", version: "v1.0", created_at: new Date("2024-08-01").toISOString(), budget: 600000, description: "Baseline inicial - digitalização RH" },
+      { id: "base-6-2", version: "v1.1", created_at: new Date("2024-10-15").toISOString(), budget: 650000, description: "Baseline atual - módulos adicionais" },
+    ],
+    "PRJ-007": [
+      { id: "base-7-1", version: "v1.0", created_at: new Date("2024-03-01").toISOString(), budget: 4800000, description: "Baseline inicial - expansão Suécia" },
+      { id: "base-7-2", version: "v1.1", created_at: new Date("2024-07-15").toISOString(), budget: 5200000, description: "Baseline atual - centro distribuição" },
+    ]
+  };
+
+  return baselinesData[projectCode as keyof typeof baselinesData] || baselinesData["PRJ-002"];
+};
 
 const statusColors = {
   "Em Andamento": "bg-blue-100 text-blue-800 border-blue-200",
@@ -123,6 +315,9 @@ export default function ProjectDetail() {
 
       if (projectError) {
         console.log('Database error, using mock data:', projectError);
+        const mockProject = generateMockProject(id);
+        const mockBaselines = generateMockBaselines(id);
+        const mockTransactions = generateMockTransactions(id);
         setProject(mockProject);
         setBaselines(mockBaselines);
         setTransactions(mockTransactions);
@@ -131,6 +326,9 @@ export default function ProjectDetail() {
 
       if (!projectData) {
         console.log('No project found, using mock data');
+        const mockProject = generateMockProject(id);
+        const mockBaselines = generateMockBaselines(id);
+        const mockTransactions = generateMockTransactions(id);
         setProject(mockProject);
         setBaselines(mockBaselines);
         setTransactions(mockTransactions);
@@ -157,6 +355,9 @@ export default function ProjectDetail() {
 
     } catch (error: any) {
       console.error('Error fetching project data:', error);
+      const mockProject = generateMockProject(id);
+      const mockBaselines = generateMockBaselines(id);
+      const mockTransactions = generateMockTransactions(id);
       setProject(mockProject);
       setBaselines(mockBaselines);
       setTransactions(mockTransactions);

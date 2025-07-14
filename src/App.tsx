@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import ProjectsList from "./pages/ProjectsList";
 import ProjectDetail from "./pages/ProjectDetail";
 import PortfolioDynamicReports from "./pages/PortfolioDynamicReports";
+import UserAdministration from "./pages/UserAdministration";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/projetos" element={<ProjectsList />} />
           <Route path="/projetos/:id" element={<ProjectDetail />} />
           <Route path="/relatorios-dinamicos" element={<PortfolioDynamicReports />} />
+          <Route path="/administracao" element={<UserAdministration />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

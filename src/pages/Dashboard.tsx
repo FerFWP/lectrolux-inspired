@@ -180,7 +180,7 @@ const sidebarItems = [
   { title: "Projetos", icon: FolderOpen, href: "/projetos" },
   { title: "Relatórios Dinâmicos", icon: FileText, href: "/relatorios-dinamicos" },
   { title: "Planejamento", icon: Calendar, href: "/planning" },
-  { title: "Administração", icon: Settings, href: "/admin" },
+  { title: "Administração", icon: Settings, href: "/administracao" },
   { title: "Exportações", icon: Download, href: "/exports" }
 ];
 

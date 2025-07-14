@@ -3,8 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Link, useLocation } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { 
   TrendingUp, 
@@ -176,17 +174,7 @@ const getFilteredData = (area: string, year: string, status: string) => {
   };
 };
 
-const sidebarItems = [
-  { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-  { title: "Projetos", icon: FolderOpen, href: "/projetos" },
-  { title: "Relatórios Dinâmicos", icon: FileText, href: "/relatorios-dinamicos" },
-  { title: "Planejamento", icon: Calendar, href: "/planning" },
-  { title: "Administração", icon: Settings, href: "/administracao" },
-  { title: "Exportações", icon: Download, href: "/exports" }
-];
-
 const Dashboard = () => {
-  const location = useLocation();
   const [viewMode, setViewMode] = useState<"graphs" | "cards">("cards");
   const [selectedArea, setSelectedArea] = useState<string>("all");
   const [selectedYear, setSelectedYear] = useState("2025");
@@ -282,71 +270,34 @@ const Dashboard = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-secondary">
-        {/* Sidebar */}
-        <Sidebar className="border-r border-border">
-          <SidebarContent>
-            <div className="p-6 border-b border-sidebar-border">
-              <h2 className="text-lg font-bold text-sidebar-foreground">Electrolux</h2>
-              <p className="text-sm text-sidebar-foreground/80">Gestão Financeira</p>
-            </div>
-            
-            <SidebarGroup>
-              <SidebarGroupLabel>Navegação</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                   {sidebarItems.map((item) => (
-                     <SidebarMenuItem key={item.title}>
-                       <SidebarMenuButton asChild>
-                         <Link 
-                           to={item.href} 
-                           className={`flex items-center gap-3 hover:text-primary transition-colors ${
-                             location.pathname === item.href ? 'bg-accent text-accent-foreground font-medium' : ''
-                           }`}
-                         >
-                           <item.icon className="h-4 w-4" />
-                           <span>{item.title}</span>
-                         </Link>
-                       </SidebarMenuButton>
-                     </SidebarMenuItem>
-                   ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
+    <div className="min-h-screen bg-secondary">
+      {/* Header */}
+      <header className="bg-card border-b border-border p-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-primary">Dashboard Portfólio</h1>
+            <p className="text-sm text-muted-foreground">Visão geral dos projetos financeiros</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm">
+            <Filter className="h-4 w-4 mr-2" />
+            Filtros
+          </Button>
+          <Button variant="outline" size="sm">
+            <FileText className="h-4 w-4 mr-2" />
+            Relatório
+          </Button>
+          <Button size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Projeto
+          </Button>
+        </div>
+      </header>
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="bg-card border-b border-border p-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger />
-              <div>
-                <h1 className="text-2xl font-bold text-primary">Dashboard Portfólio</h1>
-                <p className="text-sm text-muted-foreground">Visão geral dos projetos financeiros</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filtros
-              </Button>
-              <Button variant="outline" size="sm">
-                <FileText className="h-4 w-4 mr-2" />
-                Relatório
-              </Button>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Projeto
-              </Button>
-            </div>
-          </header>
-
-          {/* Barra de Filtros Fixa */}
-          <div className="sticky top-0 z-10 p-4 bg-card border-b border-border shadow-sm">
+      {/* Barra de Filtros Fixa */}
+      <div className="sticky top-0 z-10 p-4 bg-card border-b border-border shadow-sm">
             <div className="flex flex-wrap gap-4 items-center">
               {/* Filtro Área */}
               <div className="flex items-center gap-2 min-w-[140px]">
@@ -415,11 +366,11 @@ const Dashboard = () => {
                   Gráficos
                 </Button>
               </div>
-            </div>
-          </div>
+        </div>
+      </div>
 
-          {/* Content */}
-          <main className="flex-1 p-6 space-y-6">
+      {/* Content */}
+      <main className="flex-1 p-6 space-y-6">
             {/* Alertas Dinâmicos */}
             {portfolioAlerts.length > 0 && (
               <div className="space-y-2">
@@ -869,9 +820,7 @@ const Dashboard = () => {
               </>
             )}
           </main>
-        </div>
       </div>
-    </SidebarProvider>
   );
 };
 

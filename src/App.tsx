@@ -15,6 +15,7 @@ import VmoLatamMultiMoeda from "./pages/VmoLatamMultiMoeda";
 import VmoLatamSimulacao from "./pages/VmoLatamSimulacao";
 import VmoLatamComparativo from "./pages/VmoLatamComparativo";
 import VmoLatamGovernanca from "./pages/VmoLatamGovernanca";
+import AssistenteDePerguntas from "./pages/AssistenteDePerguntas";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,13 @@ const App = () => (
           <Route path="/vmo-latam/comparativo-valor" element={<Layout><VmoLatamComparativo /></Layout>} />
           <Route path="/vmo-latam/governanca-auditoria" element={<Layout><VmoLatamGovernanca /></Layout>} />
           <Route path="/vmo-latam/clusters-estrategicos" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Clusters Estratégicos</h1><p className="text-muted-foreground mt-2">Visualização e análise dos projetos por temas estratégicos (inovação, ESG, eficiência)</p></div></Layout>} />
+          
+          {/* Inteligência Routes - With Sidebar */}
+          <Route path="/inteligencia/assistente" element={<Layout><AssistenteDePerguntas /></Layout>} />
+          <Route path="/inteligencia/relatorios-dinamicos" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Geração de Relatórios Dinâmicos</h1><p className="text-muted-foreground mt-2">Solicite análises personalizadas via prompt</p></div></Layout>} />
+          <Route path="/inteligencia/explicacoes" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Explicações de Indicadores</h1><p className="text-muted-foreground mt-2">Solicite explicação de métricas, cálculos ou gráficos</p></div></Layout>} />
+          <Route path="/inteligencia/pesquisa-avancada" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Pesquisa Avançada (RAG)</h1><p className="text-muted-foreground mt-2">Busca semântica em documentos usando linguagem natural</p></div></Layout>} />
+          <Route path="/inteligencia/sugestoes" element={<Layout><div className="p-6"><h1 className="text-2xl font-bold">Sugestão de Ações</h1><p className="text-muted-foreground mt-2">Painel com recomendações e alertas automáticos</p></div></Layout>} />
           
           {/* 404 Route - With Sidebar */}
           <Route path="*" element={<Layout><NotFound /></Layout>} />

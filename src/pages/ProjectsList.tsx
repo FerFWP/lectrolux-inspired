@@ -101,7 +101,10 @@ const mockProjects: Project[] = [
     currency: "EUR",
     isCritical: true,
     progress: 45,
-    deadline: "30/04/2025"
+    deadline: "30/04/2025",
+    category: "CAPEX",
+    type: "Tangível",
+    budgetUnit: 3300000
   },
   {
     id: "PRJ-005",
@@ -116,7 +119,10 @@ const mockProjects: Project[] = [
     currency: "BRL",
     isCritical: false,
     progress: 15,
-    deadline: "15/06/2025"
+    deadline: "15/06/2025",
+    category: "CAPEX",
+    type: "Tangível",
+    budgetUnit: 1750000
   },
   {
     id: "PRJ-006",
@@ -131,7 +137,10 @@ const mockProjects: Project[] = [
     currency: "BRL",
     isCritical: false,
     progress: 55,
-    deadline: "20/05/2025"
+    deadline: "20/05/2025",
+    category: "OPEX",
+    type: "Intangível",
+    budgetUnit: 600000
   },
   {
     id: "PRJ-007",
@@ -146,7 +155,10 @@ const mockProjects: Project[] = [
     currency: "SEK",
     isCritical: false,
     progress: 68,
-    deadline: "30/09/2025"
+    deadline: "30/09/2025",
+    category: "CAPEX",
+    type: "Tangível",
+    budgetUnit: 5000000
   }
 ];
 

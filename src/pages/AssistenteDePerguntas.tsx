@@ -13,7 +13,17 @@ const AssistenteDePerguntas = () => {
   const [question, setQuestion] = useState('');
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
+
+  // Check authentication status on component mount
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsAuthenticated(!!data.session);
+    };
+    checkAuth();
+  }, []);
 
   const frequentQuestions = [
     "Quais projetos do meu portfólio estão com desvio acima de 10% este mês?",
@@ -48,11 +58,15 @@ const AssistenteDePerguntas = () => {
     setResponse('');
 
     try {
+      // Get current session
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
       const { data, error } = await supabase.functions.invoke('chat-assistant', {
         body: { question: question.trim() },
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
+        headers: accessToken ? {
+          Authorization: `Bearer ${accessToken}`
+        } : {}
       });
 
       if (error) {
@@ -98,6 +112,21 @@ const AssistenteDePerguntas = () => {
           <p className="text-muted-foreground text-lg">
             Receba respostas automatizadas para dúvidas operacionais, financeiras e estratégicas.
           </p>
+          
+          {/* Authentication Status */}
+          <div className="mt-4">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Conectado - Acessando seus dados específicos</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-amber-600">
+                <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                <span>Modo geral - Para análises específicas, faça login no sistema</span>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import electroluxLogo from "@/assets/electrolux-logo.png";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -171,8 +172,12 @@ export function AppSidebar() {
         {/* Logo/Brand */}
         <div className="px-4 mb-6">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-primary-foreground" />
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1">
+              <img
+                src={electroluxLogo}
+                alt="Electrolux"
+                className="w-full h-full object-contain"
+              />
             </div>
             {!isCollapsed && (
               <div>

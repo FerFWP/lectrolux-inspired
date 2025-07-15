@@ -30,7 +30,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ProjectEditDialog } from "@/components/project-edit-dialog";
 import { BaselineDialog } from "@/components/baseline-dialog";
 import { TransactionDialog } from "@/components/transaction-dialog";
@@ -42,6 +42,8 @@ import { TransactionsView } from "@/components/transactions-view";
 import { HistoryView } from "@/components/history-view";
 import { ReportsView } from "@/components/reports-view";
 import { HomeButton } from "@/components/home-button";
+import { useExport } from "@/hooks/use-export";
+import { useSapImport } from "@/hooks/use-sap-import";
 
 // Mock data for demo purposes - generates dynamic data based on project ID  
 const generateMockProject = (projectId: string) => {
@@ -286,6 +288,8 @@ export default function ProjectDetail() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { exportData, isExporting } = useExport();
+  const { importFromSAP, isImporting } = useSapImport();
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
@@ -382,6 +386,73 @@ export default function ProjectDetail() {
     fetchProjectData();
   };
 
+  const handleExportProject = async () => {
+    try {
+      const projectData = {
+        'Código': project.project_code || id,
+        'Nome': project.name,
+        'Líder': project.leader,
+        'Área': project.area,
+        'Status': project.status,
+        'Orçamento': project.budget,
+        'Realizado': project.realized || 0,
+        'Comprometido': project.committed || 0,
+        'Saldo': project.budget - (project.realized || 0) - (project.committed || 0),
+        'Moeda': project.currency,
+        'Progresso': `${project.progress}%`,
+        'Data Início': project.start_date ? format(new Date(project.start_date), 'dd/MM/yyyy') : '-',
+        'Prazo': project.deadline ? format(new Date(project.deadline), 'dd/MM/yyyy') : '-',
+        'Crítico': project.is_critical ? 'Sim' : 'Não',
+        'Descrição': project.description || '-'
+      };
+
+      await exportData([projectData], `projeto-${project.project_code || id}`, 'excel');
+    } catch (error) {
+      toast({
+        title: "Erro na exportação",
+        description: "Não foi possível exportar os dados do projeto.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportHistory = async () => {
+    try {
+      const historyData = [
+        ...baselines.map(baseline => ({
+          'Data': format(new Date(baseline.created_at), 'dd/MM/yyyy HH:mm'),
+          'Tipo': 'Baseline',
+          'Versão': baseline.version,
+          'Valor': baseline.budget,
+          'Descrição': baseline.description || '-'
+        })),
+        ...transactions.map(transaction => ({
+          'Data': format(new Date(transaction.transaction_date), 'dd/MM/yyyy'),
+          'Tipo': 'Transação',
+          'Descrição': transaction.description,
+          'Valor': transaction.amount,
+          'Categoria': transaction.category
+        }))
+      ].sort((a, b) => new Date(b.Data).getTime() - new Date(a.Data).getTime());
+
+      await exportData(historyData, `historico-${project.project_code || id}`, 'excel');
+    } catch (error) {
+      toast({
+        title: "Erro na exportação",
+        description: "Não foi possível exportar o histórico do projeto.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSapImport = async () => {
+    try {
+      await importFromSAP(project.id, handleTransactionAdded);
+    } catch (error) {
+      // Erro já tratado no hook
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -448,9 +519,14 @@ export default function ProjectDetail() {
                 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleExportProject}
+                      disabled={isExporting}
+                    >
                       <Download className="h-4 w-4 mr-2" />
-                      Exportar
+                      {isExporting ? "Exportando..." : "Exportar"}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Exportar dados do projeto</TooltipContent>
@@ -632,12 +708,7 @@ export default function ProjectDetail() {
                 project={project}
                 transactions={transactions}
                 onTransactionAdded={handleTransactionAdded}
-                onImportSAP={() => {
-                  toast({
-                    title: "Importação SAP",
-                    description: "Iniciando importação de dados do SAP...",
-                  });
-                }}
+                onImportSAP={handleSapImport}
                 onAttachDocument={(transactionId) => {
                   toast({
                     title: "Anexar Documento",
@@ -681,6 +752,7 @@ export default function ProjectDetail() {
                     description: "Nova baseline criada com sucesso.",
                   });
                 }}
+                
                 onRevertBaseline={(baselineId) => {
                   toast({
                     title: "Baseline Revertida",

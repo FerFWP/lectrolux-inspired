@@ -12,6 +12,10 @@ import { CompactProjectView } from "@/components/compact-project-view";
 import { SmartFilters } from "@/components/smart-filters";
 import { IntelligentSearch } from "@/components/intelligent-search";
 import { HomeButton } from "@/components/home-button";
+import { ProjectCreateDialog } from "@/components/project-create-dialog";
+import { ProjectEditDialog } from "@/components/project-edit-dialog";
+import { useExport } from "@/hooks/use-export";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 interface Project {
@@ -185,6 +189,8 @@ export default function ProjectsList() {
   const [smartFilter, setSmartFilter] = useState("attention");
   const [intelligentFilters, setIntelligentFilters] = useState<string[]>([]);
   const navigate = useNavigate();
+  const { exportData, isExporting } = useExport();
+  const { toast } = useToast();
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
@@ -282,6 +288,51 @@ export default function ProjectsList() {
     setSearchTerm("");
   };
 
+  const handleExportList = async () => {
+    try {
+      const projectsData = filteredProjects.map(project => ({
+        'Código': project.id,
+        'Nome': project.name,
+        'Líder': project.leader,
+        'Área': project.area,
+        'Status': project.status,
+        'Orçamento': project.budget,
+        'Realizado': project.realized,
+        'Comprometido': project.committed,
+        'Saldo': project.balance,
+        'Moeda': project.currency,
+        'Progresso': `${project.progress}%`,
+        'Prazo': project.deadline,
+        'Categoria': project.category,
+        'Tipo': project.type,
+        'Crítico': project.isCritical ? 'Sim' : 'Não'
+      }));
+
+      await exportData(projectsData, 'lista-projetos', 'excel');
+    } catch (error) {
+      toast({
+        title: "Erro na exportação",
+        description: "Não foi possível exportar a lista de projetos.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleProjectCreated = (newProject: any) => {
+    toast({
+      title: "Projeto criado com sucesso!",
+      description: `O projeto "${newProject.name}" foi adicionado à lista.`,
+    });
+    // Em uma aplicação real, você atualizaria a lista de projetos
+  };
+
+  const handleProjectEdited = (updatedProject: any) => {
+    toast({
+      title: "Projeto atualizado!",
+      description: `As alterações do projeto "${updatedProject.name}" foram salvas.`,
+    });
+  };
+
   const ProjectCard = ({ project }: { project: Project }) => (
     <Card className={`hover:shadow-md transition-shadow ${project.isCritical ? 'border-destructive/20 bg-destructive/5' : ''}`}>
       <CardContent className="p-4">
@@ -350,28 +401,24 @@ export default function ProjectsList() {
             <Eye className="h-4 w-4 mr-1" />
             Ver
           </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => {
-                  // Simular verificação de permissão
-                  const hasPermission = Math.random() > 0.5;
-                  if (!hasPermission) {
-                    alert("Você não possui permissão para editar este projeto. Entre em contato com o administrador do sistema.");
-                  }
-                }}
-              >
-                <Edit3 className="h-4 w-4 mr-1" />
-                Editar
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Editar informações do projeto (requer permissão)</p>
-            </TooltipContent>
-          </Tooltip>
+          <ProjectEditDialog 
+            project={{
+              id: project.id,
+              project_code: project.id,
+              name: project.name,
+              leader: project.leader,
+              area: project.area,
+              status: project.status,
+              budget: project.budget,
+              currency: project.currency,
+              progress: project.progress,
+              start_date: new Date(),
+              deadline: new Date(project.deadline),
+              is_critical: project.isCritical,
+              description: `Projeto da área ${project.area}`
+            }}
+            onProjectUpdate={handleProjectEdited}
+          />
           <Button size="sm" variant="outline">
             <FileText className="h-4 w-4" />
           </Button>
@@ -394,19 +441,20 @@ export default function ProjectsList() {
               <div className="flex gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleExportList}
+                      disabled={isExporting || filteredProjects.length === 0}
+                    >
                       <Download className="h-4 w-4 mr-2" />
-                      Exportar Lista
+                      {isExporting ? "Exportando..." : "Exportar Lista"}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Exportar lista de projetos para Excel ou PowerBI com filtros aplicados</p>
+                    <p>Exportar lista de projetos para Excel com filtros aplicados</p>
                   </TooltipContent>
                 </Tooltip>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Projeto
-                </Button>
+                <ProjectCreateDialog onProjectCreated={handleProjectCreated} />
               </div>
             </div>
 

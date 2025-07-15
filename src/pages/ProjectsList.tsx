@@ -14,6 +14,8 @@ import { IntelligentSearch } from "@/components/intelligent-search";
 import { HomeButton } from "@/components/home-button";
 import { ProjectCreateDialog } from "@/components/project-create-dialog";
 import { ProjectEditDialog } from "@/components/project-edit-dialog";
+import { BulkEditDialog } from "@/components/bulk-edit-dialog";
+import { PendingUpdatesCard } from "@/components/pending-updates-card";
 import { useExport } from "@/hooks/use-export";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -188,6 +190,7 @@ export default function ProjectsList() {
   const [viewMode, setViewMode] = useState<"executive" | "table" | "cards">("executive");
   const [smartFilter, setSmartFilter] = useState("attention");
   const [intelligentFilters, setIntelligentFilters] = useState<string[]>([]);
+  const [showBulkEdit, setShowBulkEdit] = useState(false);
   const navigate = useNavigate();
   const { exportData, isExporting } = useExport();
   const { toast } = useToast();
@@ -455,8 +458,21 @@ export default function ProjectsList() {
                   </TooltipContent>
                 </Tooltip>
                 <ProjectCreateDialog onProjectCreated={handleProjectCreated} />
+                {selectedProjects.length > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowBulkEdit(true)}
+                    className="gap-2"
+                  >
+                    <Edit3 className="h-4 w-4" />
+                    Editar Selecionados ({selectedProjects.length})
+                  </Button>
+                )}
               </div>
             </div>
+
+            {/* Notificações de Pendências */}
+            <PendingUpdatesCard />
 
             {/* Barra de busca inteligente */}
             <div className="space-y-4">

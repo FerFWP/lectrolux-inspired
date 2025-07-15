@@ -23,6 +23,7 @@ import VmoLatamGovernanca from "./pages/VmoLatamGovernanca";
 import AssistenteDePerguntas from "./pages/AssistenteDePerguntas";
 import ExplanationCenter from "./pages/ExplanationCenter";
 import Gamificacao from "./pages/Gamificacao";
+import UpdatesCenterPage from "./pages/UpdatesCenter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/relatorios-dinamicos" element={<ProtectedRoute><Layout><PortfolioDynamicReports /></Layout></ProtectedRoute>} />
           <Route path="/gamificacao" element={<ProtectedRoute><Layout><Gamificacao /></Layout></ProtectedRoute>} />
           <Route path="/administracao" element={<ProtectedRoute><Layout><UserAdministration /></Layout></ProtectedRoute>} />
+          <Route path="/updates-center" element={<ProtectedRoute><Layout><UpdatesCenterPage /></Layout></ProtectedRoute>} />
           
           {/* VMO LATAM Routes - With Sidebar */}
           <Route path="/vmo-latam/dashboard-consolidado" element={<ProtectedRoute><Layout><VmoLatamDashboard /></Layout></ProtectedRoute>} />

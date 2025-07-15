@@ -45,6 +45,10 @@ import { ReportsView } from "@/components/reports-view";
 import { HomeButton } from "@/components/home-button";
 import { useExport } from "@/hooks/use-export";
 import { useSapImport } from "@/hooks/use-sap-import";
+import { InlineEdit } from "@/components/inline-edit";
+import { EditHistory } from "@/components/edit-history";
+import { ContextualNotifications } from "@/components/contextual-notifications";
+import { MotivationalFeedback } from "@/components/motivational-feedback";
 
 // Mock data for demo purposes - generates dynamic data based on project ID  
 const generateMockProject = (projectId: string) => {
@@ -288,6 +292,8 @@ export default function ProjectDetail() {
   const [baselines, setBaselines] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showEditHistory, setShowEditHistory] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const { toast } = useToast();
   const { exportData, isExporting } = useExport();
   const { importFromSAP, isImporting } = useSapImport();
@@ -385,6 +391,32 @@ export default function ProjectDetail() {
 
   const handleTransactionAdded = () => {
     fetchProjectData();
+  };
+
+  const handleFieldUpdate = async (fieldName: string, value: string | number) => {
+    try {
+      // Simulate API update
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setProject(prev => ({
+        ...prev,
+        [fieldName]: value
+      }));
+      
+      setShowFeedback(true);
+      
+      toast({
+        title: "Campo atualizado!",
+        description: `${fieldName} foi atualizado com sucesso.`,
+        className: "bg-green-50 border-green-200",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao atualizar",
+        description: "Tente novamente ou contate o suporte.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportProject = async () => {

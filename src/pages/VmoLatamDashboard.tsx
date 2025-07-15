@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Download, Eye, AlertTriangle, TrendingUp, DollarSign, Target } from "lucide-react";
+import { ContextualNotifications } from "@/components/contextual-notifications";
 
 // Mock data
 const mockData = {
@@ -117,6 +118,9 @@ export default function VmoLatamDashboard() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Notificações Contextuais */}
+      <ContextualNotifications position="inline" />
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Dashboard Consolidado VMO LATAM</h1>

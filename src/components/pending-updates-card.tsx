@@ -10,9 +10,11 @@ import {
   Edit3, 
   TrendingUp, 
   CheckCircle,
-  Zap
+  Zap,
+  Eye
 } from "lucide-react";
 import { UpdatesCenter } from "./updates-center";
+import { useNavigate } from "react-router-dom";
 
 interface PendingUpdatesCardProps {
   className?: string;
@@ -20,6 +22,7 @@ interface PendingUpdatesCardProps {
 
 export function PendingUpdatesCard({ className }: PendingUpdatesCardProps) {
   const [showUpdatesCenter, setShowUpdatesCenter] = useState(false);
+  const navigate = useNavigate();
   
   // Mock data - in real app, load from API
   const pendingCount = 4;
@@ -86,23 +89,23 @@ export function PendingUpdatesCard({ className }: PendingUpdatesCardProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Dialog open={showUpdatesCenter} onOpenChange={setShowUpdatesCenter}>
-            <DialogTrigger asChild>
-              <Button className="flex-1 bg-orange-600 hover:bg-orange-700 text-white">
-                <Edit3 className="h-4 w-4 mr-2" />
-                Atualizar Agora
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-orange-600" />
-                  Central de Atualizações
-                </DialogTitle>
-              </DialogHeader>
-              <UpdatesCenter onClose={() => setShowUpdatesCenter(false)} />
-            </DialogContent>
-          </Dialog>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/updates-center')}
+            className="flex-1"
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Ver Central
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => navigate('/updates-center')}
+            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
+          >
+            <Edit3 className="h-4 w-4 mr-2" />
+            Atualizar Agora
+          </Button>
         </div>
 
         {/* Motivational Message */}

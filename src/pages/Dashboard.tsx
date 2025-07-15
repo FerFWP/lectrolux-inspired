@@ -997,14 +997,17 @@ const Dashboard = () => {
           {/* Self-Service Dashboard */}
           {showSelfService && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-              <div className="bg-card rounded-lg border border-border w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold">Dashboard Personalizado</h2>
-                    <Button variant="ghost" size="sm" onClick={() => setShowSelfService(false)}>
-                      ×
-                    </Button>
-                  </div>
+              <div className="bg-card rounded-lg border border-border w-full max-w-[90vw] max-h-[90vh] overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between p-6 border-b">
+                  <h2 className="text-xl font-semibold">Dashboard Personalizado</h2>
+                  <Button variant="ghost" size="sm" onClick={() => setShowSelfService(false)} className="h-8 w-8 p-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6L6 18" />
+                      <path d="M6 6l12 12" />
+                    </svg>
+                  </Button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6">
                   <SelfServiceDashboard 
                     onViewChange={(view) => console.log(view)}
                   />

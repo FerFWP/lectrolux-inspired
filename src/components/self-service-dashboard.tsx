@@ -401,14 +401,14 @@ export function SelfServiceDashboard({ onViewChange }: SelfServiceDashboardProps
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Header with Actions */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b">
+        <div className="flex-1">
           <h3 className="text-2xl font-bold">Dashboard Self-Service</h3>
           <p className="text-muted-foreground">Crie e customize suas próprias visões</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)}>
             <Settings className="h-4 w-4 mr-2" />
             {isEditing ? 'Sair da Edição' : 'Editar'}
@@ -420,7 +420,7 @@ export function SelfServiceDashboard({ onViewChange }: SelfServiceDashboardProps
                 Nova Visão
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Criar Nova Visão</DialogTitle>
               </DialogHeader>
@@ -458,142 +458,145 @@ export function SelfServiceDashboard({ onViewChange }: SelfServiceDashboardProps
         </div>
       </div>
 
-      {/* Saved Views */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Layout className="h-5 w-5" />
-            Visões Salvas
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {views.map(view => (
-              <Card 
-                key={view.id} 
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  currentView?.id === view.id ? 'ring-2 ring-primary' : ''
-                }`}
-                onClick={() => setCurrentView(view)}
-              >
-                <CardContent className="pt-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="font-medium">{view.name}</h4>
-                      <p className="text-sm text-muted-foreground">{view.description}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleFavorite(view.id);
-                      }}
-                    >
-                      {view.isFavorite ? (
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ) : (
-                        <StarOff className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Modificado: {view.lastModified.toLocaleDateString('pt-BR')}</span>
-                    <div className="flex gap-1">
+      {/* Content Area with Scroll */}
+      <div className="flex-1 overflow-y-auto space-y-6 scrollbar-thin">
+        {/* Saved Views */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Layout className="h-5 w-5" />
+              Visões Salvas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4 md:flex-nowrap md:overflow-x-auto pb-2">
+              {views.map(view => (
+                <Card 
+                  key={view.id} 
+                  className={`cursor-pointer transition-all hover:shadow-md min-w-[280px] md:min-w-[320px] ${
+                    currentView?.id === view.id ? 'ring-2 ring-primary' : ''
+                  }`}
+                  onClick={() => setCurrentView(view)}
+                >
+                  <CardContent className="pt-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium truncate">{view.name}</h4>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{view.description}</p>
+                      </div>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteView(view.id);
+                          handleToggleFavorite(view.id);
                         }}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        {view.isFavorite ? (
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        ) : (
+                          <StarOff className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Current View */}
-      {currentView && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5" />
-                {currentView.name}
-              </CardTitle>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={handleExportView}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportar
-                </Button>
-                <Button size="sm" variant="outline">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Atualizar
-                </Button>
-                {isEditing && (
-                  <Button size="sm" onClick={handleSaveView}>
-                    <Save className="h-4 w-4 mr-2" />
-                    Salvar
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isEditing && (
-              <div className="mb-6 p-4 bg-muted rounded-lg">
-                <h4 className="font-medium mb-4">Filtros da Visão</h4>
-                <FilterSection />
-              </div>
-            )}
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {currentView.widgets.map(widget => (
-                <div key={widget.id} className="relative">
-                  {renderWidget(widget)}
-                  {isEditing && (
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      <Button size="sm" variant="ghost">
-                        <Edit3 className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" variant="ghost">
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Modificado: {view.lastModified.toLocaleDateString('pt-BR')}</span>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteView(view.id);
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
-                  )}
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-
-            {isEditing && (
-              <div className="mt-6 p-4 border-2 border-dashed border-muted rounded-lg">
-                <h4 className="font-medium mb-4">Adicionar Widget</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {availableWidgets.map(widget => (
-                    <Button
-                      key={widget.id}
-                      variant="outline"
-                      size="sm"
-                      className="justify-start gap-2"
-                      onClick={() => console.log('Add widget', widget.id)}
-                    >
-                      <widget.icon className="h-4 w-4" />
-                      {widget.title}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
-      )}
+
+        {/* Current View */}
+        {currentView && (
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  {currentView.name}
+                </CardTitle>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={handleExportView}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Exportar
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Atualizar
+                  </Button>
+                  {isEditing && (
+                    <Button size="sm" onClick={handleSaveView}>
+                      <Save className="h-4 w-4 mr-2" />
+                      Salvar
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isEditing && (
+                <div className="mb-6 p-4 bg-muted rounded-lg">
+                  <h4 className="font-medium mb-4">Filtros da Visão</h4>
+                  <FilterSection />
+                </div>
+              )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {currentView.widgets.map(widget => (
+                  <div key={widget.id} className="relative">
+                    {renderWidget(widget)}
+                    {isEditing && (
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Button size="sm" variant="ghost">
+                          <Edit3 className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="ghost">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {isEditing && (
+                <div className="mt-6 p-4 border-2 border-dashed border-muted rounded-lg">
+                  <h4 className="font-medium mb-4">Adicionar Widget</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {availableWidgets.map(widget => (
+                      <Button
+                        key={widget.id}
+                        variant="outline"
+                        size="sm"
+                        className="justify-start gap-2"
+                        onClick={() => console.log('Add widget', widget.id)}
+                      >
+                        <widget.icon className="h-4 w-4" />
+                        {widget.title}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { AIInsightsPanel } from "@/components/ai-insights-panel";
 import { SelfServiceDashboard } from "@/components/self-service-dashboard";
 import { ApprovalWorkflow } from "@/components/approval-workflow";
+import { Portal } from "@/components/ui/portal";
 import { useNavigate } from "react-router-dom";
 
 // Função para gerar dados dinâmicos baseados nos filtros
@@ -341,6 +342,19 @@ const Dashboard = () => {
   const [showSelfService, setShowSelfService] = useState(false);
   const [showApprovalWorkflow, setShowApprovalWorkflow] = useState(false);
   const navigate = useNavigate();
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showSelfService) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showSelfService]);
 
   // Dados dinâmicos baseados nos filtros
   const {
@@ -994,27 +1008,33 @@ const Dashboard = () => {
             </div>
           )}
           
-          {/* Self-Service Dashboard */}
-          {showSelfService && (
-            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-              <div className="bg-card rounded-lg border border-border w-full max-w-[90vw] max-h-[90vh] overflow-hidden flex flex-col">
-                <div className="flex items-center justify-between p-6 border-b">
-                  <h2 className="text-xl font-semibold">Dashboard Personalizado</h2>
-                  <Button variant="ghost" size="sm" onClick={() => setShowSelfService(false)} className="h-8 w-8 p-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 6L6 18" />
-                      <path d="M6 6l12 12" />
-                    </svg>
-                  </Button>
-                </div>
-                <div className="flex-1 overflow-y-auto p-6">
-                  <SelfServiceDashboard 
-                    onViewChange={(view) => console.log(view)}
-                  />
-                </div>
+      {/* Self-Service Dashboard - Portal */}
+      {showSelfService && (
+        <Portal>
+          <div 
+            className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4 overflow-auto"
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}
+            onClick={() => setShowSelfService(false)}
+          >
+            <div className="bg-card rounded-lg border border-border w-full max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col mx-auto my-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between p-6 border-b bg-card sticky top-0 z-10">
+                <h2 className="text-xl font-semibold">Dashboard Personalizado</h2>
+                <Button variant="ghost" size="sm" onClick={() => setShowSelfService(false)} className="h-8 w-8 p-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6L6 18" />
+                    <path d="M6 6l12 12" />
+                  </svg>
+                </Button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-6">
+                <SelfServiceDashboard 
+                  onViewChange={(view) => console.log(view)}
+                />
               </div>
             </div>
-          )}
+          </div>
+        </Portal>
+      )}
           
           {/* Approval Workflow */}
           {showApprovalWorkflow && (

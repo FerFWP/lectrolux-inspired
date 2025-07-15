@@ -215,13 +215,14 @@ const DynamicReportsGenerator = () => {
             <HomeButton />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Input Section */}
-            <div className="lg:col-span-1">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary" />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            {/* Left Half - Input and Examples */}
+            <div className="space-y-6">
+              {/* Input Section */}
+              <Card className="border-2 border-border/50">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <Sparkles className="w-6 h-6 text-primary" />
                     Descreva seu relatório
                     <Tooltip>
                       <TooltipTrigger>
@@ -235,38 +236,39 @@ const DynamicReportsGenerator = () => {
                       </TooltipContent>
                     </Tooltip>
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-base">
                     Quanto mais detalhada a descrição, mais preciso o relatório gerado.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-5">
                   <Textarea
                     placeholder="Descreva o relatório ou análise personalizada que você gostaria de gerar..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    rows={4}
-                    className="resize-none"
+                    rows={5}
+                    className="resize-none text-base"
                   />
 
                   <Button 
                     onClick={handleGenerateReport}
                     disabled={isGenerating || !prompt.trim()}
-                    className="w-full"
+                    className="w-full h-12 text-base font-medium"
+                    size="lg"
                   >
                     {isGenerating ? (
                       <>
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        <RefreshCw className="w-5 h-5 mr-3 animate-spin" />
                         Gerando relatório...
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4 mr-2" />
+                        <Sparkles className="w-5 h-5 mr-3" />
                         Gerar Relatório
                       </>
                     )}
                   </Button>
 
-                  <Alert>
+                  <Alert className="border-primary/20 bg-primary/5">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       <strong>Dica:</strong> Use linguagem natural e seja específico sobre período, área, métricas e formato desejado.
@@ -276,24 +278,27 @@ const DynamicReportsGenerator = () => {
               </Card>
 
               {/* Examples Section */}
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lightbulb className="w-5 h-5 text-amber-500" />
+              <Card className="border-2 border-border/50">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <Lightbulb className="w-6 h-6 text-amber-500" />
                     Exemplos de prompts
                   </CardTitle>
+                  <CardDescription className="text-base">
+                    Clique em qualquer exemplo para usar como base
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {examplePrompts.map((example, index) => (
                       <Button
                         key={index}
                         variant="ghost"
-                        className="w-full text-left justify-start h-auto p-3 text-sm"
+                        className="w-full text-left justify-start h-auto p-4 text-sm hover:bg-muted/80 transition-colors"
                         onClick={() => setPrompt(example)}
                       >
-                        <span className="text-muted-foreground mr-2">•</span>
-                        {example}
+                        <span className="text-primary mr-3 font-medium">•</span>
+                        <span className="text-foreground/90">{example}</span>
                       </Button>
                     ))}
                   </div>
@@ -301,38 +306,38 @@ const DynamicReportsGenerator = () => {
               </Card>
             </div>
 
-            {/* Results Section */}
-            <div className="lg:col-span-2">
-              <Card className="min-h-[600px]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5" />
+            {/* Right Half - Generated Report */}
+            <div className="xl:sticky xl:top-6 xl:self-start">
+              <Card className="border-2 border-border/50 min-h-[700px]">
+                <CardHeader className="pb-4 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <BarChart3 className="w-6 h-6 text-primary" />
                     Relatório Gerado
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-base">
                     Visualize e exporte seu relatório personalizado
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   {isGenerating ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                      <RefreshCw className="w-8 h-8 animate-spin text-primary mb-4" />
-                      <p className="text-lg font-medium">Processando sua solicitação...</p>
-                      <p className="text-muted-foreground text-center mt-2">
+                    <div className="flex flex-col items-center justify-center py-24">
+                      <RefreshCw className="w-10 h-10 animate-spin text-primary mb-6" />
+                      <p className="text-xl font-medium mb-3">Processando sua solicitação...</p>
+                      <p className="text-muted-foreground text-center max-w-md">
                         Nossa IA está analisando os dados e gerando seu relatório personalizado
                       </p>
                     </div>
                   ) : generatedReport ? (
                     renderGeneratedContent()
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                      <div className="p-4 bg-muted/20 rounded-full mb-4">
-                        <Sparkles className="w-8 h-8 text-muted-foreground" />
+                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                      <div className="p-6 bg-muted/20 rounded-full mb-6">
+                        <Sparkles className="w-10 h-10 text-muted-foreground" />
                       </div>
-                      <p className="text-lg font-medium text-muted-foreground mb-2">
+                      <p className="text-xl font-medium text-muted-foreground mb-3">
                         Pronto para gerar seu relatório
                       </p>
-                      <p className="text-sm text-muted-foreground max-w-md">
+                      <p className="text-base text-muted-foreground max-w-md leading-relaxed">
                         Descreva o relatório que você gostaria de criar no campo ao lado. 
                         Nossa IA processará sua solicitação e gerará um relatório personalizado.
                       </p>

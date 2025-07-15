@@ -35,6 +35,7 @@ import { ProjectEditDialog } from "@/components/project-edit-dialog";
 import { BaselineDialog } from "@/components/baseline-dialog";
 import { TransactionDialog } from "@/components/transaction-dialog";
 import { PortfolioComparisonDialog } from "@/components/portfolio-comparison-dialog";
+import { LogsDialog } from "@/components/logs-dialog";
 import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { FinancialSummary } from "@/components/financial-summary";
 import { PlanningView } from "@/components/planning-view";
@@ -509,10 +510,10 @@ export default function ProjectDetail() {
               <div className="flex gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Logs
-                    </Button>
+                    <LogsDialog 
+                      projectId={project.project_code || id} 
+                      projectName={project.name} 
+                    />
                   </TooltipTrigger>
                   <TooltipContent>Ver histórico de alterações</TooltipContent>
                 </Tooltip>
@@ -532,10 +533,15 @@ export default function ProjectDetail() {
                   <TooltipContent>Exportar dados do projeto</TooltipContent>
                 </Tooltip>
                 
-                <ProjectEditDialog 
-                  project={project} 
-                  onProjectUpdate={handleProjectUpdate}
-                />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <ProjectEditDialog 
+                      project={project} 
+                      onProjectUpdate={handleProjectUpdate}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>Editar informações do projeto</TooltipContent>
+                </Tooltip>
               </div>
             </div>
 

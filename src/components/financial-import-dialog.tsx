@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface FinancialImportDialogProps {
   projectId: string;
+  open?: boolean;
+  onClose?: () => void;
   onImportComplete: () => void;
 }
 
@@ -29,8 +31,8 @@ interface ImportedTransaction {
   };
 }
 
-export function FinancialImportDialog({ projectId, onImportComplete }: FinancialImportDialogProps) {
-  const [open, setOpen] = useState(false);
+export function FinancialImportDialog({ projectId, open = false, onClose, onImportComplete }: FinancialImportDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [importedFile, setImportedFile] = useState<File | null>(null);
   const [importedData, setImportedData] = useState<ImportedTransaction[]>([]);
   const [loading, setLoading] = useState(false);
@@ -145,7 +147,7 @@ export function FinancialImportDialog({ projectId, onImportComplete }: Financial
       });
 
       onImportComplete();
-      setOpen(false);
+      setInternalOpen(false);
       setImportedFile(null);
       setImportedData([]);
     } catch (error: any) {
@@ -166,7 +168,7 @@ export function FinancialImportDialog({ projectId, onImportComplete }: Financial
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open || internalOpen} onOpenChange={open !== undefined ? onClose : setInternalOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <Upload className="h-4 w-4" />
@@ -343,7 +345,7 @@ export function FinancialImportDialog({ projectId, onImportComplete }: Financial
 
           {/* Actions */}
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" onClick={() => onClose ? onClose() : setInternalOpen(false)}>
               Cancelar
             </Button>
             {importedData.length > 0 && (

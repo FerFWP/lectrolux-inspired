@@ -19,8 +19,11 @@ import {
   CheckCircle,
   AlertCircle,
   Info,
-  Save
+  Save,
+  Sparkles,
+  Bot
 } from "lucide-react";
+import { EnhancedPlanningView } from "@/components/enhanced-planning-view";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +58,7 @@ export function PlanningView({
   const [forecastData, setForecastData] = useState<any>({});
   const [justification, setJustification] = useState("");
   const [selectedBaseline, setSelectedBaseline] = useState(baselines[0]?.id || "");
+  const [showEnhancedView, setShowEnhancedView] = useState(false);
   const { toast } = useToast();
 
   const formatCurrency = (amount: number, currency: string = "BRL") => {
@@ -331,7 +335,7 @@ export function PlanningView({
   };
 
   return (
-    <TooltipProvider>
+      <TooltipProvider>
       <div className="space-y-8">
         {/* Header with Actions */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -343,6 +347,14 @@ export function PlanningView({
             <Button size="sm" variant="outline" onClick={exportPlanning}>
               <Download className="h-4 w-4 mr-2" />
               Exportar
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => setShowEnhancedView(!showEnhancedView)}
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {showEnhancedView ? "Visão Simples" : "Planejamento IA"}
             </Button>
             <BaselineDialog 
               projectId={project.id} 
@@ -795,8 +807,30 @@ export function PlanningView({
               </p>
             </CardContent>
           </Card>
-        )}
-      </div>
-    </TooltipProvider>
-  );
+      )}
+      
+      {/* Enhanced Planning View */}
+      {showEnhancedView && (
+        <Card className="border-blue-200 bg-blue-50/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-blue-600" />
+              Planejamento Inteligente com IA
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <EnhancedPlanningView 
+              project={project} 
+              baselines={baselines} 
+              transactions={transactions}
+              onUpdateForecast={onUpdateForecast}
+              onSaveBaseline={onSaveBaseline}
+              onRevertBaseline={onRevertBaseline}
+            />
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  </TooltipProvider>
+);
 }

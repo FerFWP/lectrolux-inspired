@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, Plus, FileText, LayoutDashboard, FolderOpen, BarChart3, Calendar, Settings, Download, Filter, HelpCircle, CheckCircle, AlertCircle, Info, Clock } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, Plus, FileText, LayoutDashboard, FolderOpen, BarChart3, Calendar, Settings, Download, Filter, HelpCircle, CheckCircle, AlertCircle, Info, Clock, Sparkles, Workflow } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AIInsightsPanel } from "@/components/ai-insights-panel";
+import { SelfServiceDashboard } from "@/components/self-service-dashboard";
+import { ApprovalWorkflow } from "@/components/approval-workflow";
+import { useNavigate } from "react-router-dom";
 
 // Função para gerar dados dinâmicos baseados nos filtros
 const getFilteredData = (area: string, year: string, status: string) => {
@@ -333,6 +337,10 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState("2025");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const [showAIInsights, setShowAIInsights] = useState(false);
+  const [showSelfService, setShowSelfService] = useState(false);
+  const [showApprovalWorkflow, setShowApprovalWorkflow] = useState(false);
+  const navigate = useNavigate();
 
   // Dados dinâmicos baseados nos filtros
   const {
@@ -440,6 +448,40 @@ const Dashboard = () => {
             <h1 className="text-2xl font-bold text-primary">Dashboard Portfólio</h1>
             <p className="text-sm text-muted-foreground">Visão geral dos projetos financeiros</p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowAIInsights(!showAIInsights)}
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Insights IA
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowSelfService(!showSelfService)}
+          >
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            Dashboard Personalizado
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowApprovalWorkflow(!showApprovalWorkflow)}
+          >
+            <Workflow className="h-4 w-4 mr-2" />
+            Aprovações
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate("/inteligencia/relatorios-dinamicos")}
+          >
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Relatórios IA
+          </Button>
         </div>
       </header>
 
@@ -927,9 +969,69 @@ const Dashboard = () => {
                       <p className="text-muted-foreground">Saldo Disponível</p>
                     </Card>
                   </TooltipProvider>
-                </div>
-              </>}
+                 </div>
+               </>}
           </main>
+          
+          {/* AI Insights Panel */}
+          {showAIInsights && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-card rounded-lg border border-border w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold">Insights de IA</h2>
+                    <Button variant="ghost" size="sm" onClick={() => setShowAIInsights(false)}>
+                      ×
+                    </Button>
+                  </div>
+                  <AIInsightsPanel 
+                    projectId="dashboard-portfolio" 
+                    dashboardData={portfolioData}
+                    onInsightAction={(action) => console.log(action)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Self-Service Dashboard */}
+          {showSelfService && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-card rounded-lg border border-border w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold">Dashboard Personalizado</h2>
+                    <Button variant="ghost" size="sm" onClick={() => setShowSelfService(false)}>
+                      ×
+                    </Button>
+                  </div>
+                  <SelfServiceDashboard 
+                    onViewChange={(view) => console.log(view)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Approval Workflow */}
+          {showApprovalWorkflow && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-card rounded-lg border border-border w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold">Fluxo de Aprovações</h2>
+                    <Button variant="ghost" size="sm" onClick={() => setShowApprovalWorkflow(false)}>
+                      ×
+                    </Button>
+                  </div>
+                  <ApprovalWorkflow 
+                    projectId="dashboard-portfolio" 
+                    onApprovalChange={(approval) => console.log(approval)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
       </div>;
 };
 export default Dashboard;

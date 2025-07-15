@@ -18,6 +18,7 @@ import {
   Building2,
   Tag
 } from "lucide-react";
+import { FinancialImportDialog } from "@/components/financial-import-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +58,7 @@ export function TransactionsView({
     dateRange: null as any
   });
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   const { toast } = useToast();
 
   const formatCurrency = (amount: number, currency: string = "BRL") => {
@@ -237,6 +239,10 @@ export function TransactionsView({
             <Button size="sm" variant="outline" onClick={onImportSAP}>
               <Upload className="h-4 w-4 mr-2" />
               Importar SAP
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setShowImportDialog(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              Importar Planilha
             </Button>
             <Button size="sm" variant="outline" onClick={exportTransactions}>
               <Download className="h-4 w-4 mr-2" />
@@ -514,9 +520,20 @@ export function TransactionsView({
                 </TableBody>
               </Table>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </TooltipProvider>
-  );
+           </CardContent>
+         </Card>
+         
+         {/* Financial Import Dialog */}
+         <FinancialImportDialog 
+           projectId={project.id || "mock-project-id"}
+           open={showImportDialog}
+           onClose={() => setShowImportDialog(false)}
+           onImportComplete={() => {
+             setShowImportDialog(false);
+             onTransactionAdded?.();
+           }}
+         />
+       </div>
+     </TooltipProvider>
+   );
 }

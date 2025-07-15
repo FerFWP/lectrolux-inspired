@@ -4,14 +4,12 @@ import { ptBR } from "date-fns/locale";
 import { 
   Calendar, 
   Edit3, 
-  Save, 
   RotateCcw, 
   Download, 
   AlertTriangle, 
   TrendingUp, 
   TrendingDown,
   HelpCircle,
-  Plus,
   ArrowUp,
   ArrowDown,
   Minus,
@@ -20,7 +18,8 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Info
+  Info,
+  Save
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,11 +28,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LineChart, Line, CartesianGrid } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BaselineDialog } from "@/components/baseline-dialog";
 
 interface PlanningViewProps {
   project: any;
@@ -292,6 +291,16 @@ export function PlanningView({
     });
   };
 
+  const handleBaselineAdded = () => {
+    // Notificar o componente pai que uma nova baseline foi adicionada
+    onSaveBaseline?.({
+      project_id: project.id,
+      version: `v${baselines.length + 1}.0`,
+      budget: project.budget,
+      description: "Nova baseline criada"
+    });
+  };
+
   const handleRevertBaseline = () => {
     if (selectedBaseline) {
       onRevertBaseline?.(selectedBaseline);
@@ -335,33 +344,10 @@ export function PlanningView({
               <Download className="h-4 w-4 mr-2" />
               Exportar
             </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button size="sm" variant="outline">
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar Baseline
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Salvar Nova Baseline</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Justificativa para mudança:</label>
-                    <Textarea
-                      value={justification}
-                      onChange={(e) => setJustification(e.target.value)}
-                      placeholder="Explique o motivo desta alteração de baseline..."
-                      className="mt-1"
-                    />
-                  </div>
-                  <Button onClick={handleSaveBaseline} className="w-full">
-                    Confirmar Baseline
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <BaselineDialog 
+              projectId={project.id} 
+              onBaselineAdded={handleBaselineAdded}
+            />
           </div>
         </div>
 

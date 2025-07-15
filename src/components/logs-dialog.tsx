@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -110,6 +110,9 @@ export function LogsDialog({ projectId, projectName }: LogsDialogProps) {
       <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Histórico de Alterações - {projectName}</DialogTitle>
+          <DialogDescription>
+            Visualize todas as alterações realizadas no projeto, incluindo baselines, transações e modificações de status.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">

@@ -521,7 +521,7 @@ export function EnhancedPlanningView({
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label>Justificativa (obrigatória para desvios > 15%)</Label>
+                  <Label>Justificativa (obrigatória para desvios &gt; 15%)</Label>
                   <Textarea
                     value={justification}
                     onChange={(e) => setJustification(e.target.value)}

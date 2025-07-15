@@ -24,6 +24,7 @@ import AssistenteDePerguntas from "./pages/AssistenteDePerguntas";
 import ExplanationCenter from "./pages/ExplanationCenter";
 import Gamificacao from "./pages/Gamificacao";
 import UpdatesCenterPage from "./pages/UpdatesCenter";
+import ClusterEstrategicos from "./pages/ClusterEstrategicos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,7 +55,7 @@ const App = () => (
           <Route path="/vmo-latam/simulacao-cenarios" element={<ProtectedRoute><Layout><VmoLatamSimulacao /></Layout></ProtectedRoute>} />
           <Route path="/vmo-latam/comparativo-valor" element={<ProtectedRoute><Layout><VmoLatamComparativo /></Layout></ProtectedRoute>} />
           <Route path="/vmo-latam/governanca-auditoria" element={<ProtectedRoute><Layout><VmoLatamGovernanca /></Layout></ProtectedRoute>} />
-          <Route path="/vmo-latam/clusters-estrategicos" element={<ProtectedRoute><Layout><div className="p-6"><h1 className="text-2xl font-bold">Clusters Estratégicos</h1><p className="text-muted-foreground mt-2">Visualização e análise dos projetos por temas estratégicos (inovação, ESG, eficiência)</p></div></Layout></ProtectedRoute>} />
+          <Route path="/vmo-latam/clusters-estrategicos" element={<ProtectedRoute><Layout><ClusterEstrategicos /></Layout></ProtectedRoute>} />
           
           {/* Inteligência Routes - With Sidebar */}
           <Route path="/inteligencia/assistente" element={<ProtectedRoute><Layout><AssistenteDePerguntas /></Layout></ProtectedRoute>} />

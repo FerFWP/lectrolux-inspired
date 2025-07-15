@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -89,6 +90,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function VmoLatamDashboard() {
+  const navigate = useNavigate();
   const [selectedCountry, setSelectedCountry] = useState("all");
   const [selectedUnit, setSelectedUnit] = useState("all");
   const [selectedBU, setSelectedBU] = useState("all");
@@ -98,6 +100,19 @@ export default function VmoLatamDashboard() {
   const exportData = () => {
     // Simulate data export
     console.log("Exporting dashboard data...");
+  };
+
+  const handleUnitClick = (unit: string, status: string) => {
+    // Navegar para a lista de projetos com filtros aplicados
+    const statusFilter = status === "ok" ? "Em andamento" : status === "attention" ? "Atenção" : "Crítico";
+    const unitFilter = unit.toLowerCase().replace(/ /g, "-");
+    
+    navigate(`/projetos?unit=${unitFilter}&status=${statusFilter}`);
+  };
+
+  const handleProjectDetailClick = (projectId: string) => {
+    // Navegar para o detalhe do projeto
+    navigate(`/projetos/${projectId}`);
   };
 
   return (
@@ -323,7 +338,11 @@ export default function VmoLatamDashboard() {
           <CardContent>
             <div className="space-y-3">
               {mockData.heatmapData.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div 
+                  key={index} 
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  onClick={() => handleUnitClick(item.unit, item.status)}
+                >
                   <div>
                     <div className="font-medium">{item.unit}</div>
                     <div className="text-sm text-muted-foreground">{item.country}</div>
@@ -375,7 +394,11 @@ export default function VmoLatamDashboard() {
                     <Badge variant={getStatusBadgeVariant(project.status)}>
                       {project.status === "critical" ? "Crítico" : "Atenção"}
                     </Badge>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleProjectDetailClick(project.id)}
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                   </div>

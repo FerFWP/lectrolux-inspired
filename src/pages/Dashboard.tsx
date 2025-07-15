@@ -9,6 +9,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { AIInsightsPanel } from "@/components/ai-insights-panel";
 import { SelfServiceDashboard } from "@/components/self-service-dashboard";
 import { ApprovalWorkflow } from "@/components/approval-workflow";
+import { PendingUpdatesCard } from "@/components/pending-updates-card";
+import { ContextualNotifications } from "@/components/contextual-notifications";
+import { MotivationalFeedback } from "@/components/motivational-feedback";
 import { Portal } from "@/components/ui/portal";
 import { useNavigate } from "react-router-dom";
 

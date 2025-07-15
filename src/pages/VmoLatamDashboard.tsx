@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Download, Eye, AlertTriangle, TrendingUp, DollarSign, Target } from "lucide-react";
 
 // Mock data
@@ -60,6 +60,32 @@ const getStatusBadgeVariant = (status: string) => {
     case "critical": return "destructive";
     default: return "outline";
   }
+};
+
+// Custom tooltip component for better styling
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border border-border rounded-lg shadow-lg p-3 min-w-[200px]">
+        <p className="font-medium text-foreground mb-2">{label}</p>
+        <div className="space-y-1">
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-sm" 
+                  style={{ backgroundColor: entry.color }}
+                />
+                <span className="text-sm text-muted-foreground">{entry.name}:</span>
+              </div>
+              <span className="font-medium text-foreground">{entry.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
 };
 
 export default function VmoLatamDashboard() {
@@ -235,14 +261,54 @@ export default function VmoLatamDashboard() {
           <CardTitle>Orçado vs Realizado por Unidade Fabril</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={mockData.barChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="unit" angle={-45} textAnchor="end" height={100} />
-              <YAxis tickFormatter={(value) => formatCurrency(value, selectedCurrency)} />
-              <Tooltip formatter={(value) => formatCurrency(value as number, selectedCurrency)} />
-              <Bar dataKey="budgeted" fill="hsl(var(--primary))" name="Orçado" />
-              <Bar dataKey="realized" fill="hsl(var(--secondary))" name="Realizado" />
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart 
+              data={mockData.barChartData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 80,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis 
+                dataKey="unit" 
+                angle={-45} 
+                textAnchor="end" 
+                height={100}
+                interval={0}
+                fontSize={12}
+                tick={{ fill: 'hsl(var(--foreground))' }}
+              />
+              <YAxis 
+                tickFormatter={(value) => formatCurrency(value, selectedCurrency)}
+                width={80}
+                fontSize={12}
+                tick={{ fill: 'hsl(var(--foreground))' }}
+              />
+              <Tooltip 
+                content={<CustomTooltip />}
+                formatter={(value) => formatCurrency(value as number, selectedCurrency)}
+              />
+              <Legend 
+                verticalAlign="top"
+                height={36}
+                iconType="rect"
+                wrapperStyle={{ paddingBottom: '20px' }}
+              />
+              <Bar 
+                dataKey="budgeted" 
+                fill="hsl(var(--primary-medium))" 
+                name="Orçado"
+                radius={[2, 2, 0, 0]}
+              />
+              <Bar 
+                dataKey="realized" 
+                fill="hsl(var(--primary))" 
+                name="Realizado"
+                radius={[2, 2, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

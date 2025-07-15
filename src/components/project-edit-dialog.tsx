@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface Project {
   id?: string;
@@ -188,7 +188,7 @@ export function ProjectEditDialog({ project, onProjectUpdate }: ProjectEditDialo
                 <SelectContent>
                   <SelectItem value="BRL">BRL</SelectItem>
                   <SelectItem value="USD">USD</SelectItem>
-                  
+                  <SelectItem value="SEK">SEK</SelectItem>
                 </SelectContent>
               </Select>
             </div>

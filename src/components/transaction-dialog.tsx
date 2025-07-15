@@ -11,7 +11,7 @@ import { CalendarIcon, Plus, Upload, Building2, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface TransactionDialogProps {
   projectId: string;

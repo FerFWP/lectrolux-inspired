@@ -472,7 +472,7 @@ export default function ProjectsList() {
             </div>
 
             {/* Notificações de Pendências */}
-            <PendingUpdatesCard />
+            <PendingUpdatesCard initialExpanded={false} />
 
             {/* Barra de busca inteligente */}
             <div className="space-y-4">

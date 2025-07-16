@@ -21,11 +21,12 @@ import { useNavigate } from "react-router-dom";
 
 interface PendingUpdatesCardProps {
   className?: string;
+  initialExpanded?: boolean;
 }
 
-export function PendingUpdatesCard({ className }: PendingUpdatesCardProps) {
+export function PendingUpdatesCard({ className, initialExpanded = true }: PendingUpdatesCardProps) {
   const [showUpdatesCenter, setShowUpdatesCenter] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const navigate = useNavigate();
   
   // Mock data - in real app, load from API

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Portal } from "@/components/ui/portal";
 import { 
   Filter, 
   Save, 
@@ -413,48 +413,76 @@ export function SelfServiceDashboard({ onViewChange }: SelfServiceDashboardProps
             <Settings className="h-4 w-4 mr-2" />
             {isEditing ? 'Sair da Edição' : 'Editar'}
           </Button>
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-2">
-                <Plus className="h-4 w-4" />
-                Nova Visão
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Criar Nova Visão</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label>Nome da Visão</Label>
-                  <Input
-                    value={newViewName}
-                    onChange={(e) => setNewViewName(e.target.value)}
-                    placeholder="Ex: Visão Executiva"
-                  />
-                </div>
-                <div>
-                  <Label>Descrição</Label>
-                  <Input
-                    value={newViewDescription}
-                    onChange={(e) => setNewViewDescription(e.target.value)}
-                    placeholder="Descrição da visão"
-                  />
-                </div>
-                <Separator />
-                <div>
-                  <Label>Filtros</Label>
-                  <FilterSection />
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                    Cancelar
-                  </Button>
-                  <Button onClick={handleCreateView}>Criar Visão</Button>
+          <Button size="sm" className="gap-2" onClick={() => setShowCreateDialog(true)}>
+            <Plus className="h-4 w-4" />
+            Nova Visão
+          </Button>
+          
+          {/* Custom Modal for "Nova Visão" */}
+          {showCreateDialog && (
+            <Portal>
+              <div 
+                className="fixed inset-0 bg-black/80 z-[10001] flex items-center justify-center p-4 animate-fade-in"
+                onClick={() => setShowCreateDialog(false)}
+              >
+                <div 
+                  className="bg-background border border-border rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl animate-scale-in"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-semibold">Criar Nova Visão</h2>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setShowCreateDialog(false)}
+                        className="h-8 w-8 p-0 hover:bg-muted"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 6L6 18" />
+                          <path d="M6 6l12 12" />
+                        </svg>
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <Label>Nome da Visão</Label>
+                        <Input
+                          value={newViewName}
+                          onChange={(e) => setNewViewName(e.target.value)}
+                          placeholder="Ex: Visão Executiva"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label>Descrição</Label>
+                        <Input
+                          value={newViewDescription}
+                          onChange={(e) => setNewViewDescription(e.target.value)}
+                          placeholder="Descrição da visão"
+                          className="mt-1"
+                        />
+                      </div>
+                      <Separator />
+                      <div>
+                        <Label>Filtros</Label>
+                        <div className="mt-2">
+                          <FilterSection />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-4">
+                        <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                          Cancelar
+                        </Button>
+                        <Button onClick={handleCreateView}>Criar Visão</Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
+            </Portal>
+          )}
         </div>
       </div>
 

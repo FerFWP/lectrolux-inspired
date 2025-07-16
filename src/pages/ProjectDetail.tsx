@@ -294,6 +294,10 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [showEditHistory, setShowEditHistory] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [transactionFilters, setTransactionFilters] = useState<{
+    category?: string;
+    capex_opex?: string;
+  }>({});
   const { toast } = useToast();
   const { exportData, isExporting } = useExport();
   const { importFromSAP, isImporting } = useSapImport();
@@ -689,6 +693,21 @@ export default function ProjectDetail() {
                     });
                   }
                 }}
+                onChartClick={(filterType, filterValue) => {
+                  // Navegar para a aba de realizados com filtros aplicados
+                  setActiveTab('realizados');
+                  setTransactionFilters({
+                    category: filterType === 'category' ? filterValue : undefined,
+                    capex_opex: filterType === 'capex_opex' ? filterValue : undefined,
+                  });
+                  
+                  // Feedback visual para o usuário
+                  toast({
+                    title: "Filtro aplicado",
+                    description: `Visualizando lançamentos filtrados por ${filterValue}`,
+                    duration: 3000,
+                  });
+                }}
               />
             </TabsContent>
 
@@ -753,6 +772,7 @@ export default function ProjectDetail() {
                     description: `Anexando documento à transação ${transactionId}`,
                   });
                 }}
+                initialFilters={transactionFilters}
               />
             </TabsContent>
 

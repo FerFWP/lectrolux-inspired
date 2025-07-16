@@ -39,6 +39,10 @@ interface TransactionsViewProps {
   onTransactionAdded?: () => void;
   onImportSAP?: () => void;
   onAttachDocument?: (transactionId: string) => void;
+  initialFilters?: {
+    category?: string;
+    capex_opex?: string;
+  };
 }
 
 export function TransactionsView({ 
@@ -46,16 +50,18 @@ export function TransactionsView({
   transactions, 
   onTransactionAdded, 
   onImportSAP, 
-  onAttachDocument 
+  onAttachDocument,
+  initialFilters
 }: TransactionsViewProps) {
   const [filters, setFilters] = useState({
     search: "",
-    category: "all",
+    category: initialFilters?.category || "all",
     type: "all",
     supplier: "all",
     minAmount: "",
     maxAmount: "",
-    dateRange: null as any
+    dateRange: null as any,
+    capex_opex: initialFilters?.capex_opex || "all"
   });
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -75,7 +81,8 @@ export function TransactionsView({
     created_by: "João Silva",
     approved_by: Math.random() > 0.2 ? "Maria Santos" : null,
     is_suspicious: Math.random() > 0.85,
-    integration_source: t.transaction_type === "imported" ? "SAP" : "Manual"
+    integration_source: t.transaction_type === "imported" ? "SAP" : "Manual",
+    capex_opex: t.category === "Software/Licenças" || t.category === "Hardware" ? "CAPEX" : "OPEX"
   }));
 
   // Apply filters
@@ -88,11 +95,12 @@ export function TransactionsView({
       const matchesCategory = filters.category === "all" || transaction.category === filters.category;
       const matchesType = filters.type === "all" || transaction.transaction_type === filters.type;
       const matchesSupplier = filters.supplier === "all" || transaction.supplier === filters.supplier;
+      const matchesCapexOpex = filters.capex_opex === "all" || transaction.capex_opex === filters.capex_opex;
       
       const matchesMinAmount = !filters.minAmount || transaction.amount >= parseFloat(filters.minAmount);
       const matchesMaxAmount = !filters.maxAmount || transaction.amount <= parseFloat(filters.maxAmount);
       
-      return matchesSearch && matchesCategory && matchesType && matchesSupplier && matchesMinAmount && matchesMaxAmount;
+      return matchesSearch && matchesCategory && matchesType && matchesSupplier && matchesCapexOpex && matchesMinAmount && matchesMaxAmount;
     });
   }, [enhancedTransactions, filters]);
 
@@ -365,6 +373,20 @@ export function TransactionsView({
                     {uniqueSuppliers.map(supplier => (
                       <SelectItem key={supplier} value={supplier}>{supplier}</SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium">CAPEX/OPEX</Label>
+                <Select value={filters.capex_opex} onValueChange={(value) => setFilters(prev => ({ ...prev, capex_opex: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os tipos</SelectItem>
+                    <SelectItem value="CAPEX">CAPEX</SelectItem>
+                    <SelectItem value="OPEX">OPEX</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

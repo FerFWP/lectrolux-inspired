@@ -72,13 +72,15 @@ interface FinancialSummaryProps {
   transactions: Transaction[];
   baselines: Baseline[];
   onDrillDown: (type: string, data: any) => void;
+  onChartClick?: (filterType: string, filterValue: string) => void;
 }
 
 export function FinancialSummary({ 
   project, 
   transactions, 
   baselines, 
-  onDrillDown 
+  onDrillDown,
+  onChartClick
 }: FinancialSummaryProps) {
   const [selectedChart, setSelectedChart] = useState("combined");
 
@@ -350,6 +352,12 @@ export function FinancialSummary({
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     outerRadius={100}
                     fill="#8884d8"
+                    onClick={(data) => {
+                      if (onChartClick) {
+                        onChartClick('category', data.name);
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
                   >
                     {categoryData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -372,6 +380,12 @@ export function FinancialSummary({
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     outerRadius={120}
                     fill="#8884d8"
+                    onClick={(data) => {
+                      if (onChartClick) {
+                        onChartClick('capex_opex', data.name);
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
                   >
                     {capexOpexData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />

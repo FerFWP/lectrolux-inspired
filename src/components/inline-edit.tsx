@@ -38,6 +38,7 @@ export function InlineEdit({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -63,6 +64,7 @@ export function InlineEdit({
     setIsEditing(true);
     setEditValue(value.toString());
     setError(null);
+    setHasUnsavedChanges(false);
   };
 
   const handleSave = async () => {
@@ -80,12 +82,7 @@ export function InlineEdit({
       await onSave(finalValue);
       setIsEditing(false);
       setError(null);
-      
-      toast({
-        title: "✅ Atualizado com sucesso!",
-        description: `${fieldName || 'Campo'} atualizado. Obrigado por manter os dados atualizados!`,
-        className: "bg-green-50 border-green-200",
-      });
+      setHasUnsavedChanges(false);
     } catch (error) {
       setError("Erro ao salvar. Tente novamente.");
       toast({
@@ -99,9 +96,15 @@ export function InlineEdit({
   };
 
   const handleCancel = () => {
+    if (hasUnsavedChanges) {
+      if (!confirm("Você tem alterações não salvas. Deseja descartar as alterações?")) {
+        return;
+      }
+    }
     setIsEditing(false);
     setEditValue(value.toString());
     setError(null);
+    setHasUnsavedChanges(false);
     onCancel?.();
   };
 
@@ -112,6 +115,20 @@ export function InlineEdit({
     } else if (e.key === 'Escape') {
       handleCancel();
     }
+  };
+
+  const handleValueChange = (newValue: string) => {
+    setEditValue(newValue);
+    setHasUnsavedChanges(newValue !== value.toString());
+  };
+
+  const handleBlur = () => {
+    if (hasUnsavedChanges) {
+      if (!confirm("Você tem alterações não salvas. Deseja descartar as alterações?")) {
+        return;
+      }
+    }
+    handleCancel();
   };
 
   if (!isEditing) {
@@ -139,14 +156,15 @@ export function InlineEdit({
           <Textarea
             ref={inputRef as any}
             value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
+            onChange={(e) => handleValueChange(e.target.value)}
             onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
             placeholder={placeholder}
             className="flex-1"
             rows={3}
           />
         ) : type === 'select' ? (
-          <Select value={editValue} onValueChange={setEditValue}>
+          <Select value={editValue} onValueChange={handleValueChange}>
             <SelectTrigger className="flex-1">
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
@@ -164,8 +182,9 @@ export function InlineEdit({
               ref={inputRef}
               type={type}
               value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
+              onChange={(e) => handleValueChange(e.target.value)}
               onKeyDown={handleKeyDown}
+              onBlur={handleBlur}
               placeholder={placeholder}
               className={error ? "border-destructive" : ""}
             />
@@ -175,7 +194,7 @@ export function InlineEdit({
                   <button
                     key={index}
                     className="w-full px-3 py-2 text-left hover:bg-muted transition-colors"
-                    onClick={() => setEditValue(suggestion)}
+                    onClick={() => handleValueChange(suggestion)}
                   >
                     {suggestion}
                   </button>
@@ -189,8 +208,11 @@ export function InlineEdit({
           variant="ghost"
           size="sm"
           onClick={handleSave}
-          disabled={isLoading}
-          className="h-8 w-8 p-0 text-green-600 hover:bg-green-50"
+          disabled={isLoading || !hasUnsavedChanges}
+          className={cn(
+            "h-8 w-8 p-0 text-green-600 hover:bg-green-50",
+            hasUnsavedChanges ? "opacity-100" : "opacity-50"
+          )}
         >
           <Check className="h-4 w-4" />
         </Button>

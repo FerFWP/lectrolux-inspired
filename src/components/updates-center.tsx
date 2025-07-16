@@ -44,6 +44,7 @@ export function UpdatesCenter({ projectId, onClose }: UpdatesCenterProps) {
   const [completedToday, setCompletedToday] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedUpdates, setSelectedUpdates] = useState<string[]>([]);
+  const [savedFieldsCount, setSavedFieldsCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -136,10 +137,11 @@ export function UpdatesCenter({ projectId, onClose }: UpdatesCenterProps) {
       
       setPendingUpdates(prev => prev.filter(u => u.id !== updateId));
       setCompletedToday(prev => prev + 1);
+      setSavedFieldsCount(prev => prev + 1);
       
       toast({
-        title: "✅ Campo atualizado!",
-        description: "Obrigado por manter os dados atualizados!",
+        title: "✅ Atualização salva!",
+        description: "Campo atualizado com sucesso!",
         className: "bg-green-50 border-green-200",
       });
     } catch (error) {
@@ -373,20 +375,22 @@ export function UpdatesCenter({ projectId, onClose }: UpdatesCenterProps) {
         </CardContent>
       </Card>
 
-      {/* Motivational Footer */}
-      <Card className="border-green-200 bg-green-50">
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <User className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <p className="text-green-800 font-medium">
-              Continue assim! Cada atualização melhora a qualidade dos nossos dados.
-            </p>
-            <p className="text-sm text-green-600 mt-1">
-              Você já atualizou {completedToday} campos hoje. Excelente trabalho! 🚀
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Motivational Footer - Only show if user has saved at least one field */}
+      {savedFieldsCount > 0 && (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <User className="h-8 w-8 text-green-600 mx-auto mb-2" />
+              <p className="text-green-800 font-medium">
+                Continue assim! Cada atualização melhora a qualidade dos nossos dados.
+              </p>
+              <p className="text-sm text-green-600 mt-1">
+                Você já atualizou {savedFieldsCount} campos hoje. Excelente trabalho! 🚀
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

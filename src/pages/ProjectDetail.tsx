@@ -19,7 +19,8 @@ import {
   Filter,
   Eye,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Building2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -843,7 +844,7 @@ export default function ProjectDetail() {
         {/* Conteúdo principal com abas */}
         <div className="container mx-auto px-6 py-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="comando" className="gap-2">
                 <AlertTriangle className="h-4 w-4" />
                 <span className="hidden sm:inline">Comando</span>
@@ -867,6 +868,10 @@ export default function ProjectDetail() {
               <TabsTrigger value="relatorios" className="gap-2">
                 <FileText className="h-4 w-4" />
                 <span className="hidden sm:inline">Relatórios</span>
+              </TabsTrigger>
+              <TabsTrigger value="capex-ir" className="gap-2">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Capex IR</span>
               </TabsTrigger>
             </TabsList>
 
@@ -1036,6 +1041,82 @@ export default function ProjectDetail() {
                 transactions={transactions}
                 baselines={baselines}
               />
+            </TabsContent>
+
+            {/* Aba Projeto Capex Investment Request - IR */}
+            <TabsContent value="capex-ir" className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Projeto Capex Investment Request - IR</h3>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Investment Request Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Categoria</TableHead>
+                          <TableHead>País</TableHead>
+                          <TableHead>Ano</TableHead>
+                          <TableHead>SAP ID Number</TableHead>
+                          <TableHead>Valor Inicial</TableHead>
+                          <TableHead>Total</TableHead>
+                          <TableHead>Nome do Projeto</TableHead>
+                          <TableHead>Data Atualização</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>
+                            {project.input === "Manual/Excel" ? (
+                              <Select defaultValue="Máquinas e equipamentos">
+                                <SelectTrigger className="w-48">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Expenses">Expenses</SelectItem>
+                                  <SelectItem value="Software">Software</SelectItem>
+                                  <SelectItem value="Custo de Mão de Obra">Custo de Mão de Obra</SelectItem>
+                                  <SelectItem value="Outros intangíveis">Outros intangíveis</SelectItem>
+                                  <SelectItem value="Ferramentas e Moldes">Ferramentas e Moldes</SelectItem>
+                                  <SelectItem value="Máquinas e equipamentos">Máquinas e equipamentos</SelectItem>
+                                  <SelectItem value="Veículos">Veículos</SelectItem>
+                                  <SelectItem value="Mobília e Utensílios">Mobília e Utensílios</SelectItem>
+                                  <SelectItem value="Hardware">Hardware</SelectItem>
+                                  <SelectItem value="Construção">Construção</SelectItem>
+                                  <SelectItem value="Instalações industriais">Instalações industriais</SelectItem>
+                                  <SelectItem value="Terrenos">Terrenos</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-muted-foreground">Máquinas e equipamentos</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{project.pais || "Brasil"}</TableCell>
+                          <TableCell>2024</TableCell>
+                          <TableCell>{project.sap_id || "BR2024001"}</TableCell>
+                          <TableCell>{formatCurrency(project.budget, project.currency)}</TableCell>
+                          <TableCell>{formatCurrency(project.budget, project.currency)}</TableCell>
+                          <TableCell>{project.name}</TableCell>
+                          <TableCell>{new Date().toLocaleDateString('pt-BR')}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                  
+                  {project.input === "Integração" && (
+                    <Alert className="mt-4 border-blue-200 bg-blue-50">
+                      <AlertTriangle className="h-4 w-4 text-blue-600" />
+                      <AlertDescription className="text-blue-800">
+                        <strong>Dados integrados:</strong> Categoria não editável. Para alterações, utilize o sistema Pharos.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>

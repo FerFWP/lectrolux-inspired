@@ -78,37 +78,45 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   const [filterPais, setFilterPais] = useState<string>('all');
   const [filterNomeProjeto, setFilterNomeProjeto] = useState<string>('all');
   const [selectedCurrency, setSelectedCurrency] = useState<string>('BRL');
+  const [selectedYear, setSelectedYear] = useState<string>('2025');
   
   // Considerando todos os usuários como PMO por enquanto
   const isPMO = true;
 
-  // Simulação de taxas de câmbio
-  const exchangeRates = {
-    "BRL": { rate: 1.0, label: "Moeda do cadastro (BRL)" },
-    "USD": { rate: 1.0, label: "Moeda do cadastro (USD)" },
-    "SEK": { rate: 1.0, label: "Moeda do cadastro (SEK)" },
-    "EUR": { rate: 1.0, label: "Moeda do cadastro (EUR)" },
-    "SEK_APPROVAL": { rate: 0.48, label: "SEK (taxa da aprovação)" },
-    "SEK_BU": { rate: 0.52, label: "SEK BU (taxa anual)" },
-    "SEK_AVG": { rate: 0.50, label: "SEK AVG (média mensal)" }
+  // Simulação de taxas de câmbio por ano
+  const exchangeRatesByYear = {
+    "2025": {
+      "BRL": { rate: 1.0, label: "Moeda do cadastro (BRL)" },
+      "SEK_APPROVAL": { rate: 0.48, label: "SEK (taxa da aprovação)" },
+      "SEK_BU": { rate: 0.52, label: "SEK BU (taxa anual)" },
+      "SEK_AVG": { rate: 0.50, label: "SEK AVG (média mensal)" }
+    },
+    "2024": {
+      "BRL": { rate: 1.0, label: "Moeda do cadastro (BRL)" },
+      "SEK_APPROVAL": { rate: 0.45, label: "SEK (taxa da aprovação)" },
+      "SEK_BU": { rate: 0.49, label: "SEK BU (taxa anual)" },
+      "SEK_AVG": { rate: 0.47, label: "SEK AVG (média mensal)" }
+    },
+    "2023": {
+      "BRL": { rate: 1.0, label: "Moeda do cadastro (BRL)" },
+      "SEK_APPROVAL": { rate: 0.42, label: "SEK (taxa da aprovação)" },
+      "SEK_BU": { rate: 0.46, label: "SEK BU (taxa anual)" },
+      "SEK_AVG": { rate: 0.44, label: "SEK AVG (média mensal)" }
+    }
+  };
+
+  const getCurrentExchangeRates = () => {
+    return exchangeRatesByYear[selectedYear as keyof typeof exchangeRatesByYear] || exchangeRatesByYear["2025"];
   };
 
   const getCurrentCurrencyInfo = (exchangeRateKey: string) => {
-    return exchangeRates[exchangeRateKey as keyof typeof exchangeRates] || { rate: 1.0, label: exchangeRateKey };
+    const currentRates = getCurrentExchangeRates();
+    return currentRates[exchangeRateKey as keyof typeof currentRates] || { rate: 1.0, label: exchangeRateKey };
   };
 
   const convertCurrency = (amount: number, exchangeRateKey: string) => {
     const currencyInfo = getCurrentCurrencyInfo(exchangeRateKey);
-    
-    if (exchangeRateKey === "SEK_APPROVAL") {
-      return amount * 0.48;
-    } else if (exchangeRateKey === "SEK_BU") {
-      return amount * 0.52;
-    } else if (exchangeRateKey === "SEK_AVG") {
-      return amount * 0.50;
-    }
-    
-    return amount;
+    return amount * currencyInfo.rate;
   };
 
   useEffect(() => {
@@ -147,22 +155,22 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   const formatCurrency = (value: number, currency: string = 'BRL', exchangeRateKey?: string) => {
     let finalValue = value;
     
-    // Primeiro aplicar a taxa de câmbio da linha (se houver)
-    if (exchangeRateKey) {
-      finalValue = convertCurrency(value, exchangeRateKey);
+    // Aplicar conversão baseada na moeda de visualização selecionada
+    if (exchangeRateKey && exchangeRateKey !== selectedCurrency) {
+      // Se a linha tem uma taxa diferente da selecionada, primeiro converter para BRL base
+      const lineRate = getCurrentCurrencyInfo(exchangeRateKey).rate;
+      const baseValue = value / lineRate;
+      
+      // Depois converter para a moeda de visualização selecionada
+      const displayRate = getCurrentCurrencyInfo(selectedCurrency).rate;
+      finalValue = baseValue * displayRate;
+    } else {
+      // Se a linha já está na moeda de visualização, usar a taxa diretamente
+      finalValue = convertCurrency(value, selectedCurrency);
     }
     
-    // Depois converter para a moeda de visualização selecionada
-    const displayCurrency = selectedCurrency;
-    
-    // Aplicar conversão adicional se necessário
-    if (selectedCurrency === 'SEK' && !exchangeRateKey?.startsWith('SEK')) {
-      finalValue = finalValue * 0.52; // Taxa padrão para SEK
-    } else if (selectedCurrency === 'USD' && !exchangeRateKey?.startsWith('USD')) {
-      finalValue = finalValue * 0.18; // Taxa padrão para USD
-    } else if (selectedCurrency === 'EUR' && !exchangeRateKey?.startsWith('EUR')) {
-      finalValue = finalValue * 0.16; // Taxa padrão para EUR
-    }
+    // Determinar a moeda de exibição
+    const displayCurrency = selectedCurrency.startsWith('SEK') ? 'SEK' : 'BRL';
     
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -392,36 +400,36 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
           <CardTitle className="text-lg">Configurações de Visualização</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Moeda:</label>
+              <label className="text-sm font-medium">Moeda do cadastro:</label>
               <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
-                <SelectTrigger className="w-52">
+                <SelectTrigger className="w-56">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BRL">
                     <div className="flex items-center gap-2">
                       <span>Moeda do cadastro (BRL)</span>
-                      <Badge variant="outline" className="text-xs">Original</Badge>
+                      {selectedCurrency === 'BRL' && <span className="text-green-600">✓</span>}
                     </div>
                   </SelectItem>
-                  <SelectItem value="SEK">
+                  <SelectItem value="SEK_APPROVAL">
                     <div className="flex items-center gap-2">
-                      <span>SEK (Coroa Sueca)</span>
-                      <Badge variant="outline" className="text-xs">Convertido</Badge>
+                      <span>SEK (taxa da aprovação)</span>
+                      {selectedCurrency === 'SEK_APPROVAL' && <span className="text-green-600">✓</span>}
                     </div>
                   </SelectItem>
-                  <SelectItem value="USD">
+                  <SelectItem value="SEK_BU">
                     <div className="flex items-center gap-2">
-                      <span>USD (Dólar Americano)</span>
-                      <Badge variant="outline" className="text-xs">Convertido</Badge>
+                      <span>SEK BU (taxa anual)</span>
+                      {selectedCurrency === 'SEK_BU' && <span className="text-green-600">✓</span>}
                     </div>
                   </SelectItem>
-                  <SelectItem value="EUR">
+                  <SelectItem value="SEK_AVG">
                     <div className="flex items-center gap-2">
-                      <span>EUR (Euro)</span>
-                      <Badge variant="outline" className="text-xs">Convertido</Badge>
+                      <span>SEK AVG (média mensal)</span>
+                      {selectedCurrency === 'SEK_AVG' && <span className="text-green-600">✓</span>}
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -436,13 +444,32 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
               </Tooltip>
             </div>
             
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Ano:</label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2025">2025</SelectItem>
+                  <SelectItem value="2024">2024</SelectItem>
+                  <SelectItem value="2023">2023</SelectItem>
+                </SelectContent>
+              </Select>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Selecione o ano de referência para as taxas de câmbio</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Taxa atual:</span>
               <span className="font-medium">
-                {selectedCurrency === 'BRL' && '1.0000'}
-                {selectedCurrency === 'SEK' && '0.5200'}
-                {selectedCurrency === 'USD' && '0.1800'}
-                {selectedCurrency === 'EUR' && '0.1600'}
+                {getCurrentCurrencyInfo(selectedCurrency).rate.toFixed(4)}
               </span>
             </div>
           </div>
@@ -623,10 +650,10 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                             <SelectValue placeholder="Selecione a taxa" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value="BRL">Moeda do cadastro (BRL)</SelectItem>
+                            <SelectItem value="SEK_APPROVAL">SEK (taxa da aprovação)</SelectItem>
                             <SelectItem value="SEK_BU">SEK BU (taxa anual)</SelectItem>
                             <SelectItem value="SEK_AVG">SEK AVG (média mensal)</SelectItem>
-                            <SelectItem value="SEK_APPROVAL">SEK (taxa da aprovação)</SelectItem>
-                            <SelectItem value={project.currency}>Moeda do cadastro ({project.currency})</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -808,20 +835,20 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="SEK_BU">SEK BU</SelectItem>
-                              <SelectItem value="SEK_AVG">SEK AVG</SelectItem>
-                              <SelectItem value="SEK_APPROVAL">SEK Aprovação</SelectItem>
-                              <SelectItem value={project.currency}>Moeda original</SelectItem>
+                              <SelectItem value="BRL">Moeda do cadastro (BRL)</SelectItem>
+                              <SelectItem value="SEK_APPROVAL">SEK (taxa da aprovação)</SelectItem>
+                              <SelectItem value="SEK_BU">SEK BU (taxa anual)</SelectItem>
+                              <SelectItem value="SEK_AVG">SEK AVG (média mensal)</SelectItem>
                             </SelectContent>
                           </Select>
                         ) : (
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="text-xs">
+                                {row.exchangeRate === 'BRL' && 'BRL'}
+                                {row.exchangeRate === 'SEK_APPROVAL' && 'SEK Aprovação'}
                                 {row.exchangeRate === 'SEK_BU' && 'SEK BU'}
                                 {row.exchangeRate === 'SEK_AVG' && 'SEK AVG'}
-                                {row.exchangeRate === 'SEK_APPROVAL' && 'SEK Aprovação'}
-                                {row.exchangeRate === project.currency && 'Moeda original'}
                               </Badge>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -833,12 +860,12 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                                 </TooltipContent>
                               </Tooltip>
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                              {row.exchangeRate === 'SEK_BU' && 'Taxa anual BU'}
-                              {row.exchangeRate === 'SEK_AVG' && 'Média mensal'}
-                              {row.exchangeRate === 'SEK_APPROVAL' && 'Taxa da aprovação'}
-                              {row.exchangeRate === project.currency && 'Sem conversão'}
-                            </div>
+                             <div className="text-xs text-muted-foreground">
+                               {row.exchangeRate === 'BRL' && 'Moeda do cadastro'}
+                               {row.exchangeRate === 'SEK_APPROVAL' && 'Taxa da aprovação'}
+                               {row.exchangeRate === 'SEK_BU' && 'Taxa anual BU'}
+                               {row.exchangeRate === 'SEK_AVG' && 'Média mensal'}
+                             </div>
                           </div>
                         )}
                       </TableCell>

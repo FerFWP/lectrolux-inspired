@@ -239,15 +239,8 @@ export function FinancialSummary({
     const maxCategory = categoryData.reduce((prev, current) => prev.value > current.value ? prev : current);
     return maxCategory;
   };
-  const getTopSupplier = () => {
-    return {
-      name: "SAP Brasil",
-      amount: 450000
-    };
-  };
   const topSpendingMonth = getTopSpendingMonth();
   const topCategory = getTopCategory();
-  const topSupplier = getTopSupplier();
   const handleExport = () => {
     const data = {
       project: project.name,
@@ -624,15 +617,6 @@ export function FinancialSummary({
               </AlertDescription>
             </Alert>
             
-            <Alert>
-              <Building2 className="h-4 w-4" />
-              <AlertDescription>
-                <div className="font-medium">Fornecedor Mais Relevante</div>
-                <div className="text-sm text-muted-foreground">
-                  {topSupplier.name} - {formatCurrency(topSupplier.amount)}
-                </div>
-              </AlertDescription>
-            </Alert>
             
             {/* Alerta crítico para desvios */}
             {Math.abs(percentualDeviation) > 10 && <Alert className="border-red-200 bg-red-50">

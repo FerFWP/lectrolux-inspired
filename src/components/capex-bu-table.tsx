@@ -44,8 +44,9 @@ const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
 
 export function CapexBUTable({ project }: CapexBUTableProps) {
   const [data, setData] = useState<CapexBURow[]>([]);
-  const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
-  const [editValue, setEditValue] = useState<string>('');
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const [editingValues, setEditingValues] = useState<Partial<CapexBURow>>({});
+  const [hasChanges, setHasChanges] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAno, setFilterAno] = useState<string>('all');
   const [filterCategoria, setFilterCategoria] = useState<string>('all');
@@ -95,48 +96,70 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
     }).format(value);
   };
 
-  const handleCellEdit = (rowId: string, field: string, currentValue: any) => {
-    setEditingCell({ rowId, field });
-    setEditValue(currentValue.toString());
+  const handleStartEdit = (rowId: string) => {
+    const row = data.find(r => r.id === rowId);
+    if (!row) return;
+    
+    setEditingRowId(rowId);
+    setEditingValues({ ...row });
+    setHasChanges(false);
+  };
+
+  const handleFieldChange = (field: keyof CapexBURow, value: any) => {
+    const newValues = { ...editingValues, [field]: value };
+    setEditingValues(newValues);
+    
+    // Recalcular total se foi editado um mês
+    if (months.includes(field as string)) {
+      const total = months.reduce((sum, month) => {
+        const monthValue = newValues[month as keyof CapexBURow] as number;
+        return sum + (monthValue || 0);
+      }, 0);
+      newValues.total = total;
+      setEditingValues(newValues);
+    } else if (field === 'total') {
+      // Se editou o total, distribuir proporcionalmente pelos meses
+      const currentTotal = months.reduce((sum, month) => {
+        return sum + (editingValues[month as keyof CapexBURow] as number || 0);
+      }, 0);
+      if (currentTotal > 0) {
+        months.forEach(month => {
+          const proportion = (editingValues[month as keyof CapexBURow] as number || 0) / currentTotal;
+          (newValues as any)[month] = Math.round((value as number) * proportion);
+        });
+      }
+      setEditingValues(newValues);
+    }
+    
+    // Verificar se há mudanças
+    const originalRow = data.find(r => r.id === editingRowId);
+    if (originalRow) {
+      const hasChanges = Object.keys(newValues).some(key => {
+        const k = key as keyof CapexBURow;
+        return newValues[k] !== originalRow[k];
+      });
+      setHasChanges(hasChanges);
+    }
   };
 
   const handleSaveEdit = () => {
-    if (!editingCell) return;
-
-    const { rowId, field } = editingCell;
-    const newValue = parseFloat(editValue) || 0;
+    if (!editingRowId || !editingValues) return;
     
-    // Encontrar a linha original
-    const originalRow = data.find(row => row.id === rowId);
+    const originalRow = data.find(row => row.id === editingRowId);
     if (!originalRow) return;
 
     // Criar nova linha com os dados atualizados
     const newRow: CapexBURow = {
-      ...originalRow,
+      ...editingValues,
       id: Date.now().toString(),
-      [field]: newValue,
       dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
       version: originalRow.version + 1,
       isActive: true
-    };
-
-    // Recalcular total se foi editado um mês
-    if (months.includes(field)) {
-      newRow.total = months.reduce((sum, month) => sum + (newRow[month as keyof CapexBURow] as number), 0);
-    } else if (field === 'total') {
-      // Se editou o total, distribuir proporcionalmente pelos meses
-      const currentTotal = months.reduce((sum, month) => sum + (originalRow[month as keyof CapexBURow] as number), 0);
-      if (currentTotal > 0) {
-        months.forEach(month => {
-          const proportion = (originalRow[month as keyof CapexBURow] as number) / currentTotal;
-          (newRow as any)[month] = Math.round(newValue * proportion);
-        });
-      }
-    }
+    } as CapexBURow;
 
     // Marcar a linha original como não ativa
     const updatedData = data.map(row => 
-      row.id === rowId ? { ...row, isActive: false } : row
+      row.id === editingRowId ? { ...row, isActive: false } : row
     );
 
     // Adicionar a nova linha
@@ -149,18 +172,20 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
     });
 
     setData(sortedData);
-    setEditingCell(null);
-    setEditValue('');
+    setEditingRowId(null);
+    setEditingValues({});
+    setHasChanges(false);
 
     toast({
-      title: "Valor atualizado",
+      title: "Alterações salvas",
       description: "Nova versão da linha foi criada com sucesso.",
     });
   };
 
   const handleCancelEdit = () => {
-    setEditingCell(null);
-    setEditValue('');
+    setEditingRowId(null);
+    setEditingValues({});
+    setHasChanges(false);
   };
 
   const filteredData = data.filter(row => {
@@ -326,111 +351,166 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className={`
-                      ${row.isActive ? 'bg-green-50 border-l-4 border-l-green-500' : 'bg-gray-50 opacity-70'}
-                      ${row.isActive ? 'hover:bg-green-100' : 'hover:bg-gray-100'}
-                    `}
-                  >
-                    {isPMO && (
+                {filteredData.map((row) => {
+                  const isBeingEdited = editingRowId === row.id;
+                  const currentValues = isBeingEdited ? editingValues : row;
+                  
+                  return (
+                    <TableRow
+                      key={row.id}
+                      className={`
+                        ${row.isActive ? 'bg-green-50 border-l-4 border-l-green-500' : 'bg-gray-50 opacity-70'}
+                        ${row.isActive ? 'hover:bg-green-100' : 'hover:bg-gray-100'}
+                        ${isBeingEdited ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
+                      `}
+                    >
+                      {isPMO && (
+                        <TableCell>
+                          {row.isActive && !isBeingEdited && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => handleStartEdit(row.id)}
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </TableCell>
+                      )}
                       <TableCell>
-                        {row.isActive && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                            onClick={() => handleCellEdit(row.id, 'categoria', row.categoria)}
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </Button>
+                        <div className="flex items-center gap-2">
+                          {isBeingEdited ? (
+                            <Input
+                              value={currentValues.categoria || ''}
+                              onChange={(e) => handleFieldChange('categoria', e.target.value)}
+                              className="w-full h-8"
+                            />
+                          ) : (
+                            <span className="text-sm">{row.categoria}</span>
+                          )}
+                          {row.isActive && (
+                            <Badge variant="outline" className="text-xs text-muted-foreground border-muted-foreground/40">
+                              Versão atual
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {isBeingEdited ? (
+                          <Input
+                            value={currentValues.pais || ''}
+                            onChange={(e) => handleFieldChange('pais', e.target.value)}
+                            className="w-full h-8"
+                          />
+                        ) : (
+                          row.pais
                         )}
                       </TableCell>
-                    )}
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">{row.categoria}</span>
-                        {row.isActive && (
-                          <Badge variant="outline" className="text-xs text-muted-foreground border-muted-foreground/40">
-                            Versão atual
-                          </Badge>
+                      <TableCell>
+                        {isBeingEdited ? (
+                          <Input
+                            type="number"
+                            value={currentValues.ano || ''}
+                            onChange={(e) => handleFieldChange('ano', parseInt(e.target.value) || 0)}
+                            className="w-full h-8"
+                          />
+                        ) : (
+                          row.ano
                         )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{row.pais}</TableCell>
-                    <TableCell>{row.ano}</TableCell>
-                    <TableCell className="font-mono">{row.sapId}</TableCell>
-                    {months.map((month) => (
-                      <TableCell key={month}>
-                        {editingCell?.rowId === row.id && editingCell?.field === month ? (
-                          <div className="flex items-center gap-1">
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {isBeingEdited ? (
+                          <Input
+                            value={currentValues.sapId || ''}
+                            onChange={(e) => handleFieldChange('sapId', e.target.value)}
+                            className="w-full h-8"
+                          />
+                        ) : (
+                          row.sapId
+                        )}
+                      </TableCell>
+                      {months.map((month) => (
+                        <TableCell key={month}>
+                          {isBeingEdited ? (
                             <Input
                               type="number"
-                              value={editValue}
-                              onChange={(e) => setEditValue(e.target.value)}
+                              value={(currentValues[month as keyof CapexBURow] as number) || 0}
+                              onChange={(e) => handleFieldChange(month as keyof CapexBURow, parseFloat(e.target.value) || 0)}
                               className="w-20 h-8"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleSaveEdit();
-                                if (e.key === 'Escape') handleCancelEdit();
-                              }}
                             />
-                            <Button size="sm" variant="ghost" onClick={handleSaveEdit}>
-                              <Check className="h-3 w-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={handleCancelEdit}>
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1">
+                          ) : (
                             <span className="text-sm">
                               {formatCurrency(row[month as keyof CapexBURow] as number, project.currency)}
                             </span>
-                          </div>
-                        )}
-                      </TableCell>
-                    ))}
-                    <TableCell>
-                      {editingCell?.rowId === row.id && editingCell?.field === 'total' ? (
-                        <div className="flex items-center gap-1">
+                          )}
+                        </TableCell>
+                      ))}
+                      <TableCell>
+                        {isBeingEdited ? (
                           <Input
                             type="number"
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
+                            value={currentValues.total || 0}
+                            onChange={(e) => handleFieldChange('total', parseFloat(e.target.value) || 0)}
                             className="w-24 h-8"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleSaveEdit();
-                              if (e.key === 'Escape') handleCancelEdit();
-                            }}
                           />
-                          <Button size="sm" variant="ghost" onClick={handleSaveEdit}>
-                            <Check className="h-3 w-3" />
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={handleCancelEdit}>
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1">
+                        ) : (
                           <span className="text-sm font-medium">
                             {formatCurrency(row.total, project.currency)}
                           </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {isBeingEdited ? (
+                          <Input
+                            value={currentValues.nomeProjeto || ''}
+                            onChange={(e) => handleFieldChange('nomeProjeto', e.target.value)}
+                            className="w-full h-8"
+                          />
+                        ) : (
+                          row.nomeProjeto
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-sm">{row.dataAtualizacao}</span>
                         </div>
-                      )}
-                    </TableCell>
-                    <TableCell>{row.nomeProjeto}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm">{row.dataAtualizacao}</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
+          
+          {/* Botão de salvar alterações */}
+          {editingRowId && hasChanges && (
+            <div className="mt-4 flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-blue-800">Alterações detectadas</p>
+                <p className="text-xs text-blue-600">As alterações serão salvas como uma nova versão, mantendo o histórico.</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancelEdit}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Cancelar
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveEdit}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Check className="h-4 w-4 mr-1" />
+                  Salvar alterações
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

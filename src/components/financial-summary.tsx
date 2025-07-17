@@ -739,99 +739,60 @@ export function FinancialSummary({
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Painel de Insights Automáticos */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Info className="h-5 w-5" />
-                Insights Automáticos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Alert>
-                <Calendar className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="font-medium">Mês de Maior Gasto</div>
-                  <div className="text-sm text-muted-foreground">
-                    {topSpendingMonth.month} - {formatCurrency(topSpendingMonth.amount!)}
-                  </div>
-                </AlertDescription>
-              </Alert>
-              
-              <Alert>
-                <PieChart className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="font-medium">Categoria que Mais Consome</div>
-                  <div className="text-sm text-muted-foreground">
-                    {topCategory.name} - {formatCurrency(topCategory.value)} 
-                    ({((topCategory.value / totalRealized) * 100).toFixed(1)}%)
-                  </div>
-                </AlertDescription>
-              </Alert>
-              
-              <Alert>
-                <Building2 className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="font-medium">Fornecedor Mais Relevante</div>
-                  <div className="text-sm text-muted-foreground">
-                    {topSupplier.name} - {formatCurrency(topSupplier.amount)}
-                  </div>
-                </AlertDescription>
-              </Alert>
-              
-              {/* Alerta crítico para desvios */}
-              {Math.abs(percentualDeviation) > 10 && (
-                <Alert className="border-red-200 bg-red-50">
-                  <AlertCircle className="h-4 w-4 text-red-600" />
-                  <AlertDescription>
-                    <div className="font-medium text-red-800">Atenção: Desvio Crítico</div>
-                    <div className="text-sm text-red-700">
-                      Projeto com desvio de {percentualDeviation.toFixed(1)}% - requer atenção imediata
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Métricas de Acompanhamento */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Métricas de Acompanhamento
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {Math.round(executionPercent)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Execução</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {Math.round(commitmentPercent)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Comprometimento</div>
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="text-center">
-                <div className="text-lg font-medium text-muted-foreground">
-                  Última atualização
-                </div>
+        {/* Painel de Insights Automáticos */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Info className="h-5 w-5" />
+              Insights Automáticos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert>
+              <Calendar className="h-4 w-4" />
+              <AlertDescription>
+                <div className="font-medium">Mês de Maior Gasto</div>
                 <div className="text-sm text-muted-foreground">
-                  {format(new Date(), "dd/MM/yyyy HH:mm")}
+                  {topSpendingMonth.month} - {formatCurrency(topSpendingMonth.amount!)}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </AlertDescription>
+            </Alert>
+            
+            <Alert>
+              <PieChart className="h-4 w-4" />
+              <AlertDescription>
+                <div className="font-medium">Categoria que Mais Consome</div>
+                <div className="text-sm text-muted-foreground">
+                  {topCategory.name} - {formatCurrency(topCategory.value)} 
+                  ({((topCategory.value / totalRealized) * 100).toFixed(1)}%)
+                </div>
+              </AlertDescription>
+            </Alert>
+            
+            <Alert>
+              <Building2 className="h-4 w-4" />
+              <AlertDescription>
+                <div className="font-medium">Fornecedor Mais Relevante</div>
+                <div className="text-sm text-muted-foreground">
+                  {topSupplier.name} - {formatCurrency(topSupplier.amount)}
+                </div>
+              </AlertDescription>
+            </Alert>
+            
+            {/* Alerta crítico para desvios */}
+            {Math.abs(percentualDeviation) > 10 && (
+              <Alert className="border-red-200 bg-red-50">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertDescription>
+                  <div className="font-medium text-red-800">Atenção: Desvio Crítico</div>
+                  <div className="text-sm text-red-700">
+                    Projeto com desvio de {percentualDeviation.toFixed(1)}% - requer atenção imediata
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </TooltipProvider>
   );

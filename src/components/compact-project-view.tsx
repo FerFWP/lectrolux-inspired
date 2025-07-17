@@ -75,6 +75,7 @@ export function CompactProjectView({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-16 text-center">Favorito</TableHead>
             <TableHead className="w-16">Status</TableHead>
             <TableHead>Projeto</TableHead>
             <TableHead className="text-right">Orçamento Aprovado</TableHead>
@@ -93,6 +94,31 @@ export function CompactProjectView({
               <TableCell className="text-center">
                 <Tooltip>
                   <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => toggleFavorite(project.id)}
+                    >
+                      <Star 
+                        className={`h-4 w-4 ${
+                          isFavorited(project.id) 
+                            ? "fill-yellow-400 text-yellow-400" 
+                            : "text-muted-foreground hover:text-yellow-400"
+                        }`}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {isFavorited(project.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TableCell>
+              <TableCell className="text-center">
+                <Tooltip>
+                  <TooltipTrigger asChild>
                     <div className="flex justify-center">
                       {getFinancialStatusIcon(project)}
                     </div>
@@ -104,32 +130,7 @@ export function CompactProjectView({
               </TableCell>
               <TableCell>
                 <div>
-                  <div className="font-medium text-foreground flex items-center gap-2">
-                    {project.name}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                          onClick={() => toggleFavorite(project.id)}
-                        >
-                          <Star 
-                            className={`h-4 w-4 ${
-                              isFavorited(project.id) 
-                                ? "fill-yellow-400 text-yellow-400" 
-                                : "text-muted-foreground hover:text-yellow-400"
-                            }`}
-                          />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          {isFavorited(project.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
+                  <div className="font-medium text-foreground">{project.name}</div>
                   <div className="text-sm text-muted-foreground">{project.id} • {project.area}</div>
                 </div>
               </TableCell>

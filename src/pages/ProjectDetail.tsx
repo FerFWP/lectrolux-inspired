@@ -55,6 +55,7 @@ import { InlineEdit } from "@/components/inline-edit";
 import { EditHistory } from "@/components/edit-history";
 import { ContextualNotifications } from "@/components/contextual-notifications";
 import { MotivationalFeedback } from "@/components/motivational-feedback";
+import { GlobalCurrencyConfig } from "@/components/global-currency-config";
 
 // Mock data for demo purposes - generates dynamic data based on project ID  
 const generateMockProject = (projectId: string) => {
@@ -332,6 +333,10 @@ export default function ProjectDetail() {
   const [showEditHistory, setShowEditHistory] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
+  
+  // Global currency and year configuration
+  const [globalCurrency, setGlobalCurrency] = useState(project?.currency || "BRL");
+  const [globalYear, setGlobalYear] = useState("2025");
   const [transactionFilters, setTransactionFilters] = useState<{
     category?: string;
     capex_opex?: string;
@@ -834,6 +839,17 @@ export default function ProjectDetail() {
           </div>
         </div>
 
+        {/* Configurações Globais de Visualização */}
+        <div className="container mx-auto px-6 py-4">
+          <GlobalCurrencyConfig
+            projectCurrency={project.currency}
+            selectedCurrency={globalCurrency}
+            selectedYear={globalYear}
+            onCurrencyChange={setGlobalCurrency}
+            onYearChange={setGlobalYear}
+          />
+        </div>
+
         {/* Alertas críticos */}
         {balance < 0 && (
           <div className="container mx-auto px-6 py-4">
@@ -899,6 +915,8 @@ export default function ProjectDetail() {
                 project={project}
                 transactions={transactions}
                 baselines={baselines}
+                globalCurrency={globalCurrency}
+                globalYear={globalYear}
                 onDrillDown={(type, data) => {
                   if (type === 'realized') {
                     toast({
@@ -1146,12 +1164,20 @@ export default function ProjectDetail() {
 
             {/* Aba Capex BU */}
             <TabsContent value="capex-bu" className="space-y-6">
-              <CapexBUTable project={project} />
+              <CapexBUTable 
+                project={project} 
+                globalCurrency={globalCurrency}
+                globalYear={globalYear}
+              />
             </TabsContent>
 
             {/* Aba Capex AC */}
             <TabsContent value="capex-ac" className="space-y-6">
-              <CapexACTable project={project} />
+              <CapexACTable 
+                project={project} 
+                globalCurrency={globalCurrency}
+                globalYear={globalYear}
+              />
             </TabsContent>
           </Tabs>
         </div>

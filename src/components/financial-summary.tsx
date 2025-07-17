@@ -40,6 +40,8 @@ interface FinancialSummaryProps {
   project: Project;
   transactions: Transaction[];
   baselines: Baseline[];
+  globalCurrency?: string;
+  globalYear?: string;
   onDrillDown: (type: string, data: any) => void;
   onChartClick?: (filterType: string, filterValue: string) => void;
 }
@@ -47,12 +49,15 @@ export function FinancialSummary({
   project,
   transactions,
   baselines,
+  globalCurrency,
+  globalYear,
   onDrillDown,
   onChartClick
 }: FinancialSummaryProps) {
   const [selectedChart, setSelectedChart] = useState("combined");
-  const [selectedCurrency, setSelectedCurrency] = useState(project.currency);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  // Use global currency and year from props, fallback to project defaults
+  const selectedCurrency = globalCurrency || project.currency;
+  const selectedYear = parseInt(globalYear || new Date().getFullYear().toString());
 
   // Simulação de taxas de câmbio
   const exchangeRates = {
@@ -271,74 +276,6 @@ export function FinancialSummary({
   };
   return <TooltipProvider>
       <div className="space-y-6">
-        {/* Seletores de Moeda e Ano */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <DollarSign className="h-5 w-5" />
-              Configurações de Visualização
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Moeda:</label>
-                <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
-                  <SelectTrigger className="w-56">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={project.currency}>
-                      Moeda do cadastro ({project.currency})
-                    </SelectItem>
-                    <SelectItem value="SEK_APPROVAL">SEK (taxa da aprovação)</SelectItem>
-                    <SelectItem value="SEK_BU">SEK BU (taxa anual)</SelectItem>
-                    <SelectItem value="SEK_AVG">SEK AVG (média mensal)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Selecione a moeda para exibir todos os valores</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Ano:</label>
-                <Select value={selectedYear.toString()} onValueChange={value => setSelectedYear(parseInt(value))}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2025">2025</SelectItem>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2023">2023</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Altere o ano para ver dados históricos</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              
-              <div className="flex items-center gap-2 ml-auto">
-                <span className="text-sm text-muted-foreground">
-                  Taxa atual: {getCurrentCurrencyInfo().rate.toFixed(4)}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  | Atualizado em {format(new Date(), "dd/MM/yyyy HH:mm")}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Resumo Analítico de Orçamento */}
         <Card>

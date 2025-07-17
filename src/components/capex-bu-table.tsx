@@ -40,12 +40,14 @@ interface CapexBURow {
 
 interface CapexBUTableProps {
   project: any;
+  globalCurrency?: string;
+  globalYear?: string;
 }
 
 const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
-export function CapexBUTable({ project }: CapexBUTableProps) {
+export function CapexBUTable({ project, globalCurrency, globalYear }: CapexBUTableProps) {
   const [data, setData] = useState<CapexBURow[]>([]);
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editingValues, setEditingValues] = useState<Partial<CapexBURow>>({});
@@ -77,8 +79,9 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   const [filterCategoria, setFilterCategoria] = useState<string>('all');
   const [filterPais, setFilterPais] = useState<string>('all');
   const [filterNomeProjeto, setFilterNomeProjeto] = useState<string>('all');
-  const [selectedCurrency, setSelectedCurrency] = useState<string>('BRL');
-  const [selectedYear, setSelectedYear] = useState<string>('2025');
+  // Use global currency and year from props, fallback to defaults
+  const selectedCurrency = globalCurrency || project?.currency || 'BRL';
+  const selectedYear = globalYear || '2025';
   
   // Considerando todos os usuários como PMO por enquanto
   const isPMO = true;
@@ -394,74 +397,6 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
         </AlertDescription>
       </Alert>
 
-      {/* Configurações de Visualização */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Users className="h-5 w-5" />
-            Configurações de Visualização
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Moeda:</label>
-              <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
-                <SelectTrigger className="w-56">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BRL">
-                    Moeda do cadastro (BRL)
-                  </SelectItem>
-                  <SelectItem value="SEK_APPROVAL">SEK (taxa da aprovação)</SelectItem>
-                  <SelectItem value="SEK_BU">SEK BU (taxa anual)</SelectItem>
-                  <SelectItem value="SEK_AVG">SEK AVG (média mensal)</SelectItem>
-                </SelectContent>
-              </Select>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Selecione a moeda para visualizar os valores convertidos conforme o câmbio</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Ano:</label>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2025">2025</SelectItem>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2023">2023</SelectItem>
-                </SelectContent>
-              </Select>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Selecione o ano de referência para as taxas de câmbio</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            
-            <div className="flex items-center gap-2 ml-auto">
-              <span className="text-sm text-muted-foreground">
-                Taxa atual: {getCurrentCurrencyInfo(selectedCurrency).rate.toFixed(4)}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                | Atualizado em {format(new Date(), "dd/MM/yyyy HH:mm")}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Filtros */}
       <Card>

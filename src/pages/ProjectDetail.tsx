@@ -85,7 +85,8 @@ const generateMockProject = (projectId: string) => {
       projeto_it: "Não",
       responsavel_it: "",
       tipo_investimento: "Capex",
-      input: "Manual/Excel"
+      input: "Manual/Excel",
+      sap_id: "BR0001234"
     },
     "PRJ-002": {
       id: "mock-uuid-002",
@@ -117,7 +118,8 @@ const generateMockProject = (projectId: string) => {
       projeto_it: "Sim",
       responsavel_it: "João Santos",
       tipo_investimento: "Opex",
-      input: "Integração"
+      input: "Integração",
+      sap_id: "BR0005678"
     },
     "PRJ-003": {
       id: "mock-uuid-003",
@@ -137,7 +139,8 @@ const generateMockProject = (projectId: string) => {
       start_date: new Date("2024-10-01"),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      user_id: "mock-user-id"
+      user_id: "mock-user-id",
+      sap_id: ""
     },
     "PRJ-004": {
       id: "mock-uuid-004",
@@ -157,7 +160,8 @@ const generateMockProject = (projectId: string) => {
       start_date: new Date("2024-01-15"),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      user_id: "mock-user-id"
+      user_id: "mock-user-id",
+      sap_id: "BR0009876"
     },
     "PRJ-005": {
       id: "mock-uuid-005",
@@ -177,7 +181,8 @@ const generateMockProject = (projectId: string) => {
       start_date: new Date("2025-02-01"),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      user_id: "mock-user-id"
+      user_id: "mock-user-id",
+      sap_id: ""
     },
     "PRJ-006": {
       id: "mock-uuid-006",
@@ -197,7 +202,8 @@ const generateMockProject = (projectId: string) => {
       start_date: new Date("2024-08-01"),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      user_id: "mock-user-id"
+      user_id: "mock-user-id",
+      sap_id: "BR0003456"
     },
     "PRJ-007": {
       id: "mock-uuid-007",
@@ -217,7 +223,8 @@ const generateMockProject = (projectId: string) => {
       start_date: new Date("2024-03-01"),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      user_id: "mock-user-id"
+      user_id: "mock-user-id",
+      sap_id: "SE0012345"
     }
   };
 
@@ -598,58 +605,92 @@ export default function ProjectDetail() {
                 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <ProjectEditDialog 
-                      project={project} 
-                      onProjectUpdate={handleProjectUpdate}
-                    />
+                    <div data-edit-project>
+                      <ProjectEditDialog 
+                        project={project} 
+                        onProjectUpdate={handleProjectUpdate}
+                      />
+                    </div>
                   </TooltipTrigger>
                   <TooltipContent>Editar informações do projeto</TooltipContent>
                 </Tooltip>
               </div>
             </div>
 
-            {/* Informações do projeto */}
+            {/* Informações do projeto - Header fixo padronizado */}
             <div className="space-y-4">
-              {/* Informações sempre visíveis */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="cursor-help">
-                        <p className="text-xs text-muted-foreground">Nome do projeto</p>
-                        <div className="flex items-center gap-2">
-                          <h2 className="text-xl font-semibold">{project.name}</h2>
-                          {project.is_critical && (
-                            <AlertTriangle className="h-5 w-5 text-red-500" />
-                          )}
+              {/* Informações sempre visíveis com layout padronizado */}
+              <div className="relative">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">
+                          <p className="text-xs text-muted-foreground mb-1">Nome do projeto</p>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-base font-normal">{project.name}</h2>
+                            {project.is_critical && (
+                              <AlertTriangle className="h-4 w-4 text-red-500" />
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{project.project_code || id}</p>
                         </div>
-                        <p className="text-sm text-muted-foreground">{project.project_code || id}</p>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Especifique um nome para o projeto Electrolux</p>
-                    </TooltipContent>
-                  </Tooltip>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Especifique um nome para o projeto Electrolux</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Responsável</p>
+                    <p className="text-base font-normal">{project.leader}</p>
+                  </div>
+                  
+                  <div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">
+                          <p className="text-xs text-muted-foreground mb-1">Área</p>
+                          <p className="text-base font-normal">{project.area}</p>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Qual área irá EXECUTAR este projeto?</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">SAP ID Number</p>
+                    <p className="text-base font-normal">
+                      {project.sap_id || "—"}
+                    </p>
+                  </div>
                 </div>
                 
-                <div>
-                  <p className="text-xs text-muted-foreground">Responsável</p>
-                  <p className="text-sm font-medium">{project.leader}</p>
-                </div>
-                
-                <div>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="cursor-help">
-                        <p className="text-xs text-muted-foreground">Área</p>
-                        <p className="text-sm font-medium">{project.area}</p>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Qual área irá EXECUTAR este projeto?</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                {/* Botão de edição - apenas para Input = Manual/Excel */}
+                {project.input === "Manual/Excel" && (
+                  <div className="absolute top-0 right-0">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 hover:bg-muted"
+                          onClick={() => {
+                            // Trigger the edit dialog that's already in the actions
+                            const editButton = document.querySelector('[data-edit-project]') as HTMLButtonElement;
+                            if (editButton) editButton.click();
+                          }}
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Editar informações do projeto</TooltipContent>
+                    </Tooltip>
+                  </div>
+                )}
               </div>
 
               {/* Aviso para projetos com integração */}

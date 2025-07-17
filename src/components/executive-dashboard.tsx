@@ -8,13 +8,15 @@ import {
   DollarSign,
   BarChart3,
   Clock,
-  Target,
   CheckCircle,
   XCircle,
   AlertCircle,
   FileText,
   Users,
-  Zap
+  Database,
+  ArrowUp,
+  ArrowDown,
+  ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -93,19 +95,29 @@ export function ExecutiveDashboard({
 
   const scheduleStatus = getScheduleStatus();
 
-  // Pendências críticas (simuladas)
-  const criticalPendencies = [
+  // Cálculos adicionais
+  const deviationPercent = latestBaseline ? ((project.budget - latestBaseline.budget) / latestBaseline.budget * 100) : 0;
+  const lastUpdateDate = "12/01/2025"; // Simulado
+  const dataSource = "manual"; // ou "sap_integrated" - simulado
+  
+  // Indicadores de tendência
+  const getTrendIndicator = (value: number) => {
+    if (value > 0) return { icon: ArrowUp, color: "text-red-500" };
+    if (value < 0) return { icon: ArrowDown, color: "text-green-500" };
+    return { icon: ArrowRight, color: "text-gray-500" };
+  };
+
+  // Pendências críticas financeiras (filtradas)
+  const financialPendencies = [
     { type: "Orçamentária", description: "Aprovação de verba adicional - R$ 150k", priority: "ALTA" },
-    { type: "Entrega", description: "Validação módulo financeiro pelo cliente", priority: "CRÍTICA" },
-    { type: "Compliance", description: "Aprovação auditoria de segurança", priority: "MÉDIA" }
+    { type: "Compliance", description: "Aprovação auditoria financeira", priority: "CRÍTICA" }
   ];
 
-  // Timeline executiva (simulada)
-  const executiveTimeline = [
+  // Timeline executiva (apenas marcos financeiros)
+  const financialTimeline = [
     { date: "15/01/2025", event: "Aprovação baseline v1.2", type: "milestone" },
-    { date: "10/01/2025", event: "Alteração escopo - Módulo BI", type: "scope_change" },
     { date: "05/01/2025", event: "Aprovação diretoria - Verba extra", type: "approval" },
-    { date: "20/12/2024", event: "Marco: Fase 1 concluída", type: "milestone" }
+    { date: "20/12/2024", event: "Marco financeiro: Fase 1 concluída", type: "milestone" }
   ];
 
   return (
@@ -130,45 +142,56 @@ export function ExecutiveDashboard({
       </div>
 
       {/* Resumo Executivo - Cards de Status */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="border-l-4 border-l-red-500">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className={`border-l-4 ${financialStatus.color === 'red' ? 'border-l-red-500' : 
+                                        financialStatus.color === 'orange' ? 'border-l-orange-500' : 
+                                        'border-l-green-500'}`}>
           <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <XCircle className="h-5 w-5 text-red-600" />
-              <div className="text-sm text-muted-foreground">Status Financeiro</div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <DollarSign className={`h-5 w-5 ${financialStatus.color === 'red' ? 'text-red-600' : 
+                                                  financialStatus.color === 'orange' ? 'text-orange-600' : 
+                                                  'text-green-600'}`} />
+                <div className="text-sm text-muted-foreground">Status Financeiro</div>
+              </div>
+              {(() => {
+                const { icon: TrendIcon, color } = getTrendIndicator(deviationPercent);
+                return <TrendIcon className={`h-4 w-4 ${color}`} />;
+              })()}
             </div>
-            <div className="text-xl font-bold text-red-600">
+            <div className={`text-xl font-bold ${financialStatus.color === 'red' ? 'text-red-600' : 
+                                                  financialStatus.color === 'orange' ? 'text-orange-600' : 
+                                                  'text-green-600'}`}>
               {financialStatus.status}
             </div>
-            <div className="text-xs text-red-600">
+            <div className={`text-xs ${financialStatus.color === 'red' ? 'text-red-600' : 
+                                      financialStatus.color === 'orange' ? 'text-orange-600' : 
+                                      'text-green-600'}`}>
               {budgetUtilization.toFixed(1)}% utilizado
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-orange-500">
+        <Card className={`border-l-4 ${scheduleStatus.color === 'red' ? 'border-l-red-500' : 
+                                        scheduleStatus.color === 'orange' ? 'border-l-orange-500' : 
+                                        'border-l-green-500'}`}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="h-5 w-5 text-orange-600" />
+              <Clock className={`h-5 w-5 ${scheduleStatus.color === 'red' ? 'text-red-600' : 
+                                            scheduleStatus.color === 'orange' ? 'text-orange-600' : 
+                                            'text-green-600'}`} />
               <div className="text-sm text-muted-foreground">Prazo</div>
             </div>
-            <div className="text-xl font-bold text-orange-600">
+            <div className={`text-xl font-bold ${scheduleStatus.color === 'red' ? 'text-red-600' : 
+                                                  scheduleStatus.color === 'orange' ? 'text-orange-600' : 
+                                                  'text-green-600'}`}>
               {scheduleStatus.days > 0 ? `${scheduleStatus.days} dias` : scheduleStatus.status}
             </div>
-            <div className="text-xs text-orange-600">
+            <div className={`text-xs ${scheduleStatus.color === 'red' ? 'text-red-600' : 
+                                      scheduleStatus.color === 'orange' ? 'text-orange-600' : 
+                                      'text-green-600'}`}>
               {scheduleStatus.status}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="h-5 w-5 text-blue-600" />
-              <div className="text-sm text-muted-foreground">Progresso Físico</div>
-            </div>
-            <div className="text-xl font-bold text-blue-600">{project.progress}%</div>
-            <div className="text-xs text-blue-600">Execução concluída</div>
           </CardContent>
         </Card>
 
@@ -182,17 +205,46 @@ export function ExecutiveDashboard({
             <div className="text-xs text-green-600">Meta: 15%</div>
           </CardContent>
         </Card>
+      </div>
 
-        <Card className="border-l-4 border-l-purple-500">
+      {/* Informações Adicionais */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Zap className="h-5 w-5 text-purple-600" />
-              <div className="text-sm text-muted-foreground">Variação Escopo</div>
+              <Calendar className="h-5 w-5 text-blue-600" />
+              <div className="text-sm text-muted-foreground">Última Atualização</div>
             </div>
-            <div className="text-xl font-bold text-purple-600">
-              {budgetVariation > 0 ? '+' : ''}{budgetVariation.toFixed(1)}%
+            <div className="text-lg font-bold text-blue-600">{lastUpdateDate}</div>
+            <div className="text-xs text-muted-foreground">Dados financeiros</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Database className="h-5 w-5 text-purple-600" />
+              <div className="text-sm text-muted-foreground">Fonte dos Dados</div>
             </div>
-            <div className="text-xs text-purple-600">vs baseline inicial</div>
+            <div className="text-lg font-bold text-purple-600">
+              {dataSource === "manual" ? "Manual/Excel" : "SAP Integrado"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {dataSource === "manual" ? "Entrada manual" : "Integração automática"}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <div className="text-sm text-muted-foreground">Desvio Percentual</div>
+            </div>
+            <div className="text-lg font-bold text-orange-600">
+              {deviationPercent > 0 ? '+' : ''}{deviationPercent.toFixed(1)}%
+            </div>
+            <div className="text-xs text-muted-foreground">vs baseline inicial</div>
           </CardContent>
         </Card>
       </div>
@@ -248,7 +300,7 @@ export function ExecutiveDashboard({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {criticalPendencies.map((item, index) => (
+            {financialPendencies.map((item, index) => (
               <Alert key={index} className="border-l-4 border-l-orange-500">
                 <AlertDescription>
                   <div className="flex justify-between items-start">
@@ -280,7 +332,7 @@ export function ExecutiveDashboard({
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {executiveTimeline.map((item, index) => (
+              {financialTimeline.map((item, index) => (
                 <div key={index} className="flex gap-3">
                   <div className="flex-shrink-0">
                     {item.type === 'milestone' && <CheckCircle className="h-5 w-5 text-green-500" />}

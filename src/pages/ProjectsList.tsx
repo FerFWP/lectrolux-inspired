@@ -1,20 +1,14 @@
 import { useState } from "react";
-import { Search, Filter, Download, Plus, Eye, Edit3, FileText, AlertTriangle, LayoutGrid, List } from "lucide-react";
+import { Search, Filter, Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CompactProjectView } from "@/components/compact-project-view";
 import { SmartFilters } from "@/components/smart-filters";
 import { IntelligentSearch } from "@/components/intelligent-search";
 import { HomeButton } from "@/components/home-button";
 import { ProjectCreateDialog } from "@/components/project-create-dialog";
-import { ProjectEditDialog } from "@/components/project-edit-dialog";
-import { BulkEditDialog } from "@/components/bulk-edit-dialog";
 import { PendingUpdatesCard } from "@/components/pending-updates-card";
 import { useExport } from "@/hooks/use-export";
 import { useToast } from "@/hooks/use-toast";
@@ -168,17 +162,8 @@ const mockProjects: Project[] = [
   }
 ];
 
-const statusColors = {
-  "Em Andamento": "bg-blue-100 text-blue-800 border-blue-200",
-  "Concluído": "bg-green-100 text-green-800 border-green-200",
-  "Em Atraso": "bg-orange-100 text-orange-800 border-orange-200",
-  "Planejado": "bg-gray-100 text-gray-800 border-gray-200",
-  "Crítico": "bg-red-100 text-red-800 border-red-200"
-};
-
 export default function ProjectsList() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [filters, setFilters] = useState({
     area: "",
     year: "",
@@ -187,10 +172,8 @@ export default function ProjectsList() {
     category: "",
     currency: ""
   });
-  const [viewMode, setViewMode] = useState<"executive" | "table" | "cards">("table");
   const [smartFilter, setSmartFilter] = useState("attention");
   const [intelligentFilters, setIntelligentFilters] = useState<string[]>([]);
-  const [showBulkEdit, setShowBulkEdit] = useState(false);
   const navigate = useNavigate();
   const { exportData, isExporting } = useExport();
   const { toast } = useToast();
@@ -265,14 +248,6 @@ export default function ProjectsList() {
 
   const filteredProjects = getSmartFilteredProjects();
 
-  const toggleProjectSelection = (projectId: string) => {
-    setSelectedProjects(prev => 
-      prev.includes(projectId) 
-        ? prev.filter(id => id !== projectId)
-        : [...prev, projectId]
-    );
-  };
-
   const handleIntelligentSearch = (query: string, activeFilters: string[]) => {
     setSearchTerm(query);
     setIntelligentFilters(activeFilters);
@@ -329,107 +304,6 @@ export default function ProjectsList() {
     // Em uma aplicação real, você atualizaria a lista de projetos
   };
 
-  const handleProjectEdited = (updatedProject: any) => {
-    toast({
-      title: "Projeto atualizado!",
-      description: `As alterações do projeto "${updatedProject.name}" foram salvas.`,
-    });
-  };
-
-  const ProjectCard = ({ project }: { project: Project }) => (
-    <Card className={`hover:shadow-md transition-shadow ${project.isCritical ? 'border-destructive/20 bg-destructive/5' : ''}`}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Checkbox 
-              checked={selectedProjects.includes(project.id)}
-              onCheckedChange={() => toggleProjectSelection(project.id)}
-            />
-            <div>
-              <h3 className="font-semibold text-foreground hover:text-primary cursor-pointer">
-                {project.name}
-              </h3>
-              <p className="text-sm text-muted-foreground">{project.id}</p>
-            </div>
-          </div>
-          {project.isCritical && (
-            <Badge variant="destructive" className="gap-1">
-              <AlertTriangle className="h-3 w-3" />
-              Crítico
-            </Badge>
-          )}
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4 mb-3">
-          <div>
-            <p className="text-xs text-muted-foreground">Líder</p>
-            <p className="text-sm font-medium">{project.leader}</p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Área</p>
-            <p className="text-sm font-medium">{project.area}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mb-3">
-          <Badge className={statusColors[project.status]}>
-            {project.status}
-          </Badge>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 text-xs mb-4">
-          <div>
-            <span className="text-muted-foreground">Orçamento:</span>
-            <div className="font-medium">{formatCurrency(project.budget, project.currency)}</div>
-          </div>
-          <div>
-            <span className="text-muted-foreground">Realizado:</span>
-            <div className="font-medium">{formatCurrency(project.realized, project.currency)}</div>
-          </div>
-          <div>
-            <span className="text-muted-foreground">Saldo:</span>
-            <div className={`font-medium ${project.balance < 0 ? 'text-destructive' : 'text-green-600'}`}>
-              {formatCurrency(project.balance, project.currency)}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-2">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="flex-1"
-            onClick={() => navigate(`/projetos/${project.id}`)}
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            Ver
-          </Button>
-          <ProjectEditDialog 
-            project={{
-              id: project.id,
-              project_code: project.id,
-              name: project.name,
-              leader: project.leader,
-              area: project.area,
-              status: project.status,
-              budget: project.budget,
-              currency: project.currency,
-              progress: project.progress,
-              start_date: new Date(),
-              deadline: new Date(project.deadline),
-              is_critical: project.isCritical,
-              description: `Projeto da área ${project.area}`
-            }}
-            onProjectUpdate={handleProjectEdited}
-          />
-          <Button size="sm" variant="outline">
-            <FileText className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background">
@@ -458,16 +332,6 @@ export default function ProjectsList() {
                   </TooltipContent>
                 </Tooltip>
                 <ProjectCreateDialog onProjectCreated={handleProjectCreated} />
-                {selectedProjects.length > 0 && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowBulkEdit(true)}
-                    className="gap-2"
-                  >
-                    <Edit3 className="h-4 w-4" />
-                    Editar Selecionados ({selectedProjects.length})
-                  </Button>
-                )}
               </div>
             </div>
 
@@ -537,7 +401,6 @@ export default function ProjectsList() {
                   <SelectContent>
                     <SelectItem value="BRL">Real (BRL)</SelectItem>
                     <SelectItem value="USD">Dólar (USD)</SelectItem>
-                    
                     <SelectItem value="SEK">Coroa Sueca (SEK)</SelectItem>
                   </SelectContent>
                 </Select>
@@ -593,34 +456,6 @@ export default function ProjectsList() {
             <p className="text-sm text-muted-foreground">
               {filteredProjects.length} projeto(s) encontrado(s)
             </p>
-            <div className="flex gap-2">
-              <Button
-                variant={viewMode === "executive" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("executive")}
-                className="gap-2"
-              >
-                <LayoutGrid className="h-4 w-4" />
-                Executiva
-              </Button>
-              <Button
-                variant={viewMode === "table" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("table")}
-                className="gap-2"
-              >
-                <List className="h-4 w-4" />
-                Compacta
-              </Button>
-              <Button
-                variant={viewMode === "cards" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("cards")}
-                className="hidden md:flex gap-2"
-              >
-                Cards
-              </Button>
-            </div>
           </div>
 
           {/* Lista de projetos */}
@@ -639,34 +474,10 @@ export default function ProjectsList() {
               </div>
             </Card>
           ) : (
-            <>
-              {/* Visualização Executiva - Lista com métricas financeiras inline */}
-              {viewMode === "executive" && (
-                <CompactProjectView 
-                  projects={filteredProjects}
-                  formatCurrency={formatCurrency}
-                />
-              )}
-
-              {/* Visualização Compacta - Lista densa com hover details */}
-              {viewMode === "table" && (
-                <CompactProjectView 
-                  projects={filteredProjects}
-                  formatCurrency={formatCurrency}
-                />
-              )}
-
-
-              {/* Visualização em cards */}
-              {viewMode === "cards" && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {filteredProjects.map((project) => (
-                    <ProjectCard key={project.id} project={project} />
-                  ))}
-                </div>
-              )}
-
-            </>
+            <CompactProjectView 
+              projects={filteredProjects}
+              formatCurrency={formatCurrency}
+            />
           )}
 
           {/* Paginação */}

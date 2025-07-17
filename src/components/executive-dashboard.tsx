@@ -25,14 +25,10 @@ interface Project {
 interface ExecutiveDashboardProps {
   project: Project;
   baselines: any[];
-  onComparePortfolio: () => void;
-  onScaleProblem: () => void;
 }
 export function ExecutiveDashboard({
   project,
-  baselines,
-  onComparePortfolio,
-  onScaleProblem
+  baselines
 }: ExecutiveDashboardProps) {
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = {
@@ -133,23 +129,9 @@ export function ExecutiveDashboard({
     type: "milestone"
   }];
   return <div className="space-y-6">
-      {/* Header com ações rápidas */}
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Painel Executivo / Visão Geral de Risco</h3>
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={onComparePortfolio}>
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Comparar com Portfólio
-          </Button>
-          <Button size="sm" variant="destructive" onClick={onScaleProblem}>
-            <AlertTriangle className="h-4 w-4 mr-2" />
-            Escalar Problema
-          </Button>
-          <Button size="sm" variant="outline">
-            <FileText className="h-4 w-4 mr-2" />
-            Relatórios Críticos
-          </Button>
-        </div>
       </div>
 
       {/* Resumo Executivo - Cards de Status */}

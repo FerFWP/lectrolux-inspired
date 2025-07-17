@@ -885,16 +885,6 @@ export default function ProjectDetail() {
               <ExecutiveDashboard 
                 project={project}
                 baselines={baselines}
-                onComparePortfolio={() => {
-                  // Abrir modal de comparação com portfólio
-                }}
-                onScaleProblem={() => {
-                  toast({
-                    title: "Problema Escalado",
-                    description: "Notificação enviada para PMO e Diretoria. Você receberá retorno em até 24h.",
-                    duration: 5000,
-                  });
-                }}
               />
             </TabsContent>
 

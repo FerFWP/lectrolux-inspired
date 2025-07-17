@@ -187,7 +187,7 @@ export default function ProjectsList() {
     category: "",
     currency: ""
   });
-  const [viewMode, setViewMode] = useState<"executive" | "table" | "cards">("executive");
+  const [viewMode, setViewMode] = useState<"executive" | "table" | "cards">("table");
   const [smartFilter, setSmartFilter] = useState("attention");
   const [intelligentFilters, setIntelligentFilters] = useState<string[]>([]);
   const [showBulkEdit, setShowBulkEdit] = useState(false);
@@ -592,7 +592,6 @@ export default function ProjectsList() {
           <div className="flex items-center justify-between mb-4 mt-6">
             <p className="text-sm text-muted-foreground">
               {filteredProjects.length} projeto(s) encontrado(s)
-              {selectedProjects.length > 0 && ` • ${selectedProjects.length} selecionado(s)`}
             </p>
             <div className="flex gap-2">
               <Button
@@ -645,10 +644,7 @@ export default function ProjectsList() {
               {viewMode === "executive" && (
                 <CompactProjectView 
                   projects={filteredProjects}
-                  selectedProjects={selectedProjects}
-                  onToggleSelection={toggleProjectSelection}
                   formatCurrency={formatCurrency}
-                  viewMode="executive"
                 />
               )}
 
@@ -656,10 +652,7 @@ export default function ProjectsList() {
               {viewMode === "table" && (
                 <CompactProjectView 
                   projects={filteredProjects}
-                  selectedProjects={selectedProjects}
-                  onToggleSelection={toggleProjectSelection}
                   formatCurrency={formatCurrency}
-                  viewMode="compact"
                 />
               )}
 

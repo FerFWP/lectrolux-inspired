@@ -47,10 +47,10 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const [editValue, setEditValue] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterAno, setFilterAno] = useState<string>('');
-  const [filterCategoria, setFilterCategoria] = useState<string>('');
-  const [filterPais, setFilterPais] = useState<string>('');
-  const [filterNomeProjeto, setFilterNomeProjeto] = useState<string>('');
+  const [filterAno, setFilterAno] = useState<string>('all');
+  const [filterCategoria, setFilterCategoria] = useState<string>('all');
+  const [filterPais, setFilterPais] = useState<string>('all');
+  const [filterNomeProjeto, setFilterNomeProjeto] = useState<string>('all');
   
   // Considerando todos os usuários como PMO por enquanto
   const isPMO = true;
@@ -192,10 +192,10 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
       row.sapId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.nomeProjeto.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesAno = !filterAno || row.ano.toString() === filterAno;
-    const matchesCategoria = !filterCategoria || row.categoria === filterCategoria;
-    const matchesPais = !filterPais || row.pais === filterPais;
-    const matchesNomeProjeto = !filterNomeProjeto || row.nomeProjeto === filterNomeProjeto;
+    const matchesAno = !filterAno || filterAno === 'all' || row.ano.toString() === filterAno;
+    const matchesCategoria = !filterCategoria || filterCategoria === 'all' || row.categoria === filterCategoria;
+    const matchesPais = !filterPais || filterPais === 'all' || row.pais === filterPais;
+    const matchesNomeProjeto = !filterNomeProjeto || filterNomeProjeto === 'all' || row.nomeProjeto === filterNomeProjeto;
 
     return matchesSearch && matchesAno && matchesCategoria && matchesPais && matchesNomeProjeto;
   });
@@ -243,10 +243,10 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
               <label className="text-sm font-medium mb-2 block">Ano</label>
               <Select value={filterAno} onValueChange={setFilterAno}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
+                  <SelectValue placeholder="Todos os anos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos os anos</SelectItem>
                   {years.map(year => (
                     <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
                   ))}
@@ -258,10 +258,10 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
               <label className="text-sm font-medium mb-2 block">Categoria</label>
               <Select value={filterCategoria} onValueChange={setFilterCategoria}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Todas" />
+                  <SelectValue placeholder="Todas as categorias" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
                   {categories.map(category => (
                     <SelectItem key={category} value={category}>{category}</SelectItem>
                   ))}
@@ -273,10 +273,10 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
               <label className="text-sm font-medium mb-2 block">País</label>
               <Select value={filterPais} onValueChange={setFilterPais}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
+                  <SelectValue placeholder="Todos os países" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos os países</SelectItem>
                   {countries.map(country => (
                     <SelectItem key={country} value={country}>{country}</SelectItem>
                   ))}
@@ -288,10 +288,10 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
               <label className="text-sm font-medium mb-2 block">Projeto</label>
               <Select value={filterNomeProjeto} onValueChange={setFilterNomeProjeto}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
+                  <SelectValue placeholder="Todos os projetos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos os projetos</SelectItem>
                   {projectNames.map(name => (
                     <SelectItem key={name} value={name}>{name}</SelectItem>
                   ))}
@@ -304,10 +304,10 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                 variant="outline"
                 onClick={() => {
                   setSearchTerm('');
-                  setFilterAno('');
-                  setFilterCategoria('');
-                  setFilterPais('');
-                  setFilterNomeProjeto('');
+                  setFilterAno('all');
+                  setFilterCategoria('all');
+                  setFilterPais('all');
+                  setFilterNomeProjeto('all');
                 }}
               >
                 Limpar filtros

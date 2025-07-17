@@ -1,20 +1,6 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { 
-  DollarSign, 
-  TrendingUp, 
-  TrendingDown, 
-  PieChart,
-  BarChart3,
-  Eye,
-  AlertCircle,
-  Info,
-  Calendar,
-  Building2,
-  Users,
-  Banknote,
-  HelpCircle
-} from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, PieChart, BarChart3, Eye, AlertCircle, Info, Calendar, Building2, Users, Banknote, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,23 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip as RechartsTooltip, 
-  Legend, 
-  ResponsiveContainer,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  ComposedChart
-} from "recharts";
-
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, LineChart, Line, ComposedChart } from "recharts";
 interface Project {
   id: string;
   name: string;
@@ -51,7 +21,6 @@ interface Project {
   start_date?: Date;
   deadline?: Date;
 }
-
 interface Transaction {
   id: string;
   amount: number;
@@ -60,7 +29,6 @@ interface Transaction {
   transaction_date: Date;
   transaction_type: string;
 }
-
 interface Baseline {
   id: string;
   version: string;
@@ -68,7 +36,6 @@ interface Baseline {
   created_at: string;
   description?: string;
 }
-
 interface FinancialSummaryProps {
   project: Project;
   transactions: Transaction[];
@@ -76,11 +43,10 @@ interface FinancialSummaryProps {
   onDrillDown: (type: string, data: any) => void;
   onChartClick?: (filterType: string, filterValue: string) => void;
 }
-
-export function FinancialSummary({ 
-  project, 
-  transactions, 
-  baselines, 
+export function FinancialSummary({
+  project,
+  transactions,
+  baselines,
   onDrillDown,
   onChartClick
 }: FinancialSummaryProps) {
@@ -90,32 +56,54 @@ export function FinancialSummary({
 
   // Simulação de taxas de câmbio
   const exchangeRates = {
-    "BRL": { rate: 1.0, label: "Moeda do cadastro (BRL)" },
-    "USD": { rate: 1.0, label: "Moeda do cadastro (USD)" },
-    "SEK": { rate: 1.0, label: "Moeda do cadastro (SEK)" },
-    "EUR": { rate: 1.0, label: "Moeda do cadastro (EUR)" },
-    "SEK_APPROVAL": { rate: 0.48, label: "SEK (taxa da aprovação)" },
-    "SEK_BU": { rate: 0.52, label: "SEK BU (taxa anual)" },
-    "SEK_AVG": { rate: 0.50, label: "SEK AVG (média mensal)" }
+    "BRL": {
+      rate: 1.0,
+      label: "Moeda do cadastro (BRL)"
+    },
+    "USD": {
+      rate: 1.0,
+      label: "Moeda do cadastro (USD)"
+    },
+    "SEK": {
+      rate: 1.0,
+      label: "Moeda do cadastro (SEK)"
+    },
+    "EUR": {
+      rate: 1.0,
+      label: "Moeda do cadastro (EUR)"
+    },
+    "SEK_APPROVAL": {
+      rate: 0.48,
+      label: "SEK (taxa da aprovação)"
+    },
+    "SEK_BU": {
+      rate: 0.52,
+      label: "SEK BU (taxa anual)"
+    },
+    "SEK_AVG": {
+      rate: 0.50,
+      label: "SEK AVG (média mensal)"
+    }
   };
-
   const getCurrentCurrencyInfo = () => {
     // Se selecionou moeda do cadastro, não há conversão
     if (selectedCurrency === project.currency) {
-      return { rate: 1.0, label: `Moeda do cadastro (${project.currency})` };
+      return {
+        rate: 1.0,
+        label: `Moeda do cadastro (${project.currency})`
+      };
     }
-    
-    // Para outras moedas, usar simulação baseada na moeda original
-    const baseRate = project.currency === "BRL" ? 1.0 : 
-                    project.currency === "USD" ? 5.40 : 
-                    project.currency === "SEK" ? 0.48 : 5.85;
-    
-    return exchangeRates[selectedCurrency as keyof typeof exchangeRates] || { rate: 1.0, label: selectedCurrency };
-  };
 
+    // Para outras moedas, usar simulação baseada na moeda original
+    const baseRate = project.currency === "BRL" ? 1.0 : project.currency === "USD" ? 5.40 : project.currency === "SEK" ? 0.48 : 5.85;
+    return exchangeRates[selectedCurrency as keyof typeof exchangeRates] || {
+      rate: 1.0,
+      label: selectedCurrency
+    };
+  };
   const convertCurrency = (amount: number) => {
     const currencyInfo = getCurrentCurrencyInfo();
-    
+
     // Simulação de conversão baseada no tipo de moeda selecionada
     if (selectedCurrency === "SEK_APPROVAL") {
       return amount * 0.48; // Taxa da aprovação
@@ -124,13 +112,10 @@ export function FinancialSummary({
     } else if (selectedCurrency === "SEK_AVG") {
       return amount * 0.50; // Média mensal
     }
-    
     return amount; // Moeda do cadastro
   };
-
   const formatCurrency = (amount: number) => {
     const convertedAmount = convertCurrency(amount);
-    
     let symbol = "R$";
     if (selectedCurrency.startsWith("SEK")) {
       symbol = "kr";
@@ -139,7 +124,6 @@ export function FinancialSummary({
     } else if (selectedCurrency === "EUR") {
       symbol = "€";
     }
-    
     return `${symbol} ${convertedAmount.toLocaleString("pt-BR", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
@@ -152,68 +136,118 @@ export function FinancialSummary({
   const totalRealized = project.realized || 0;
   const committed = project.committed || 0;
   const balance = adjustedBudget - totalRealized - committed;
-  
+
   // Simulação de BU Alocado baseado no ano selecionado
   const buAllocated = adjustedBudget * (selectedYear >= 2025 ? 0.85 : 0.80);
-  
+
   // Desvio absoluto e percentual
   const absoluteDeviation = totalRealized - adjustedBudget;
-  const percentualDeviation = ((totalRealized - adjustedBudget) / adjustedBudget) * 100;
+  const percentualDeviation = (totalRealized - adjustedBudget) / adjustedBudget * 100;
 
   // Percentuais
-  const executionPercent = (totalRealized / adjustedBudget) * 100;
-  const commitmentPercent = (committed / adjustedBudget) * 100;
+  const executionPercent = totalRealized / adjustedBudget * 100;
+  const commitmentPercent = committed / adjustedBudget * 100;
 
   // Dados para gráfico combinado com linha BU
   const monthlyBuValue = buAllocated / 12;
-  const monthlyData = [
-    { month: "Jan", planejado: 150000, realizado: 120000, bu: monthlyBuValue },
-    { month: "Fev", planejado: 300000, realizado: 280000, bu: monthlyBuValue },
-    { month: "Mar", planejado: 450000, realizado: 420000, bu: monthlyBuValue },
-    { month: "Abr", planejado: 600000, realizado: 580000, bu: monthlyBuValue },
-    { month: "Mai", planejado: 750000, realizado: 720000, bu: monthlyBuValue },
-    { month: "Jun", planejado: 900000, realizado: 850000, bu: monthlyBuValue },
-    { month: "Jul", planejado: 1050000, realizado: 1000000, bu: monthlyBuValue },
-    { month: "Ago", planejado: 1200000, realizado: 1350000, bu: monthlyBuValue }
-  ];
+  const monthlyData = [{
+    month: "Jan",
+    planejado: 150000,
+    realizado: 120000,
+    bu: monthlyBuValue
+  }, {
+    month: "Fev",
+    planejado: 300000,
+    realizado: 280000,
+    bu: monthlyBuValue
+  }, {
+    month: "Mar",
+    planejado: 450000,
+    realizado: 420000,
+    bu: monthlyBuValue
+  }, {
+    month: "Abr",
+    planejado: 600000,
+    realizado: 580000,
+    bu: monthlyBuValue
+  }, {
+    month: "Mai",
+    planejado: 750000,
+    realizado: 720000,
+    bu: monthlyBuValue
+  }, {
+    month: "Jun",
+    planejado: 900000,
+    realizado: 850000,
+    bu: monthlyBuValue
+  }, {
+    month: "Jul",
+    planejado: 1050000,
+    realizado: 1000000,
+    bu: monthlyBuValue
+  }, {
+    month: "Ago",
+    planejado: 1200000,
+    realizado: 1350000,
+    bu: monthlyBuValue
+  }];
 
   // Dados para gráfico pizza (distribuição por categoria)
-  const categoryData = [
-    { name: "Software/Licenças", value: 450000, color: "#3B82F6" },
-    { name: "Hardware", value: 320000, color: "#10B981" },
-    { name: "Serviços/Consultoria", value: 280000, color: "#F59E0B" },
-    { name: "Treinamento", value: 180000, color: "#EF4444" },
-    { name: "Infraestrutura", value: 120000, color: "#8B5CF6" }
-  ];
+  const categoryData = [{
+    name: "Software/Licenças",
+    value: 450000,
+    color: "#3B82F6"
+  }, {
+    name: "Hardware",
+    value: 320000,
+    color: "#10B981"
+  }, {
+    name: "Serviços/Consultoria",
+    value: 280000,
+    color: "#F59E0B"
+  }, {
+    name: "Treinamento",
+    value: 180000,
+    color: "#EF4444"
+  }, {
+    name: "Infraestrutura",
+    value: 120000,
+    color: "#8B5CF6"
+  }];
 
   // Dados para gráfico pizza (CAPEX vs OPEX)
-  const capexOpexData = [
-    { name: "CAPEX", value: 800000, color: "#3B82F6" },
-    { name: "OPEX", value: 550000, color: "#10B981" }
-  ];
+  const capexOpexData = [{
+    name: "CAPEX",
+    value: 800000,
+    color: "#3B82F6"
+  }, {
+    name: "OPEX",
+    value: 550000,
+    color: "#10B981"
+  }];
 
   // Insights automáticos
   const getTopSpendingMonth = () => {
     const maxSpending = Math.max(...monthlyData.map(d => d.realizado));
     const topMonth = monthlyData.find(d => d.realizado === maxSpending);
-    return { month: topMonth?.month, amount: maxSpending };
+    return {
+      month: topMonth?.month,
+      amount: maxSpending
+    };
   };
-
   const getTopCategory = () => {
-    const maxCategory = categoryData.reduce((prev, current) => 
-      prev.value > current.value ? prev : current
-    );
+    const maxCategory = categoryData.reduce((prev, current) => prev.value > current.value ? prev : current);
     return maxCategory;
   };
-
   const getTopSupplier = () => {
-    return { name: "SAP Brasil", amount: 450000 };
+    return {
+      name: "SAP Brasil",
+      amount: 450000
+    };
   };
-
   const topSpendingMonth = getTopSpendingMonth();
   const topCategory = getTopCategory();
   const topSupplier = getTopSupplier();
-
   const handleExport = () => {
     const data = {
       project: project.name,
@@ -232,8 +266,9 @@ export function FinancialSummary({
       },
       date: new Date().toISOString()
     };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json'
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -241,14 +276,12 @@ export function FinancialSummary({
     a.click();
     URL.revokeObjectURL(url);
   };
-
-  return (
-    <TooltipProvider>
+  return <TooltipProvider>
       <div className="space-y-6">
         {/* Seletores de Moeda e Ano */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <DollarSign className="h-5 w-5" />
               Configurações de Visualização
             </CardTitle>
@@ -282,7 +315,7 @@ export function FinancialSummary({
               
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">Ano:</label>
-                <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
+                <Select value={selectedYear.toString()} onValueChange={value => setSelectedYear(parseInt(value))}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -343,8 +376,7 @@ export function FinancialSummary({
               </div>
 
               {/* Taxa de Conversão */}
-              {selectedCurrency !== project.currency && (
-                <div className="space-y-2">
+              {selectedCurrency !== project.currency && <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Taxa de Conversão:</span>
                     <Tooltip>
@@ -364,8 +396,7 @@ export function FinancialSummary({
                     {selectedCurrency === "SEK_BU" && "Taxa anual BU"}
                     {selectedCurrency === "SEK_AVG" && "Taxa média mensal"}
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Ano de Referência */}
               <div className="space-y-2">
@@ -384,13 +415,11 @@ export function FinancialSummary({
                   {selectedYear}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {selectedCurrency !== project.currency && selectedCurrency.startsWith("SEK") && (
-                    <>
+                  {selectedCurrency !== project.currency && selectedCurrency.startsWith("SEK") && <>
                       {selectedCurrency === "SEK_BU" && "Atualizada anualmente"}
                       {selectedCurrency === "SEK_AVG" && "Atualizada mensalmente"}
                       {selectedCurrency === "SEK_APPROVAL" && "Fixa desde aprovação"}
-                    </>
-                  )}
+                    </>}
                 </div>
               </div>
 
@@ -619,20 +648,15 @@ export function FinancialSummary({
                 <Progress value={Math.min(executionPercent, 100)} className="h-2" />
               </div>
               
-              {percentualDeviation !== 0 && (
-                <div>
+              {percentualDeviation !== 0 && <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span>Desvio Orçamentário</span>
                     <span className={percentualDeviation > 0 ? 'text-red-600' : 'text-green-600'}>
                       {percentualDeviation > 0 ? '+' : ''}{percentualDeviation.toFixed(1)}%
                     </span>
                   </div>
-                  <Progress 
-                    value={Math.abs(percentualDeviation)} 
-                    className={`h-2 ${percentualDeviation > 0 ? '[&>div]:bg-red-500' : '[&>div]:bg-green-500'}`} 
-                  />
-                </div>
-              )}
+                  <Progress value={Math.abs(percentualDeviation)} className={`h-2 ${percentualDeviation > 0 ? '[&>div]:bg-red-500' : '[&>div]:bg-green-500'}`} />
+                </div>}
             </div>
           </CardContent>
         </Card>
@@ -654,82 +678,54 @@ export function FinancialSummary({
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              {selectedChart === "combined" && (
-                <ResponsiveContainer width="100%" height="100%">
+              {selectedChart === "combined" && <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => `${value / 1000}k`} />
-                    <RechartsTooltip formatter={(value) => formatCurrency(Number(value))} />
+                    <YAxis tickFormatter={value => `${value / 1000}k`} />
+                    <RechartsTooltip formatter={value => formatCurrency(Number(value))} />
                     <Legend />
                     <Bar dataKey="planejado" fill="#94A3B8" name="Planejado" />
                     <Bar dataKey="realizado" fill="#3B82F6" name="Realizado" />
-                    <Line 
-                      type="monotone" 
-                      dataKey="bu" 
-                      stroke="#8B5CF6" 
-                      strokeWidth={3}
-                      name="BU"
-                    />
+                    <Line type="monotone" dataKey="bu" stroke="#8B5CF6" strokeWidth={3} name="BU" />
                   </ComposedChart>
-                </ResponsiveContainer>
-              )}
+                </ResponsiveContainer>}
               
-              {selectedChart === "category" && (
-                <ResponsiveContainer width="100%" height="100%">
+              {selectedChart === "category" && <ResponsiveContainer width="100%" height="100%">
                   <RechartsPieChart>
-                    <Pie
-                      dataKey="value"
-                      data={categoryData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      onClick={(data) => {
-                        if (onChartClick) {
-                          onChartClick('category', data.name);
-                        }
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
+                    <Pie dataKey="value" data={categoryData} cx="50%" cy="50%" labelLine={false} label={({
+                  name,
+                  percent
+                }) => `${name} ${(percent * 100).toFixed(0)}%`} outerRadius={100} fill="#8884d8" onClick={data => {
+                  if (onChartClick) {
+                    onChartClick('category', data.name);
+                  }
+                }} style={{
+                  cursor: 'pointer'
+                }}>
+                      {categoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
-                    <RechartsTooltip formatter={(value) => formatCurrency(Number(value))} />
+                    <RechartsTooltip formatter={value => formatCurrency(Number(value))} />
                   </RechartsPieChart>
-                </ResponsiveContainer>
-              )}
+                </ResponsiveContainer>}
               
-              {selectedChart === "capex" && (
-                <ResponsiveContainer width="100%" height="100%">
+              {selectedChart === "capex" && <ResponsiveContainer width="100%" height="100%">
                   <RechartsPieChart>
-                    <Pie
-                      dataKey="value"
-                      data={capexOpexData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      onClick={(data) => {
-                        if (onChartClick) {
-                          onChartClick('capex_opex', data.name);
-                        }
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {capexOpexData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
+                    <Pie dataKey="value" data={capexOpexData} cx="50%" cy="50%" labelLine={false} label={({
+                  name,
+                  percent
+                }) => `${name} ${(percent * 100).toFixed(0)}%`} outerRadius={120} fill="#8884d8" onClick={data => {
+                  if (onChartClick) {
+                    onChartClick('capex_opex', data.name);
+                  }
+                }} style={{
+                  cursor: 'pointer'
+                }}>
+                      {capexOpexData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
-                    <RechartsTooltip formatter={(value) => formatCurrency(Number(value))} />
+                    <RechartsTooltip formatter={value => formatCurrency(Number(value))} />
                   </RechartsPieChart>
-                </ResponsiveContainer>
-              )}
+                </ResponsiveContainer>}
             </div>
           </CardContent>
         </Card>
@@ -759,7 +755,7 @@ export function FinancialSummary({
                 <div className="font-medium">Categoria que Mais Consome</div>
                 <div className="text-sm text-muted-foreground">
                   {topCategory.name} - {formatCurrency(topCategory.value)} 
-                  ({((topCategory.value / totalRealized) * 100).toFixed(1)}%)
+                  ({(topCategory.value / totalRealized * 100).toFixed(1)}%)
                 </div>
               </AlertDescription>
             </Alert>
@@ -775,8 +771,7 @@ export function FinancialSummary({
             </Alert>
             
             {/* Alerta crítico para desvios */}
-            {Math.abs(percentualDeviation) > 10 && (
-              <Alert className="border-red-200 bg-red-50">
+            {Math.abs(percentualDeviation) > 10 && <Alert className="border-red-200 bg-red-50">
                 <AlertCircle className="h-4 w-4 text-red-600" />
                 <AlertDescription>
                   <div className="font-medium text-red-800">Atenção: Desvio Crítico</div>
@@ -784,11 +779,9 @@ export function FinancialSummary({
                     Projeto com desvio de {percentualDeviation.toFixed(1)}% - requer atenção imediata
                   </div>
                 </AlertDescription>
-              </Alert>
-            )}
+              </Alert>}
           </CardContent>
         </Card>
       </div>
-    </TooltipProvider>
-  );
+    </TooltipProvider>;
 }

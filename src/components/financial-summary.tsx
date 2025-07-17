@@ -40,24 +40,22 @@ interface FinancialSummaryProps {
   project: Project;
   transactions: Transaction[];
   baselines: Baseline[];
-  globalCurrency?: string;
-  globalYear?: string;
-  onDrillDown: (type: string, data: any) => void;
-  onChartClick?: (filterType: string, filterValue: string) => void;
+  selectedCurrency?: string;
+  selectedYear?: string;
+  onBaselineCreate: () => void;
 }
 export function FinancialSummary({
   project,
   transactions,
   baselines,
-  globalCurrency,
-  globalYear,
-  onDrillDown,
-  onChartClick
+  selectedCurrency,
+  selectedYear,
+  onBaselineCreate
 }: FinancialSummaryProps) {
   const [selectedChart, setSelectedChart] = useState("combined");
   // Use global currency and year from props, fallback to project defaults
-  const selectedCurrency = globalCurrency || project.currency;
-  const selectedYear = parseInt(globalYear || new Date().getFullYear().toString());
+  const currentCurrency = selectedCurrency || project.currency;
+  const currentYear = parseInt(selectedYear || new Date().getFullYear().toString());
 
   // Simulação de taxas de câmbio
   const exchangeRates = {
@@ -92,7 +90,7 @@ export function FinancialSummary({
   };
   const getCurrentCurrencyInfo = () => {
     // Se selecionou moeda do cadastro, não há conversão
-    if (selectedCurrency === project.currency) {
+    if (currentCurrency === project.currency) {
       return {
         rate: 1.0,
         label: `Moeda do cadastro (${project.currency})`
@@ -101,20 +99,20 @@ export function FinancialSummary({
 
     // Para outras moedas, usar simulação baseada na moeda original
     const baseRate = project.currency === "BRL" ? 1.0 : project.currency === "USD" ? 5.40 : project.currency === "SEK" ? 0.48 : 5.85;
-    return exchangeRates[selectedCurrency as keyof typeof exchangeRates] || {
+    return exchangeRates[currentCurrency as keyof typeof exchangeRates] || {
       rate: 1.0,
-      label: selectedCurrency
+      label: currentCurrency
     };
   };
   const convertCurrency = (amount: number) => {
     const currencyInfo = getCurrentCurrencyInfo();
 
     // Simulação de conversão baseada no tipo de moeda selecionada
-    if (selectedCurrency === "SEK_APPROVAL") {
+    if (currentCurrency === "SEK_APPROVAL") {
       return amount * 0.48; // Taxa da aprovação
-    } else if (selectedCurrency === "SEK_BU") {
+    } else if (currentCurrency === "SEK_BU") {
       return amount * 0.52; // Taxa anual BU
-    } else if (selectedCurrency === "SEK_AVG") {
+    } else if (currentCurrency === "SEK_AVG") {
       return amount * 0.50; // Média mensal
     }
     return amount; // Moeda do cadastro
@@ -122,11 +120,11 @@ export function FinancialSummary({
   const formatCurrency = (amount: number) => {
     const convertedAmount = convertCurrency(amount);
     let symbol = "R$";
-    if (selectedCurrency.startsWith("SEK")) {
+    if (currentCurrency.startsWith("SEK")) {
       symbol = "kr";
-    } else if (selectedCurrency === "USD") {
+    } else if (currentCurrency === "USD") {
       symbol = "$";
-    } else if (selectedCurrency === "EUR") {
+    } else if (currentCurrency === "EUR") {
       symbol = "€";
     }
     return `${symbol} ${convertedAmount.toLocaleString("pt-BR", {
@@ -143,7 +141,7 @@ export function FinancialSummary({
   const balance = adjustedBudget - totalRealized - committed;
 
   // Simulação de BU Alocado baseado no ano selecionado
-  const buAllocated = adjustedBudget * (selectedYear >= 2025 ? 0.85 : 0.80);
+  const buAllocated = adjustedBudget * (currentYear >= 2025 ? 0.85 : 0.80);
 
   // Desvio absoluto e percentual
   const absoluteDeviation = totalRealized - adjustedBudget;
@@ -249,8 +247,8 @@ export function FinancialSummary({
   const handleExport = () => {
     const data = {
       project: project.name,
-      currency: selectedCurrency,
-      year: selectedYear,
+      currency: currentCurrency,
+      year: currentYear,
       summary: {
         initialBudget,
         adjustedBudget,
@@ -270,7 +268,7 @@ export function FinancialSummary({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `resumo-financeiro-${project.name}-${selectedYear}-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.download = `resumo-financeiro-${project.name}-${currentYear}-${format(new Date(), 'yyyy-MM-dd')}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -282,7 +280,7 @@ export function FinancialSummary({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
-              Resumo Analítico de Orçamento - {selectedYear}
+              Resumo Analítico de Orçamento - {currentYear}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -319,7 +317,7 @@ export function FinancialSummary({
                 </div>
               </div>
               
-              <div className="space-y-2 cursor-pointer" onClick={() => onDrillDown('realized', transactions)}>
+              <div className="space-y-2">{/* cursor-pointer" onClick={() => onDrillDown('realized', transactions)} */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="text-sm text-muted-foreground flex items-center gap-1 cursor-help">
@@ -384,12 +382,12 @@ export function FinancialSummary({
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Valor total alocado pela Business Unit para {selectedYear}</p>
+                    <p>Valor total alocado pela Business Unit para {currentYear}</p>
                   </TooltipContent>
                 </Tooltip>
                 <div className="text-xl font-bold text-purple-600">{formatCurrency(buAllocated)}</div>
                 <div className="text-xs text-purple-600">
-                  {selectedYear} - Business Unit
+                  {currentYear} - Business Unit
                 </div>
               </div>
               
@@ -460,7 +458,7 @@ export function FinancialSummary({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
-              Análise Visual - {selectedYear}
+              Análise Visual - {currentYear}
             </CardTitle>
             <Tabs value={selectedChart} onValueChange={setSelectedChart}>
               <TabsList>
@@ -490,13 +488,7 @@ export function FinancialSummary({
                     <Pie dataKey="value" data={categoryData} cx="50%" cy="50%" labelLine={false} label={({
                   name,
                   percent
-                }) => `${name} ${(percent * 100).toFixed(0)}%`} outerRadius={100} fill="#8884d8" onClick={data => {
-                  if (onChartClick) {
-                    onChartClick('category', data.name);
-                  }
-                }} style={{
-                  cursor: 'pointer'
-                }}>
+                }) => `${name} ${(percent * 100).toFixed(0)}%`} outerRadius={100} fill="#8884d8">
                       {categoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
                     <RechartsTooltip formatter={value => formatCurrency(Number(value))} />
@@ -508,13 +500,7 @@ export function FinancialSummary({
                     <Pie dataKey="value" data={capexOpexData} cx="50%" cy="50%" labelLine={false} label={({
                   name,
                   percent
-                }) => `${name} ${(percent * 100).toFixed(0)}%`} outerRadius={120} fill="#8884d8" onClick={data => {
-                  if (onChartClick) {
-                    onChartClick('capex_opex', data.name);
-                  }
-                }} style={{
-                  cursor: 'pointer'
-                }}>
+                }) => `${name} ${(percent * 100).toFixed(0)}%`} outerRadius={120} fill="#8884d8">
                       {capexOpexData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
                     <RechartsTooltip formatter={value => formatCurrency(Number(value))} />

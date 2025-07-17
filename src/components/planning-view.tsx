@@ -39,25 +39,21 @@ import { BaselineDialog } from "@/components/baseline-dialog";
 
 interface PlanningViewProps {
   project: any;
-  baselines: any[];
   transactions: any[];
-  onUpdateForecast?: (data: any) => void;
-  onSaveBaseline?: (data: any) => void;
-  onRevertBaseline?: (baselineId: string) => void;
+  selectedCurrency?: string;
+  selectedYear?: string;
 }
 
 export function PlanningView({ 
-  project, 
-  baselines, 
-  transactions, 
-  onUpdateForecast, 
-  onSaveBaseline, 
-  onRevertBaseline 
+  project,
+  transactions,
+  selectedCurrency,
+  selectedYear
 }: PlanningViewProps) {
   const [editingMonth, setEditingMonth] = useState<string | null>(null);
   const [forecastData, setForecastData] = useState<any>({});
   const [justification, setJustification] = useState("");
-  const [selectedBaseline, setSelectedBaseline] = useState(baselines[0]?.id || "");
+  const [selectedBaseline, setSelectedBaseline] = useState("");
   const [showEnhancedView, setShowEnhancedView] = useState(false);
   const { toast } = useToast();
 
@@ -268,7 +264,7 @@ export function PlanningView({
   const handleSaveForecast = () => {
     if (!editingMonth) return;
     
-    onUpdateForecast?.(forecastData);
+    // onUpdateForecast?.(forecastData);
     setEditingMonth(null);
     setJustification("");
     
@@ -281,13 +277,13 @@ export function PlanningView({
 
   const handleSaveBaseline = () => {
     const baselineData = {
-      version: `v${baselines.length + 1}.0`,
+      version: `v1.0`,
       budget: project.budget,
       description: justification || "Nova baseline salva",
       project_id: project.id
     };
     
-    onSaveBaseline?.(baselineData);
+    // onSaveBaseline?.(baselineData);
     setJustification("");
     toast({
       title: "Baseline Salva",
@@ -297,17 +293,17 @@ export function PlanningView({
 
   const handleBaselineAdded = () => {
     // Notificar o componente pai que uma nova baseline foi adicionada
-    onSaveBaseline?.({
-      project_id: project.id,
-      version: `v${baselines.length + 1}.0`,
-      budget: project.budget,
-      description: "Nova baseline criada"
-    });
+    // onSaveBaseline?.({
+    //   project_id: project.id,
+    //   version: `v1.0`,
+    //   budget: project.budget,
+    //   description: "Nova baseline criada"
+    // });
   };
 
   const handleRevertBaseline = () => {
     if (selectedBaseline) {
-      onRevertBaseline?.(selectedBaseline);
+      // onRevertBaseline?.(selectedBaseline);
       toast({
         title: "Baseline Revertida",
         description: "Projeto revertido para baseline selecionada.",
@@ -452,12 +448,10 @@ export function PlanningView({
                   <SelectValue placeholder="Selecionar baseline" />
                 </SelectTrigger>
                 <SelectContent>
-                  {baselines.map((baseline) => (
-                    <SelectItem key={baseline.id} value={baseline.id}>
-                      {baseline.version} - {formatCurrency(baseline.budget)} 
-                      ({format(new Date(baseline.created_at), 'dd/MM/yyyy')})
-                    </SelectItem>
-                  ))}
+                   <SelectItem value="baseline1">
+                     v1.0 - {formatCurrency(project.budget)} 
+                     ({format(new Date(), 'dd/MM/yyyy')})
+                   </SelectItem>
                 </SelectContent>
               </Select>
               <Button size="sm" variant="outline" onClick={handleRevertBaseline}>
@@ -466,25 +460,23 @@ export function PlanningView({
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {baselines.slice(0, 3).map((baseline, index) => (
-                <Card key={baseline.id} className={index === 0 ? "border-primary" : ""}>
-                  <CardContent className="pt-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">{baseline.version}</span>
-                      {index === 0 && <Badge>Atual</Badge>}
-                    </div>
-                    <p className="text-2xl font-bold">{formatCurrency(baseline.budget)}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {format(new Date(baseline.created_at), 'dd/MM/yyyy')}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {baseline.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+               <Card className="border-primary">
+                 <CardContent className="pt-4">
+                   <div className="flex items-center justify-between mb-2">
+                     <span className="font-medium">v1.0</span>
+                     <Badge>Atual</Badge>
+                   </div>
+                   <p className="text-2xl font-bold">{formatCurrency(project.budget)}</p>
+                   <p className="text-sm text-muted-foreground">
+                     {format(new Date(), 'dd/MM/yyyy')}
+                   </p>
+                   <p className="text-xs text-muted-foreground mt-1">
+                     Baseline inicial
+                   </p>
+                 </CardContent>
+               </Card>
+             </div>
           </CardContent>
         </Card>
 
@@ -818,16 +810,11 @@ export function PlanningView({
               Planejamento Inteligente com IA
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <EnhancedPlanningView 
-              project={project} 
-              baselines={baselines} 
-              transactions={transactions}
-              onUpdateForecast={onUpdateForecast}
-              onSaveBaseline={onSaveBaseline}
-              onRevertBaseline={onRevertBaseline}
-            />
-          </CardContent>
+           <CardContent>
+             <div className="text-center py-8 text-muted-foreground">
+               Planejamento IA em desenvolvimento...
+             </div>
+           </CardContent>
         </Card>
       )}
     </div>

@@ -36,32 +36,34 @@ import { useToast } from "@/hooks/use-toast";
 interface TransactionsViewProps {
   project: any;
   transactions: any[];
-  onTransactionAdded?: () => void;
-  onImportSAP?: () => void;
-  onAttachDocument?: (transactionId: string) => void;
-  initialFilters?: {
+  filters?: {
     category?: string;
     capex_opex?: string;
   };
+  onFiltersChange?: (filters: any) => void;
+  onTransactionAdd?: () => void;
+  selectedCurrency?: string;
+  selectedYear?: string;
 }
 
 export function TransactionsView({ 
   project, 
-  transactions, 
-  onTransactionAdded, 
-  onImportSAP, 
-  onAttachDocument,
-  initialFilters
+  transactions,
+  filters,
+  onFiltersChange,
+  onTransactionAdd,
+  selectedCurrency,
+  selectedYear
 }: TransactionsViewProps) {
-  const [filters, setFilters] = useState({
+  const [localFilters, setLocalFilters] = useState({
     search: "",
-    category: initialFilters?.category || "all",
+    category: filters?.category || "all",
     type: "all",
     supplier: "all",
     minAmount: "",
     maxAmount: "",
     dateRange: null as any,
-    capex_opex: initialFilters?.capex_opex || "all"
+    capex_opex: filters?.capex_opex || "all"
   });
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -88,21 +90,21 @@ export function TransactionsView({
   // Apply filters
   const filteredTransactions = useMemo(() => {
     return enhancedTransactions.filter(transaction => {
-      const matchesSearch = !filters.search || 
-        transaction.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-        transaction.supplier.toLowerCase().includes(filters.search.toLowerCase());
+      const matchesSearch = !localFilters.search || 
+        transaction.description.toLowerCase().includes(localFilters.search.toLowerCase()) ||
+        transaction.supplier.toLowerCase().includes(localFilters.search.toLowerCase());
       
-      const matchesCategory = filters.category === "all" || transaction.category === filters.category;
-      const matchesType = filters.type === "all" || transaction.transaction_type === filters.type;
-      const matchesSupplier = filters.supplier === "all" || transaction.supplier === filters.supplier;
-      const matchesCapexOpex = filters.capex_opex === "all" || transaction.capex_opex === filters.capex_opex;
+      const matchesCategory = localFilters.category === "all" || transaction.category === localFilters.category;
+      const matchesType = localFilters.type === "all" || transaction.transaction_type === localFilters.type;
+      const matchesSupplier = localFilters.supplier === "all" || transaction.supplier === localFilters.supplier;
+      const matchesCapexOpex = localFilters.capex_opex === "all" || transaction.capex_opex === localFilters.capex_opex;
       
-      const matchesMinAmount = !filters.minAmount || transaction.amount >= parseFloat(filters.minAmount);
-      const matchesMaxAmount = !filters.maxAmount || transaction.amount <= parseFloat(filters.maxAmount);
+      const matchesMinAmount = !localFilters.minAmount || transaction.amount >= parseFloat(localFilters.minAmount);
+      const matchesMaxAmount = !localFilters.maxAmount || transaction.amount <= parseFloat(localFilters.maxAmount);
       
       return matchesSearch && matchesCategory && matchesType && matchesSupplier && matchesCapexOpex && matchesMinAmount && matchesMaxAmount;
     });
-  }, [enhancedTransactions, filters]);
+  }, [enhancedTransactions, localFilters]);
 
   // Get unique values for filter dropdowns
   const uniqueCategories = [...new Set(enhancedTransactions.map(t => t.category))];
@@ -236,7 +238,7 @@ export function TransactionsView({
           <div className="flex gap-2">
             <TransactionDialog 
               projectId={project.id || "mock-project-id"}
-              onTransactionAdded={onTransactionAdded || (() => {})}
+              onTransactionAdded={onTransactionAdd || (() => {})}
               trigger={
                 <Button size="sm">
                   <Plus className="h-4 w-4 mr-2" />
@@ -244,7 +246,7 @@ export function TransactionsView({
                 </Button>
               }
             />
-            <Button size="sm" variant="outline" onClick={onImportSAP}>
+            <Button size="sm" variant="outline" onClick={() => console.log('Import SAP')}>
               <Upload className="h-4 w-4 mr-2" />
               Importar SAP
             </Button>
@@ -326,8 +328,8 @@ export function TransactionsView({
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Descrição ou fornecedor..."
-                    value={filters.search}
-                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                     value={localFilters.search}
+                     onChange={(e) => setLocalFilters(prev => ({ ...prev, search: e.target.value }))}
                     className="pl-10"
                   />
                 </div>
@@ -335,7 +337,7 @@ export function TransactionsView({
               
               <div>
                 <Label className="text-sm font-medium">Categoria</Label>
-                <Select value={filters.category} onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}>
+                <Select value={localFilters.category} onValueChange={(value) => setLocalFilters(prev => ({ ...prev, category: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -350,7 +352,7 @@ export function TransactionsView({
               
               <div>
                 <Label className="text-sm font-medium">Tipo</Label>
-                <Select value={filters.type} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}>
+                <Select value={localFilters.type} onValueChange={(value) => setLocalFilters(prev => ({ ...prev, type: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -364,7 +366,7 @@ export function TransactionsView({
               
               <div>
                 <Label className="text-sm font-medium">Fornecedor</Label>
-                <Select value={filters.supplier} onValueChange={(value) => setFilters(prev => ({ ...prev, supplier: value }))}>
+                <Select value={localFilters.supplier} onValueChange={(value) => setLocalFilters(prev => ({ ...prev, supplier: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -379,7 +381,7 @@ export function TransactionsView({
               
               <div>
                 <Label className="text-sm font-medium">CAPEX/OPEX</Label>
-                <Select value={filters.capex_opex} onValueChange={(value) => setFilters(prev => ({ ...prev, capex_opex: value }))}>
+                <Select value={localFilters.capex_opex} onValueChange={(value) => setLocalFilters(prev => ({ ...prev, capex_opex: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -396,8 +398,8 @@ export function TransactionsView({
                 <Input
                   type="number"
                   placeholder="0"
-                  value={filters.minAmount}
-                  onChange={(e) => setFilters(prev => ({ ...prev, minAmount: e.target.value }))}
+                   value={localFilters.minAmount}
+                   onChange={(e) => setLocalFilters(prev => ({ ...prev, minAmount: e.target.value }))}
                 />
               </div>
               
@@ -406,8 +408,8 @@ export function TransactionsView({
                 <Input
                   type="number"
                   placeholder="999999"
-                  value={filters.maxAmount}
-                  onChange={(e) => setFilters(prev => ({ ...prev, maxAmount: e.target.value }))}
+                   value={localFilters.maxAmount}
+                   onChange={(e) => setLocalFilters(prev => ({ ...prev, maxAmount: e.target.value }))}
                 />
               </div>
             </div>
@@ -532,7 +534,7 @@ export function TransactionsView({
                       <TableCell>
                         <div className="flex gap-1">
                           <TransactionDetailDialog transaction={transaction} />
-                          <Button size="sm" variant="ghost" onClick={() => onAttachDocument?.(transaction.id)}>
+                          <Button size="sm" variant="ghost" onClick={() => console.log('Attach document')}>
                             <Paperclip className="h-4 w-4" />
                           </Button>
                         </div>
@@ -552,7 +554,7 @@ export function TransactionsView({
            onClose={() => setShowImportDialog(false)}
            onImportComplete={() => {
              setShowImportDialog(false);
-             onTransactionAdded?.();
+             onTransactionAdd?.();
            }}
          />
        </div>

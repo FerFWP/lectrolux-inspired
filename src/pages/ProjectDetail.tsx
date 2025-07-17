@@ -335,7 +335,7 @@ export default function ProjectDetail() {
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   
   // Global currency and year configuration
-  const [globalCurrency, setGlobalCurrency] = useState(project?.currency || "BRL");
+  const [globalCurrency, setGlobalCurrency] = useState("BRL");
   const [globalYear, setGlobalYear] = useState("2025");
   const [transactionFilters, setTransactionFilters] = useState<{
     category?: string;
@@ -915,29 +915,13 @@ export default function ProjectDetail() {
                 project={project}
                 transactions={transactions}
                 baselines={baselines}
-                globalCurrency={globalCurrency}
-                globalYear={globalYear}
-                onDrillDown={(type, data) => {
-                  if (type === 'realized') {
-                    toast({
-                      title: "Detalhamento de Realizados",
-                      description: `Visualizando ${data.length} transações realizadas.`,
-                    });
-                  }
-                }}
-                onChartClick={(filterType, filterValue) => {
-                  // Navegar para a aba de realizados com filtros aplicados
-                  setActiveTab('realizados');
-                  setTransactionFilters({
-                    category: filterType === 'category' ? filterValue : undefined,
-                    capex_opex: filterType === 'capex_opex' ? filterValue : undefined,
-                  });
-                  
-                  // Feedback visual para o usuário
+                selectedCurrency={globalCurrency}
+                selectedYear={globalYear}
+                onBaselineCreate={() => {
+                  fetchProjectData();
                   toast({
-                    title: "Filtro aplicado",
-                    description: `Visualizando lançamentos filtrados por ${filterValue}`,
-                    duration: 3000,
+                    title: "Baseline criado",
+                    description: "Novo baseline foi criado com sucesso.",
                   });
                 }}
               />
@@ -996,15 +980,11 @@ export default function ProjectDetail() {
               <TransactionsView 
                 project={project}
                 transactions={transactions}
-                onTransactionAdded={handleTransactionAdded}
-                onImportSAP={handleSapImport}
-                onAttachDocument={(transactionId) => {
-                  toast({
-                    title: "Anexar Documento",
-                    description: `Anexando documento à transação ${transactionId}`,
-                  });
-                }}
-                initialFilters={transactionFilters}
+                filters={transactionFilters}
+                onFiltersChange={setTransactionFilters}
+                onTransactionAdd={handleTransactionAdded}
+                selectedCurrency={globalCurrency}
+                selectedYear={globalYear}
               />
             </TabsContent>
 
@@ -1012,14 +992,10 @@ export default function ProjectDetail() {
             <TabsContent value="historico" className="space-y-6">
               <HistoryView 
                 project={project}
+                transactions={transactions}
                 baselines={baselines}
-                onRestoreBaseline={(baselineId) => {
-                  toast({
-                    title: "Baseline Restaurada",
-                    description: "Projeto revertido para baseline selecionada.",
-                  });
-                  handleBaselineAdded();
-                }}
+                selectedCurrency={globalCurrency}
+                selectedYear={globalYear}
               />
             </TabsContent>
 
@@ -1027,28 +1003,9 @@ export default function ProjectDetail() {
             <TabsContent value="planejamento" className="space-y-6">
               <PlanningView 
                 project={project}
-                baselines={baselines}
                 transactions={transactions}
-                onUpdateForecast={(data) => {
-                  toast({
-                    title: "Previsão Atualizada",
-                    description: "As alterações no planejamento foram salvas.",
-                  });
-                }}
-                onSaveBaseline={(data) => {
-                  handleBaselineAdded();
-                  toast({
-                    title: "Baseline Salva",
-                    description: "Nova baseline criada com sucesso.",
-                  });
-                }}
-                
-                onRevertBaseline={(baselineId) => {
-                  toast({
-                    title: "Baseline Revertida",
-                    description: "Projeto revertido para baseline anterior.",
-                  });
-                }}
+                selectedCurrency={globalCurrency}
+                selectedYear={globalYear}
               />
             </TabsContent>
 

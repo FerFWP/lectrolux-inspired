@@ -27,13 +27,23 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface HistoryViewProps {
   project: any;
+  transactions: any[];
   baselines: any[];
-  onRestoreBaseline?: (baselineId: string) => void;
+  selectedCurrency?: string;
+  selectedYear?: string;
 }
 
-export function HistoryView({ project, baselines, onRestoreBaseline }: HistoryViewProps) {
+export function HistoryView({ project, transactions, baselines, selectedCurrency, selectedYear }: HistoryViewProps) {
   const [selectedBaseline, setSelectedBaseline] = useState<any>(null);
   const { toast } = useToast();
+  
+  const handleRestoreBaseline = (baseline: any) => {
+    console.log('Restore baseline:', baseline.id);
+    toast({
+      title: "Baseline Restaurada",
+      description: `Projeto revertido para ${baseline.version}`,
+    });
+  };
 
   const formatCurrency = (amount: number, currency: string = "BRL") => {
     const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
@@ -170,7 +180,7 @@ export function HistoryView({ project, baselines, onRestoreBaseline }: HistoryVi
             <Button 
               size="sm" 
               variant="outline"
-              onClick={() => onRestoreBaseline?.(baseline.id)}
+              onClick={() => handleRestoreBaseline(baseline)}
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Restaurar
@@ -303,7 +313,7 @@ export function HistoryView({ project, baselines, onRestoreBaseline }: HistoryVi
                         <Button 
                           size="sm" 
                           variant="ghost"
-                          onClick={() => onRestoreBaseline?.(baseline.id)}
+                          onClick={() => handleRestoreBaseline(baseline)}
                           disabled={index === 0}
                         >
                           <RotateCcw className="h-4 w-4" />

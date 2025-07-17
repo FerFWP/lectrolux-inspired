@@ -8,8 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Pencil, Check, X, Users, Search, Filter, AlertTriangle, Calendar, Plus } from 'lucide-react';
+import { Pencil, Check, X, Users, Search, Filter, AlertTriangle, Calendar, Plus, HelpCircle } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
+import { format } from 'date-fns';
 
 interface CapexBURow {
   id: string;
@@ -34,6 +35,7 @@ interface CapexBURow {
   dataAtualizacao: string;
   version: number;
   isActive: boolean;
+  exchangeRate: string; // Taxa de câmbio selecionada
 }
 
 interface CapexBUTableProps {
@@ -68,6 +70,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
     dez: 0,
     total: 0,
     nomeProjeto: project.name || '',
+    exchangeRate: 'SEK_BU'
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAno, setFilterAno] = useState<string>('all');
@@ -77,6 +80,35 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   
   // Considerando todos os usuários como PMO por enquanto
   const isPMO = true;
+
+  // Simulação de taxas de câmbio
+  const exchangeRates = {
+    "BRL": { rate: 1.0, label: "Moeda do cadastro (BRL)" },
+    "USD": { rate: 1.0, label: "Moeda do cadastro (USD)" },
+    "SEK": { rate: 1.0, label: "Moeda do cadastro (SEK)" },
+    "EUR": { rate: 1.0, label: "Moeda do cadastro (EUR)" },
+    "SEK_APPROVAL": { rate: 0.48, label: "SEK (taxa da aprovação)" },
+    "SEK_BU": { rate: 0.52, label: "SEK BU (taxa anual)" },
+    "SEK_AVG": { rate: 0.50, label: "SEK AVG (média mensal)" }
+  };
+
+  const getCurrentCurrencyInfo = (exchangeRateKey: string) => {
+    return exchangeRates[exchangeRateKey as keyof typeof exchangeRates] || { rate: 1.0, label: exchangeRateKey };
+  };
+
+  const convertCurrency = (amount: number, exchangeRateKey: string) => {
+    const currencyInfo = getCurrentCurrencyInfo(exchangeRateKey);
+    
+    if (exchangeRateKey === "SEK_APPROVAL") {
+      return amount * 0.48;
+    } else if (exchangeRateKey === "SEK_BU") {
+      return amount * 0.52;
+    } else if (exchangeRateKey === "SEK_AVG") {
+      return amount * 0.50;
+    }
+    
+    return amount;
+  };
 
   useEffect(() => {
     // Dados mockados iniciais - apenas uma linha por projeto
@@ -103,19 +135,23 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
         nomeProjeto: project.name || 'Projeto Exemplo',
         dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
         version: 1,
-        isActive: true
+        isActive: true,
+        exchangeRate: 'SEK_BU'
       }
     ];
     
     setData(initialData);
   }, [project]);
 
-  const formatCurrency = (value: number, currency: string = 'BRL') => {
+  const formatCurrency = (value: number, currency: string = 'BRL', exchangeRateKey?: string) => {
+    const finalValue = exchangeRateKey ? convertCurrency(value, exchangeRateKey) : value;
+    const displayCurrency = exchangeRateKey?.startsWith('SEK') ? 'SEK' : currency;
+    
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: currency,
+      currency: displayCurrency,
       minimumFractionDigits: 0,
-    }).format(value);
+    }).format(finalValue);
   };
 
   const handleStartEdit = (rowId: string) => {
@@ -226,11 +262,11 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   };
 
   const handleCreateNewRow = () => {
-    // Validar campos obrigatórios
-    if (!newRowData.categoria || !newRowData.pais || !newRowData.sapId) {
+    // Validar campos obrigatórios - SAP ID não é mais obrigatório
+    if (!newRowData.categoria || !newRowData.pais) {
       toast({
         title: "Erro de validação",
-        description: "Por favor, preencha todos os campos obrigatórios: Categoria, País e SAP ID.",
+        description: "Por favor, preencha todos os campos obrigatórios: Categoria e País.",
         variant: "destructive",
       });
       return;
@@ -259,7 +295,8 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
       nomeProjeto: newRowData.nomeProjeto || project.name || '',
       dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
       version: 1,
-      isActive: true
+      isActive: true,
+      exchangeRate: newRowData.exchangeRate || 'SEK_BU'
     };
 
     // Adicionar nova linha aos dados
@@ -293,6 +330,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
       dez: 0,
       total: 0,
       nomeProjeto: project.name || '',
+      exchangeRate: 'SEK_BU'
     });
     setIsCreateModalOpen(false);
 
@@ -440,9 +478,9 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
             {isPMO && (
               <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                  <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
                     <Plus className="h-4 w-4 mr-1" />
-                    Adicionar Nova Linha
+                    Nova Linha
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -482,7 +520,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                       </div>
                       <div>
                         <label className="text-sm font-medium mb-2 block">
-                          SAP ID Number <span className="text-red-500">*</span>
+                          SAP ID Number
                         </label>
                         <Input
                           value={newRowData.sapId || ''}
@@ -497,6 +535,20 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                           onChange={(e) => handleNewRowFieldChange('nomeProjeto', e.target.value)}
                           placeholder={project.name || 'Nome do projeto'}
                         />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Taxa de Câmbio</label>
+                        <Select value={newRowData.exchangeRate || 'SEK_BU'} onValueChange={(value) => handleNewRowFieldChange('exchangeRate', value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione a taxa" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SEK_BU">SEK BU (taxa anual)</SelectItem>
+                            <SelectItem value="SEK_AVG">SEK AVG (média mensal)</SelectItem>
+                            <SelectItem value="SEK_APPROVAL">SEK (taxa da aprovação)</SelectItem>
+                            <SelectItem value={project.currency}>Moeda do cadastro ({project.currency})</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                     
@@ -559,6 +611,19 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                   <TableHead className="w-[100px]">País</TableHead>
                   <TableHead className="w-[80px]">Ano</TableHead>
                   <TableHead className="w-[120px]">SAP ID Number</TableHead>
+                  <TableHead className="w-[150px]">
+                    <div className="flex items-center gap-2">
+                      <span>Taxa de Câmbio</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Taxa de câmbio utilizada para conversão dos valores</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </TableHead>
                   {months.map((month, index) => (
                     <TableHead key={month} className="w-[100px]">
                       <Tooltip>
@@ -656,6 +721,47 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                           row.sapId
                         )}
                       </TableCell>
+                      <TableCell>
+                        {isBeingEdited ? (
+                          <Select value={currentValues.exchangeRate || 'SEK_BU'} onValueChange={(value) => handleFieldChange('exchangeRate', value)}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="SEK_BU">SEK BU</SelectItem>
+                              <SelectItem value="SEK_AVG">SEK AVG</SelectItem>
+                              <SelectItem value="SEK_APPROVAL">SEK Aprovação</SelectItem>
+                              <SelectItem value={project.currency}>Moeda original</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {row.exchangeRate === 'SEK_BU' && 'SEK BU'}
+                                {row.exchangeRate === 'SEK_AVG' && 'SEK AVG'}
+                                {row.exchangeRate === 'SEK_APPROVAL' && 'SEK Aprovação'}
+                                {row.exchangeRate === project.currency && 'Moeda original'}
+                              </Badge>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Taxa: {getCurrentCurrencyInfo(row.exchangeRate).rate.toFixed(4)}</p>
+                                  <p>{getCurrentCurrencyInfo(row.exchangeRate).label}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {row.exchangeRate === 'SEK_BU' && 'Taxa anual BU'}
+                              {row.exchangeRate === 'SEK_AVG' && 'Média mensal'}
+                              {row.exchangeRate === 'SEK_APPROVAL' && 'Taxa da aprovação'}
+                              {row.exchangeRate === project.currency && 'Sem conversão'}
+                            </div>
+                          </div>
+                        )}
+                      </TableCell>
                       {months.map((month) => (
                         <TableCell key={month}>
                           {isBeingEdited ? (
@@ -667,7 +773,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                             />
                           ) : (
                             <span className="text-sm">
-                              {formatCurrency(row[month as keyof CapexBURow] as number, project.currency)}
+                              {formatCurrency(row[month as keyof CapexBURow] as number, project.currency, row.exchangeRate)}
                             </span>
                           )}
                         </TableCell>
@@ -682,7 +788,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                           />
                         ) : (
                           <span className="text-sm font-medium">
-                            {formatCurrency(row.total, project.currency)}
+                            {formatCurrency(row.total, project.currency, row.exchangeRate)}
                           </span>
                         )}
                       </TableCell>

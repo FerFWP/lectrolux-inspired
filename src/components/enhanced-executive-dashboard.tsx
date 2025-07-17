@@ -39,6 +39,8 @@ interface Project {
 interface ExecutiveDashboardProps {
   project: Project;
   baselines: any[];
+  selectedCurrency?: string;
+  selectedYear?: string;
   onComparePortfolio?: () => void;
   onScaleProblem?: () => void;
   onEditPlanning?: () => void;
@@ -46,7 +48,9 @@ interface ExecutiveDashboardProps {
 
 export function EnhancedExecutiveDashboard({ 
   project, 
-  baselines, 
+  baselines,
+  selectedCurrency,
+  selectedYear, 
   onComparePortfolio, 
   onScaleProblem,
   onEditPlanning 
@@ -54,9 +58,20 @@ export function EnhancedExecutiveDashboard({
   const [editingPlanning, setEditingPlanning] = useState(false);
   const [monthlyPlanning, setMonthlyPlanning] = useState("450000");
 
-  const formatCurrency = (amount: number, currency: string = "BRL") => {
+  const formatCurrency = (amount: number, currency?: string) => {
+    const displayCurrency = currency || selectedCurrency || project.currency;
     const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
-    return `${symbols[currency as keyof typeof symbols]} ${amount?.toLocaleString("pt-BR") || 0}`;
+    
+    // Simple conversion rates (mock)
+    const conversionRates = {
+      BRL: { BRL: 1, USD: 5.5, SEK: 0.6 },
+      USD: { BRL: 0.18, USD: 1, SEK: 0.11 },
+      SEK: { BRL: 1.67, USD: 9.2, SEK: 1 }
+    };
+    
+    const convertedAmount = amount * (conversionRates[project.currency as keyof typeof conversionRates]?.[displayCurrency as keyof typeof conversionRates.BRL] || 1);
+    
+    return `${symbols[displayCurrency as keyof typeof symbols]} ${convertedAmount?.toLocaleString("pt-BR") || 0}`;
   };
 
   // Cálculos de métricas

@@ -25,18 +25,33 @@ interface Project {
 interface ExecutiveDashboardProps {
   project: Project;
   baselines: any[];
+  selectedCurrency?: string;
+  selectedYear?: string;
 }
 export function ExecutiveDashboard({
   project,
-  baselines
+  baselines,
+  selectedCurrency,
+  selectedYear
 }: ExecutiveDashboardProps) {
-  const formatCurrency = (amount: number, currency: string) => {
+  const formatCurrency = (amount: number, currency?: string) => {
+    const displayCurrency = currency || selectedCurrency || project.currency;
     const symbols = {
       BRL: "R$",
       USD: "$",
       SEK: "kr"
     };
-    return `${symbols[currency as keyof typeof symbols]} ${amount.toLocaleString("pt-BR")}`;
+    
+    // Simple conversion rates (mock)
+    const conversionRates = {
+      BRL: { BRL: 1, USD: 5.5, SEK: 0.6 },
+      USD: { BRL: 0.18, USD: 1, SEK: 0.11 },
+      SEK: { BRL: 1.67, USD: 9.2, SEK: 1 }
+    };
+    
+    const convertedAmount = amount * (conversionRates[project.currency as keyof typeof conversionRates]?.[displayCurrency as keyof typeof conversionRates.BRL] || 1);
+    
+    return `${symbols[displayCurrency as keyof typeof symbols]} ${convertedAmount.toLocaleString("pt-BR")}`;
   };
 
   // Cálculos de métricas
@@ -168,7 +183,7 @@ export function ExecutiveDashboard({
             <div className="text-center">
               <div className="text-sm text-muted-foreground mb-2">Principais Desvios</div>
               <div className="text-3xl font-bold text-orange-600">
-                {formatCurrency(Math.abs(balance), project.currency)}
+                {formatCurrency(Math.abs(balance))}
               </div>
               <div className="text-xs text-muted-foreground">
                 {balance < 0 ? 'Acima do orçamento' : 'Abaixo do orçamento'}

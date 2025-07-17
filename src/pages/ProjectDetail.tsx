@@ -353,6 +353,22 @@ export default function ProjectDetail() {
     return `${symbols[currency as keyof typeof symbols]} ${amount.toLocaleString("pt-BR")}`;
   };
 
+  // Currency conversion function with global currency
+  const formatCurrencyWithConversion = (amount: number) => {
+    const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
+    
+    // Simple conversion rates (mock)
+    const conversionRates = {
+      BRL: { BRL: 1, USD: 5.5, SEK: 0.6 },
+      USD: { BRL: 0.18, USD: 1, SEK: 0.11 },
+      SEK: { BRL: 1.67, USD: 9.2, SEK: 1 }
+    };
+    
+    const convertedAmount = amount * (conversionRates[project.currency as keyof typeof conversionRates]?.[globalCurrency as keyof typeof conversionRates.BRL] || 1);
+    
+    return `${symbols[globalCurrency as keyof typeof symbols]} ${convertedAmount.toLocaleString("pt-BR")}`;
+  };
+
   const getProgressColor = (progress: number) => {
     if (progress >= 80) return "bg-green-500";
     if (progress >= 50) return "bg-blue-500";
@@ -856,7 +872,7 @@ export default function ProjectDetail() {
             <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-red-800">
-                <strong>Orçamento Crítico:</strong> O valor realizado ultrapassou o orçamento planejado em {formatCurrency(Math.abs(balance), project.currency)}. 
+                <strong>Orçamento Crítico:</strong> O valor realizado ultrapassou o orçamento planejado em {formatCurrencyWithConversion(Math.abs(balance))}. 
                 Ação imediata necessária para controle financeiro do projeto.
               </AlertDescription>
             </Alert>
@@ -1098,8 +1114,8 @@ export default function ProjectDetail() {
                           <TableCell className="w-[120px]">{project.pais || "Brasil"}</TableCell>
                           <TableCell className="w-[80px]">2024</TableCell>
                           <TableCell className="w-[140px]">{project.sap_id || "BR2024001"}</TableCell>
-                          <TableCell className="w-[120px]">{formatCurrency(project.budget, project.currency)}</TableCell>
-                          <TableCell className="w-[120px]">{formatCurrency(project.budget, project.currency)}</TableCell>
+                          <TableCell className="w-[120px]">{formatCurrencyWithConversion(project.budget)}</TableCell>
+                          <TableCell className="w-[120px]">{formatCurrencyWithConversion(project.budget)}</TableCell>
                           <TableCell className="w-[200px]">{project.name}</TableCell>
                           <TableCell className="w-[140px]">{new Date().toLocaleDateString('pt-BR')}</TableCell>
                         </TableRow>

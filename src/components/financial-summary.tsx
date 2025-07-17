@@ -316,6 +316,149 @@ export function FinancialSummary({
           </CardContent>
         </Card>
 
+        {/* Informações de Moeda */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Banknote className="h-5 w-5" />
+              Informações de Moeda
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Moeda Selecionada */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Moeda Atual:</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Moeda utilizada para exibir todos os valores na tela</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="text-lg font-bold text-primary">
+                  {selectedCurrency.startsWith("SEK") ? "SEK" : selectedCurrency}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {getCurrentCurrencyInfo().label}
+                </div>
+              </div>
+
+              {/* Taxa de Conversão */}
+              {selectedCurrency !== project.currency && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Taxa de Conversão:</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Taxa utilizada para converter valores de {project.currency} para {selectedCurrency.startsWith("SEK") ? "SEK" : selectedCurrency}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="text-lg font-bold text-blue-600">
+                    {getCurrentCurrencyInfo().rate.toFixed(4)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {selectedCurrency === "SEK_APPROVAL" && "Taxa da aprovação"}
+                    {selectedCurrency === "SEK_BU" && "Taxa anual BU"}
+                    {selectedCurrency === "SEK_AVG" && "Taxa média mensal"}
+                  </div>
+                </div>
+              )}
+
+              {/* Ano de Referência */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Ano de Referência:</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Ano base para cálculos de câmbio e dados financeiros</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="text-lg font-bold text-purple-600">
+                  {selectedYear}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {selectedCurrency !== project.currency && selectedCurrency.startsWith("SEK") && (
+                    <>
+                      {selectedCurrency === "SEK_BU" && "Atualizada anualmente"}
+                      {selectedCurrency === "SEK_AVG" && "Atualizada mensalmente"}
+                      {selectedCurrency === "SEK_APPROVAL" && "Fixa desde aprovação"}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Última Atualização */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Última Atualização:</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Data e hora da última atualização dos dados de câmbio</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="text-sm font-medium text-gray-600">
+                  {format(new Date(), "dd/MM/yyyy HH:mm")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {selectedCurrency === "SEK_BU" && "Fonte: Sistema BU"}
+                  {selectedCurrency === "SEK_AVG" && "Fonte: Banco Central"}
+                  {selectedCurrency === "SEK_APPROVAL" && "Fonte: Aprovação original"}
+                  {selectedCurrency === project.currency && "Moeda original"}
+                </div>
+              </div>
+            </div>
+
+            {/* Legenda das Moedas */}
+            <div className="mt-6 pt-4 border-t">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm font-medium text-muted-foreground">Legenda das Moedas:</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Explicação dos tipos de moeda disponíveis</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span><strong>Moeda do cadastro:</strong> Moeda original do projeto</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  <span><strong>SEK (aprovação):</strong> Taxa fixa da aprovação inicial</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
+                  <span><strong>SEK BU:</strong> Taxa anual da Business Unit</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span><strong>SEK AVG:</strong> Taxa média mensal atualizada</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Resumo Analítico de Orçamento */}
         <Card>
           <CardHeader>
@@ -652,50 +795,39 @@ export function FinancialSummary({
             </CardContent>
           </Card>
 
-          {/* Informações de Moeda */}
+          {/* Métricas de Acompanhamento */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Banknote className="h-5 w-5" />
-                Informações de Moeda
+                <TrendingUp className="h-5 w-5" />
+                Métricas de Acompanhamento
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium">Moeda Selecionada</div>
-                  <Badge variant="outline" className="text-lg px-3 py-1">
-                    {selectedCurrency.startsWith('SEK') ? 'SEK' : selectedCurrency}
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium">Taxa de Conversão</div>
-                  <div className="text-right">
-                    <div className="font-bold">{getCurrentCurrencyInfo().rate.toFixed(4)}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {getCurrentCurrencyInfo().label}
-                    </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {Math.round(executionPercent)}%
                   </div>
+                  <div className="text-sm text-muted-foreground">Execução</div>
                 </div>
-                
-                <Separator />
-                
-                <div className="text-xs text-muted-foreground">
-                  Última atualização: {format(new Date(), "dd/MM/yyyy HH:mm")}
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {Math.round(commitmentPercent)}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Comprometimento</div>
                 </div>
-                
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription className="text-xs">
-                    <div className="font-medium">Legenda das Moedas:</div>
-                    <div className="mt-2 space-y-1">
-                      <div><strong>SEK (taxa da aprovação):</strong> Taxa fixa no momento da aprovação</div>
-                      <div><strong>SEK BU:</strong> Taxa anual atualizada 1x por ano</div>
-                      <div><strong>SEK AVG:</strong> Média mensal atualizada mensalmente</div>
-                    </div>
-                  </AlertDescription>
-                </Alert>
+              </div>
+              
+              <Separator />
+              
+              <div className="text-center">
+                <div className="text-lg font-medium text-muted-foreground">
+                  Última atualização
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {format(new Date(), "dd/MM/yyyy HH:mm")}
+                </div>
               </div>
             </CardContent>
           </Card>

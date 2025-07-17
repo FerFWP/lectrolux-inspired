@@ -790,7 +790,7 @@ export function CapexACTable({ project }: CapexACTableProps) {
                                 <AlertTriangle className="h-4 w-4 text-orange-500" />
                               </div>
                             </TooltipTrigger>
-                            <TooltipContent side="left" className="max-w-[250px] text-wrap z-[220]">
+                            <TooltipContent side="right" className="max-w-[250px] text-wrap z-[220]" sideOffset={8}>
                               <p>Dados de integração não podem ser editados</p>
                             </TooltipContent>
                           </Tooltip>

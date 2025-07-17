@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Pencil, Check, X, Users, Search, Filter, AlertTriangle, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Pencil, Check, X, Users, Search, Filter, AlertTriangle, Calendar, Plus } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 
 interface CapexBURow {
@@ -47,6 +48,27 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editingValues, setEditingValues] = useState<Partial<CapexBURow>>({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newRowData, setNewRowData] = useState<Partial<CapexBURow>>({
+    categoria: '',
+    pais: '',
+    ano: new Date().getFullYear(),
+    sapId: '',
+    jan: 0,
+    fev: 0,
+    mar: 0,
+    abr: 0,
+    mai: 0,
+    jun: 0,
+    jul: 0,
+    ago: 0,
+    set: 0,
+    out: 0,
+    nov: 0,
+    dez: 0,
+    total: 0,
+    nomeProjeto: project.name || '',
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAno, setFilterAno] = useState<string>('all');
   const [filterCategoria, setFilterCategoria] = useState<string>('all');
@@ -188,6 +210,98 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
     setHasChanges(false);
   };
 
+  const handleNewRowFieldChange = (field: keyof CapexBURow, value: any) => {
+    const newValues = { ...newRowData, [field]: value };
+    setNewRowData(newValues);
+    
+    // Recalcular total se foi editado um mês
+    if (months.includes(field as string)) {
+      const total = months.reduce((sum, month) => {
+        const monthValue = newValues[month as keyof CapexBURow] as number;
+        return sum + (monthValue || 0);
+      }, 0);
+      newValues.total = total;
+      setNewRowData(newValues);
+    }
+  };
+
+  const handleCreateNewRow = () => {
+    // Validar campos obrigatórios
+    if (!newRowData.categoria || !newRowData.pais || !newRowData.sapId) {
+      toast({
+        title: "Erro de validação",
+        description: "Por favor, preencha todos os campos obrigatórios: Categoria, País e SAP ID.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Criar nova linha
+    const newRow: CapexBURow = {
+      id: Date.now().toString(),
+      categoria: newRowData.categoria || '',
+      pais: newRowData.pais || '',
+      ano: newRowData.ano || new Date().getFullYear(),
+      sapId: newRowData.sapId || '',
+      jan: newRowData.jan || 0,
+      fev: newRowData.fev || 0,
+      mar: newRowData.mar || 0,
+      abr: newRowData.abr || 0,
+      mai: newRowData.mai || 0,
+      jun: newRowData.jun || 0,
+      jul: newRowData.jul || 0,
+      ago: newRowData.ago || 0,
+      set: newRowData.set || 0,
+      out: newRowData.out || 0,
+      nov: newRowData.nov || 0,
+      dez: newRowData.dez || 0,
+      total: newRowData.total || 0,
+      nomeProjeto: newRowData.nomeProjeto || project.name || '',
+      dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
+      version: 1,
+      isActive: true
+    };
+
+    // Adicionar nova linha aos dados
+    const updatedData = [...data, newRow];
+    
+    // Ordenar por SAP ID e versão
+    const sortedData = updatedData.sort((a, b) => {
+      if (a.sapId !== b.sapId) return a.sapId.localeCompare(b.sapId);
+      return b.version - a.version;
+    });
+
+    setData(sortedData);
+    
+    // Resetar o formulário e fechar modal
+    setNewRowData({
+      categoria: '',
+      pais: '',
+      ano: new Date().getFullYear(),
+      sapId: '',
+      jan: 0,
+      fev: 0,
+      mar: 0,
+      abr: 0,
+      mai: 0,
+      jun: 0,
+      jul: 0,
+      ago: 0,
+      set: 0,
+      out: 0,
+      nov: 0,
+      dez: 0,
+      total: 0,
+      nomeProjeto: project.name || '',
+    });
+    setIsCreateModalOpen(false);
+
+    toast({
+      title: "Nova linha criada",
+      description: "A nova linha foi adicionada com sucesso à tabela.",
+    });
+  };
+
   const filteredData = data.filter(row => {
     const matchesSearch = 
       row.sapId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -321,7 +435,119 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
       {/* Tabela */}
       <Card>
         <CardHeader>
-          <CardTitle>Capex BU - Detalhamento Financeiro</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Capex BU - Detalhamento Financeiro</CardTitle>
+            {isPMO && (
+              <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="h-4 w-4 mr-1" />
+                    Adicionar Nova Linha
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Criar Nova Linha - Capex BU</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          Categoria <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          value={newRowData.categoria || ''}
+                          onChange={(e) => handleNewRowFieldChange('categoria', e.target.value)}
+                          placeholder="Ex: Máquinas e equipamentos"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          País <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          value={newRowData.pais || ''}
+                          onChange={(e) => handleNewRowFieldChange('pais', e.target.value)}
+                          placeholder="Ex: Brasil"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Ano</label>
+                        <Input
+                          type="number"
+                          value={newRowData.ano || ''}
+                          onChange={(e) => handleNewRowFieldChange('ano', parseInt(e.target.value) || new Date().getFullYear())}
+                          placeholder={new Date().getFullYear().toString()}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          SAP ID Number <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          value={newRowData.sapId || ''}
+                          onChange={(e) => handleNewRowFieldChange('sapId', e.target.value)}
+                          placeholder="Ex: BR2024001"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Nome do Projeto</label>
+                        <Input
+                          value={newRowData.nomeProjeto || ''}
+                          onChange={(e) => handleNewRowFieldChange('nomeProjeto', e.target.value)}
+                          placeholder={project.name || 'Nome do projeto'}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium mb-4">Valores Mensais (BU)</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        {months.map((month, index) => (
+                          <div key={month}>
+                            <label className="text-sm font-medium mb-2 block">
+                              {monthNames[index]}
+                            </label>
+                            <Input
+                              type="number"
+                              value={(newRowData[month as keyof CapexBURow] as number) || 0}
+                              onChange={(e) => handleNewRowFieldChange(month as keyof CapexBURow, parseFloat(e.target.value) || 0)}
+                              placeholder="0"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <label className="text-sm font-medium">Total Anual:</label>
+                        <span className="text-lg font-semibold text-green-600">
+                          {formatCurrency(newRowData.total || 0, project.currency)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 mt-6">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsCreateModalOpen(false)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        onClick={handleCreateNewRow}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Salvar Nova Linha
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

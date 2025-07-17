@@ -46,7 +46,6 @@ import { FinancialSummary } from "@/components/financial-summary";
 import { PlanningView } from "@/components/planning-view";
 import { TransactionsView } from "@/components/transactions-view";
 import { HistoryView } from "@/components/history-view";
-import { ReportsView } from "@/components/reports-view";
 import { CapexBUTable } from "@/components/capex-bu-table";
 import { CapexACTable } from "@/components/capex-ac-table";
 import { HomeButton } from "@/components/home-button";
@@ -851,7 +850,7 @@ export default function ProjectDetail() {
         {/* Conteúdo principal com abas */}
         <div className="container mx-auto px-6 py-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-9">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="comando" className="gap-2">
                 <AlertTriangle className="h-4 w-4" />
                 <span className="hidden sm:inline">Comando</span>
@@ -871,10 +870,6 @@ export default function ProjectDetail() {
               <TabsTrigger value="historico" className="gap-2">
                 <History className="h-4 w-4" />
                 <span className="hidden sm:inline">Histórico</span>
-              </TabsTrigger>
-              <TabsTrigger value="relatorios" className="gap-2">
-                <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">Relatórios</span>
               </TabsTrigger>
               <TabsTrigger value="capex-ir" className="gap-2">
                 <Building2 className="h-4 w-4" />
@@ -1036,15 +1031,6 @@ export default function ProjectDetail() {
                     description: "Projeto revertido para baseline anterior.",
                   });
                 }}
-              />
-            </TabsContent>
-
-            {/* Aba Relatórios */}
-            <TabsContent value="relatorios" className="space-y-6">
-              <ReportsView 
-                project={project}
-                transactions={transactions}
-                baselines={baselines}
               />
             </TabsContent>
 

@@ -851,7 +851,7 @@ export default function ProjectDetail() {
         {/* Conteúdo principal com abas */}
         <div className="container mx-auto px-6 py-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-8">
+            <TabsList className="grid w-full grid-cols-9">
               <TabsTrigger value="comando" className="gap-2">
                 <AlertTriangle className="h-4 w-4" />
                 <span className="hidden sm:inline">Comando</span>
@@ -883,6 +883,10 @@ export default function ProjectDetail() {
               <TabsTrigger value="capex-bu" className="gap-2">
                 <Building2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Capex BU</span>
+              </TabsTrigger>
+              <TabsTrigger value="capex-ac" className="gap-2">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Capex AC</span>
               </TabsTrigger>
             </TabsList>
 
@@ -1157,6 +1161,11 @@ export default function ProjectDetail() {
             {/* Aba Capex BU */}
             <TabsContent value="capex-bu" className="space-y-6">
               <CapexBUTable project={project} />
+            </TabsContent>
+
+            {/* Aba Capex AC */}
+            <TabsContent value="capex-ac" className="space-y-6">
+              <CapexACTable project={project} />
             </TabsContent>
           </Tabs>
         </div>

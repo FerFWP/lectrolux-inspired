@@ -17,7 +17,9 @@ import {
   History,
   Plus,
   Filter,
-  Eye
+  Eye,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -71,7 +73,19 @@ const generateMockProject = (projectId: string) => {
       start_date: new Date("2024-05-01"),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      user_id: "mock-user-id"
+      user_id: "mock-user-id",
+      diretoria: "Produção e Manufatura",
+      planta: "Sumaré - SP",
+      pais: "Brasil",
+      categoria_projeto: "Modernização",
+      linha_produto: "Refrigeradores",
+      estagios: "Planejamento, Execução, Controle",
+      justificativa: "Necessário para manter competitividade no mercado e reduzir custos operacionais",
+      resultados_beneficios: "Redução de 25% nos custos operacionais até dezembro de 2025",
+      projeto_it: "Não",
+      responsavel_it: "",
+      tipo_investimento: "Capex",
+      input: "Manual/Excel"
     },
     "PRJ-002": {
       id: "mock-uuid-002",
@@ -91,7 +105,19 @@ const generateMockProject = (projectId: string) => {
       start_date: new Date("2024-06-01"),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      user_id: "mock-user-id"
+      user_id: "mock-user-id",
+      diretoria: "Tecnologia da Informação",
+      planta: "Curitiba - PR",
+      pais: "Brasil",
+      categoria_projeto: "Sistemas",
+      linha_produto: "ERP",
+      estagios: "Análise, Desenvolvimento, Teste, Implantação",
+      justificativa: "Integração dos sistemas corporativos para maior eficiência e controle",
+      resultados_beneficios: "Redução de 40% no tempo de processamento de dados até março de 2025",
+      projeto_it: "Sim",
+      responsavel_it: "João Santos",
+      tipo_investimento: "Opex",
+      input: "Integração"
     },
     "PRJ-003": {
       id: "mock-uuid-003",
@@ -294,6 +320,7 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [showEditHistory, setShowEditHistory] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [transactionFilters, setTransactionFilters] = useState<{
     category?: string;
     capex_opex?: string;
@@ -582,38 +609,179 @@ export default function ProjectDetail() {
             </div>
 
             {/* Informações do projeto */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-center">
-              <div className="lg:col-span-2">
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-xl font-semibold">{project.name}</h2>
-                  {project.is_critical && (
-                    <AlertTriangle className="h-5 w-5 text-red-500" />
-                  )}
+            <div className="space-y-4">
+              {/* Informações sempre visíveis */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        <p className="text-xs text-muted-foreground">Nome do projeto</p>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-xl font-semibold">{project.name}</h2>
+                          {project.is_critical && (
+                            <AlertTriangle className="h-5 w-5 text-red-500" />
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{project.project_code || id}</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Especifique um nome para o projeto Electrolux</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
-                <p className="text-sm text-muted-foreground">{project.project_code || id}</p>
+                
+                <div>
+                  <p className="text-xs text-muted-foreground">Responsável</p>
+                  <p className="text-sm font-medium">{project.leader}</p>
+                </div>
+                
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        <p className="text-xs text-muted-foreground">Área</p>
+                        <p className="text-sm font-medium">{project.area}</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Qual área irá EXECUTAR este projeto?</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
-              
-              <div>
-                <p className="text-xs text-muted-foreground">Status</p>
-                <Badge className={statusColors[project.status as keyof typeof statusColors]}>
-                  {project.status}
-                </Badge>
-              </div>
-              
-              <div>
-                <p className="text-xs text-muted-foreground">Área</p>
-                <p className="text-sm font-medium">{project.area}</p>
-              </div>
-              
-              <div>
-                <p className="text-xs text-muted-foreground">Líder</p>
-                <p className="text-sm font-medium">{project.leader}</p>
-              </div>
-              
-              <div>
-                <p className="text-xs text-muted-foreground">Moeda</p>
-                <p className="text-sm font-medium">{project.currency}</p>
-              </div>
+
+              {/* Aviso para projetos com integração */}
+              {project.input === "Integração" && (
+                <Alert className="border-blue-200 bg-blue-50">
+                  <AlertTriangle className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    <strong>Dados integrados:</strong> Para edições cadastrais, alterar no sistema Pharos
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Botão para expandir mais informações */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMoreInfo(!showMoreInfo)}
+                className="gap-2"
+              >
+                {showMoreInfo ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                {showMoreInfo ? "Ocultar detalhes" : "Ver mais detalhes"}
+              </Button>
+
+              {/* Seção expandível com informações detalhadas */}
+              {showMoreInfo && (
+                <Card className="mt-4">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Informações Detalhadas</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Status</p>
+                        <Badge className={statusColors[project.status as keyof typeof statusColors]}>
+                          {project.status}
+                        </Badge>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Diretoria</p>
+                        <p className="text-sm font-medium">{project.diretoria || "-"}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Planta</p>
+                        <p className="text-sm font-medium">{project.planta || "-"}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">País</p>
+                        <p className="text-sm font-medium">{project.pais || "-"}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Categoria do projeto</p>
+                        <p className="text-sm font-medium">{project.categoria_projeto || "-"}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Linha produto</p>
+                        <p className="text-sm font-medium">{project.linha_produto || "-"}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Estágios</p>
+                        <p className="text-sm font-medium">{project.estagios || "-"}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Projeto IT</p>
+                        <Badge variant={project.projeto_it === "Sim" ? "default" : "secondary"}>
+                          {project.projeto_it || "Não"}
+                        </Badge>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Responsável IT</p>
+                        <p className="text-sm font-medium">{project.responsavel_it || "-"}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Tipo investimento</p>
+                        <Badge variant={project.tipo_investimento === "Capex" ? "default" : "outline"}>
+                          {project.tipo_investimento || "Capex"}
+                        </Badge>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Input</p>
+                        <Badge variant={project.input === "Integração" ? "default" : "secondary"}>
+                          {project.input || "Manual/Excel"}
+                        </Badge>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-muted-foreground">Moeda</p>
+                        <p className="text-sm font-medium">{project.currency}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 space-y-4">
+                      <div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="cursor-help">
+                              <p className="text-xs text-muted-foreground">Justificativa</p>
+                              <p className="text-sm">{project.justificativa || "-"}</p>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Por que é importante para a empresa executar este projeto?</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      
+                      <div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="cursor-help">
+                              <p className="text-xs text-muted-foreground">Resultados e Benefícios</p>
+                              <p className="text-sm">{project.resultados_beneficios || "-"}</p>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Quais KPIs ou métricas serão impactadas por este projeto? Em que medida? Até quando?</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

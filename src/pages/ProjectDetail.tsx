@@ -20,7 +20,9 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
-  Building2
+  Building2,
+  Pencil,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -333,6 +335,9 @@ export default function ProjectDetail() {
     category?: string;
     capex_opex?: string;
   }>({});
+  const [editingCategory, setEditingCategory] = useState(false);
+  const [tempCategory, setTempCategory] = useState("Máquinas e equipamentos");
+  const [currentCategory, setCurrentCategory] = useState("Máquinas e equipamentos");
   const { toast } = useToast();
   const { exportData, isExporting } = useExport();
   const { importFromSAP, isImporting } = useSapImport();
@@ -1058,50 +1063,84 @@ export default function ProjectDetail() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Categoria</TableHead>
-                          <TableHead>País</TableHead>
-                          <TableHead>Ano</TableHead>
-                          <TableHead>SAP ID Number</TableHead>
-                          <TableHead>Valor Inicial</TableHead>
-                          <TableHead>Total</TableHead>
-                          <TableHead>Nome do Projeto</TableHead>
-                          <TableHead>Data Atualização</TableHead>
+                          <TableHead className="w-[180px]">Categoria</TableHead>
+                          <TableHead className="w-[120px]">País</TableHead>
+                          <TableHead className="w-[80px]">Ano</TableHead>
+                          <TableHead className="w-[140px]">SAP ID Number</TableHead>
+                          <TableHead className="w-[120px]">Valor Inicial</TableHead>
+                          <TableHead className="w-[120px]">Total</TableHead>
+                          <TableHead className="w-[200px]">Nome do Projeto</TableHead>
+                          <TableHead className="w-[140px]">Data Atualização</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         <TableRow>
-                          <TableCell>
+                          <TableCell className="w-[180px]">
                             {project.input === "Manual/Excel" ? (
-                              <Select defaultValue="Máquinas e equipamentos">
-                                <SelectTrigger className="w-32">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Expenses">Expenses</SelectItem>
-                                  <SelectItem value="Software">Software</SelectItem>
-                                  <SelectItem value="Custo de Mão de Obra">Custo de Mão de Obra</SelectItem>
-                                  <SelectItem value="Outros intangíveis">Outros intangíveis</SelectItem>
-                                  <SelectItem value="Ferramentas e Moldes">Ferramentas e Moldes</SelectItem>
-                                  <SelectItem value="Máquinas e equipamentos">Máquinas e equipamentos</SelectItem>
-                                  <SelectItem value="Veículos">Veículos</SelectItem>
-                                  <SelectItem value="Mobília e Utensílios">Mobília e Utensílios</SelectItem>
-                                  <SelectItem value="Hardware">Hardware</SelectItem>
-                                  <SelectItem value="Construção">Construção</SelectItem>
-                                  <SelectItem value="Instalações industriais">Instalações industriais</SelectItem>
-                                  <SelectItem value="Terrenos">Terrenos</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <div className="flex items-center gap-2">
+                                {editingCategory ? (
+                                  <div className="flex items-center gap-1">
+                                    <Select value={tempCategory} onValueChange={setTempCategory}>
+                                      <SelectTrigger className="w-40">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Expenses">Expenses</SelectItem>
+                                        <SelectItem value="Software">Software</SelectItem>
+                                        <SelectItem value="Custo de Mão de Obra">Custo de Mão de Obra</SelectItem>
+                                        <SelectItem value="Outros intangíveis">Outros intangíveis</SelectItem>
+                                        <SelectItem value="Ferramentas e Moldes">Ferramentas e Moldes</SelectItem>
+                                        <SelectItem value="Máquinas e equipamentos">Máquinas e equipamentos</SelectItem>
+                                        <SelectItem value="Veículos">Veículos</SelectItem>
+                                        <SelectItem value="Mobília e Utensílios">Mobília e Utensílios</SelectItem>
+                                        <SelectItem value="Hardware">Hardware</SelectItem>
+                                        <SelectItem value="Construção">Construção</SelectItem>
+                                        <SelectItem value="Instalações industriais">Instalações industriais</SelectItem>
+                                        <SelectItem value="Terrenos">Terrenos</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <Button 
+                                      size="sm" 
+                                      onClick={() => {
+                                        setCurrentCategory(tempCategory);
+                                        setEditingCategory(false);
+                                        toast({
+                                          title: "Categoria salva",
+                                          description: "Categoria atualizada com sucesso.",
+                                        });
+                                      }}
+                                    >
+                                      <Check className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium">{currentCategory}</span>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="h-6 w-6 p-0"
+                                      onClick={() => {
+                                        setEditingCategory(true);
+                                        setTempCategory(currentCategory);
+                                      }}
+                                    >
+                                      <Pencil className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
                             ) : (
-                              <span className="text-muted-foreground">Máquinas e equipamentos</span>
+                              <span className="text-sm font-medium">{currentCategory}</span>
                             )}
                           </TableCell>
-                          <TableCell>{project.pais || "Brasil"}</TableCell>
-                          <TableCell>2024</TableCell>
-                          <TableCell>{project.sap_id || "BR2024001"}</TableCell>
-                          <TableCell>{formatCurrency(project.budget, project.currency)}</TableCell>
-                          <TableCell>{formatCurrency(project.budget, project.currency)}</TableCell>
-                          <TableCell>{project.name}</TableCell>
-                          <TableCell>{new Date().toLocaleDateString('pt-BR')}</TableCell>
+                          <TableCell className="w-[120px]">{project.pais || "Brasil"}</TableCell>
+                          <TableCell className="w-[80px]">2024</TableCell>
+                          <TableCell className="w-[140px]">{project.sap_id || "BR2024001"}</TableCell>
+                          <TableCell className="w-[120px]">{formatCurrency(project.budget, project.currency)}</TableCell>
+                          <TableCell className="w-[120px]">{formatCurrency(project.budget, project.currency)}</TableCell>
+                          <TableCell className="w-[200px]">{project.name}</TableCell>
+                          <TableCell className="w-[140px]">{new Date().toLocaleDateString('pt-BR')}</TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>

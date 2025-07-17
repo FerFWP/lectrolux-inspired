@@ -56,7 +56,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   const isPMO = true;
 
   useEffect(() => {
-    // Dados mockados iniciais
+    // Dados mockados iniciais - apenas uma linha por projeto
     const initialData: CapexBURow[] = [
       {
         id: '1',
@@ -78,30 +78,6 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
         dez: 100000,
         total: 870000,
         nomeProjeto: project.name || 'Projeto Exemplo',
-        dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
-        version: 1,
-        isActive: true
-      },
-      {
-        id: '2',
-        categoria: 'Software',
-        pais: 'México',
-        ano: 2024,
-        sapId: 'MX2024001',
-        jan: 30000,
-        fev: 35000,
-        mar: 40000,
-        abr: 25000,
-        mai: 50000,
-        jun: 45000,
-        jul: 60000,
-        ago: 55000,
-        set: 70000,
-        out: 65000,
-        nov: 75000,
-        dez: 80000,
-        total: 630000,
-        nomeProjeto: 'Sistema de Gestão',
         dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
         version: 1,
         isActive: true
@@ -327,6 +303,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
             <Table>
               <TableHeader>
                 <TableRow>
+                  {isPMO && <TableHead className="w-[50px]">Editar</TableHead>}
                   <TableHead className="w-[150px]">Categoria</TableHead>
                   <TableHead className="w-[100px]">País</TableHead>
                   <TableHead className="w-[80px]">Ano</TableHead>
@@ -357,11 +334,25 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                       ${row.isActive ? 'hover:bg-green-100' : 'hover:bg-gray-100'}
                     `}
                   >
+                    {isPMO && (
+                      <TableCell>
+                        {row.isActive && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={() => handleCellEdit(row.id, 'categoria', row.categoria)}
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </TableCell>
+                    )}
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{row.categoria}</span>
                         {row.isActive && (
-                          <Badge variant="default" className="text-xs">
+                          <Badge variant="outline" className="text-xs text-muted-foreground border-muted-foreground/40">
                             Versão atual
                           </Badge>
                         )}
@@ -396,16 +387,6 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                             <span className="text-sm">
                               {formatCurrency(row[month as keyof CapexBURow] as number, project.currency)}
                             </span>
-                            {isPMO && row.isActive && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
-                                onClick={() => handleCellEdit(row.id, month, row[month as keyof CapexBURow])}
-                              >
-                                <Pencil className="h-3 w-3" />
-                              </Button>
-                            )}
                           </div>
                         )}
                       </TableCell>
@@ -435,16 +416,6 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                           <span className="text-sm font-medium">
                             {formatCurrency(row.total, project.currency)}
                           </span>
-                          {isPMO && row.isActive && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
-                              onClick={() => handleCellEdit(row.id, 'total', row.total)}
-                            >
-                              <Pencil className="h-3 w-3" />
-                            </Button>
-                          )}
                         </div>
                       )}
                     </TableCell>

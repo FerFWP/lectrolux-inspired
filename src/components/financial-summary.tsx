@@ -6,7 +6,6 @@ import {
   TrendingDown, 
   PieChart,
   BarChart3,
-  Download,
   Eye,
   AlertCircle,
   Info,
@@ -307,10 +306,6 @@ export function FinancialSummary({
                 <span className="text-sm text-muted-foreground">
                   Taxa atual: {getCurrentCurrencyInfo().rate.toFixed(4)}
                 </span>
-                <Button size="sm" variant="outline" onClick={handleExport}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportar
-                </Button>
               </div>
             </div>
           </CardContent>

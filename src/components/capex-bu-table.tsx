@@ -77,6 +77,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   const [filterCategoria, setFilterCategoria] = useState<string>('all');
   const [filterPais, setFilterPais] = useState<string>('all');
   const [filterNomeProjeto, setFilterNomeProjeto] = useState<string>('all');
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('BRL');
   
   // Considerando todos os usuários como PMO por enquanto
   const isPMO = true;
@@ -144,8 +145,24 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
   }, [project]);
 
   const formatCurrency = (value: number, currency: string = 'BRL', exchangeRateKey?: string) => {
-    const finalValue = exchangeRateKey ? convertCurrency(value, exchangeRateKey) : value;
-    const displayCurrency = exchangeRateKey?.startsWith('SEK') ? 'SEK' : currency;
+    let finalValue = value;
+    
+    // Primeiro aplicar a taxa de câmbio da linha (se houver)
+    if (exchangeRateKey) {
+      finalValue = convertCurrency(value, exchangeRateKey);
+    }
+    
+    // Depois converter para a moeda de visualização selecionada
+    const displayCurrency = selectedCurrency;
+    
+    // Aplicar conversão adicional se necessário
+    if (selectedCurrency === 'SEK' && !exchangeRateKey?.startsWith('SEK')) {
+      finalValue = finalValue * 0.52; // Taxa padrão para SEK
+    } else if (selectedCurrency === 'USD' && !exchangeRateKey?.startsWith('USD')) {
+      finalValue = finalValue * 0.18; // Taxa padrão para USD
+    } else if (selectedCurrency === 'EUR' && !exchangeRateKey?.startsWith('EUR')) {
+      finalValue = finalValue * 0.16; // Taxa padrão para EUR
+    }
     
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -368,6 +385,69 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
           {isPMO && " Você tem permissão para editar."}
         </AlertDescription>
       </Alert>
+
+      {/* Configurações de Visualização */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Configurações de Visualização</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Moeda:</label>
+              <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
+                <SelectTrigger className="w-52">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="BRL">
+                    <div className="flex items-center gap-2">
+                      <span>Moeda do cadastro (BRL)</span>
+                      <Badge variant="outline" className="text-xs">Original</Badge>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="SEK">
+                    <div className="flex items-center gap-2">
+                      <span>SEK (Coroa Sueca)</span>
+                      <Badge variant="outline" className="text-xs">Convertido</Badge>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="USD">
+                    <div className="flex items-center gap-2">
+                      <span>USD (Dólar Americano)</span>
+                      <Badge variant="outline" className="text-xs">Convertido</Badge>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="EUR">
+                    <div className="flex items-center gap-2">
+                      <span>EUR (Euro)</span>
+                      <Badge variant="outline" className="text-xs">Convertido</Badge>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Selecione a moeda para visualizar os valores convertidos conforme o câmbio</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Taxa atual:</span>
+              <span className="font-medium">
+                {selectedCurrency === 'BRL' && '1.0000'}
+                {selectedCurrency === 'SEK' && '0.5200'}
+                {selectedCurrency === 'USD' && '0.1800'}
+                {selectedCurrency === 'EUR' && '0.1600'}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Filtros */}
       <Card>
@@ -773,7 +853,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                             />
                           ) : (
                             <span className="text-sm">
-                              {formatCurrency(row[month as keyof CapexBURow] as number, project.currency, row.exchangeRate)}
+                              {formatCurrency(row[month as keyof CapexBURow] as number, selectedCurrency, row.exchangeRate)}
                             </span>
                           )}
                         </TableCell>
@@ -788,7 +868,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
                           />
                         ) : (
                           <span className="text-sm font-medium">
-                            {formatCurrency(row.total, project.currency, row.exchangeRate)}
+                            {formatCurrency(row.total, selectedCurrency, row.exchangeRate)}
                           </span>
                         )}
                       </TableCell>

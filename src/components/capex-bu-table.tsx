@@ -471,6 +471,9 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
               <span className="font-medium">
                 {getCurrentCurrencyInfo(selectedCurrency).rate.toFixed(4)}
               </span>
+              <span className="text-xs">
+                | Atualizado em {format(new Date(), "dd/MM/yyyy HH:mm")}
+              </span>
             </div>
           </div>
         </CardContent>

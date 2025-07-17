@@ -339,6 +339,9 @@ export function FinancialSummary({
                 <span className="text-sm text-muted-foreground">
                   Taxa atual: {getCurrentCurrencyInfo().rate.toFixed(4)}
                 </span>
+                <span className="text-xs text-muted-foreground">
+                  | Atualizado em {format(new Date(), "dd/MM/yyyy HH:mm")}
+                </span>
               </div>
             </div>
           </CardContent>

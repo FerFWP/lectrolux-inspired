@@ -397,46 +397,31 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
       {/* Configurações de Visualização */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Configurações de Visualização</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Users className="h-5 w-5" />
+            Configurações de Visualização
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Moeda do cadastro:</label>
+              <label className="text-sm font-medium">Moeda:</label>
               <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
                 <SelectTrigger className="w-56">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BRL">
-                    <div className="flex items-center gap-2">
-                      <span>Moeda do cadastro (BRL)</span>
-                      {selectedCurrency === 'BRL' && <span className="text-green-600">✓</span>}
-                    </div>
+                    Moeda do cadastro (BRL)
                   </SelectItem>
-                  <SelectItem value="SEK_APPROVAL">
-                    <div className="flex items-center gap-2">
-                      <span>SEK (taxa da aprovação)</span>
-                      {selectedCurrency === 'SEK_APPROVAL' && <span className="text-green-600">✓</span>}
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="SEK_BU">
-                    <div className="flex items-center gap-2">
-                      <span>SEK BU (taxa anual)</span>
-                      {selectedCurrency === 'SEK_BU' && <span className="text-green-600">✓</span>}
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="SEK_AVG">
-                    <div className="flex items-center gap-2">
-                      <span>SEK AVG (média mensal)</span>
-                      {selectedCurrency === 'SEK_AVG' && <span className="text-green-600">✓</span>}
-                    </div>
-                  </SelectItem>
+                  <SelectItem value="SEK_APPROVAL">SEK (taxa da aprovação)</SelectItem>
+                  <SelectItem value="SEK_BU">SEK BU (taxa anual)</SelectItem>
+                  <SelectItem value="SEK_AVG">SEK AVG (média mensal)</SelectItem>
                 </SelectContent>
               </Select>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Selecione a moeda para visualizar os valores convertidos conforme o câmbio</p>
@@ -447,7 +432,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium">Ano:</label>
               <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-24">
+                <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -458,7 +443,7 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
               </Select>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Selecione o ano de referência para as taxas de câmbio</p>
@@ -466,12 +451,11 @@ export function CapexBUTable({ project }: CapexBUTableProps) {
               </Tooltip>
             </div>
             
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Taxa atual:</span>
-              <span className="font-medium">
-                {getCurrentCurrencyInfo(selectedCurrency).rate.toFixed(4)}
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="text-sm text-muted-foreground">
+                Taxa atual: {getCurrentCurrencyInfo(selectedCurrency).rate.toFixed(4)}
               </span>
-              <span className="text-xs">
+              <span className="text-xs text-muted-foreground">
                 | Atualizado em {format(new Date(), "dd/MM/yyyy HH:mm")}
               </span>
             </div>

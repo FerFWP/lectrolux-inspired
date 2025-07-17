@@ -1073,7 +1073,7 @@ export default function ProjectDetail() {
                           <TableCell>
                             {project.input === "Manual/Excel" ? (
                               <Select defaultValue="Máquinas e equipamentos">
-                                <SelectTrigger className="w-48">
+                                <SelectTrigger className="w-32">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

@@ -48,6 +48,7 @@ import { TransactionsView } from "@/components/transactions-view";
 import { HistoryView } from "@/components/history-view";
 import { ReportsView } from "@/components/reports-view";
 import { CapexBUTable } from "@/components/capex-bu-table";
+import { CapexACTable } from "@/components/capex-ac-table";
 import { HomeButton } from "@/components/home-button";
 import { useExport } from "@/hooks/use-export";
 import { useSapImport } from "@/hooks/use-sap-import";

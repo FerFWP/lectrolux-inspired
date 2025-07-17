@@ -22,48 +22,11 @@ interface SmartFiltersProps {
   projects: Project[];
   activeFilter: string;
   onFilterChange: (filter: string) => void;
+  favoritesCount?: number;
 }
 
-export function SmartFilters({ projects, activeFilter, onFilterChange }: SmartFiltersProps) {
-  const attentionProjects = projects.filter(p => 
-    p.isCritical || 
-    p.status === "Crítico" || 
-    p.status === "Em Atraso" ||
-    p.progress < 30
-  );
-
-  const financialRiskProjects = projects.filter(p => 
-    p.balance < 0 || 
-    (p.realized / p.budget) > 0.9
-  );
-
-  const myAreaProjects = projects.filter(p => p.area === "Produção"); // Example: user's area
-
+export function SmartFilters({ projects, activeFilter, onFilterChange, favoritesCount = 0 }: SmartFiltersProps) {
   const smartFilters = [
-    {
-      id: "attention",
-      label: "Minha Atenção",
-      icon: AlertTriangle,
-      count: attentionProjects.length,
-      description: "Projetos críticos ou atrasados",
-      color: "destructive"
-    },
-    {
-      id: "financial",
-      label: "Risco Financeiro", 
-      icon: DollarSign,
-      count: financialRiskProjects.length,
-      description: "Saldo negativo ou alto consumo",
-      color: "orange"
-    },
-    {
-      id: "area",
-      label: "Minha Área",
-      icon: Users,
-      count: myAreaProjects.length,
-      description: "Projetos da sua área",
-      color: "blue"
-    },
     {
       id: "all",
       label: "Todos os Projetos",
@@ -71,6 +34,14 @@ export function SmartFilters({ projects, activeFilter, onFilterChange }: SmartFi
       count: projects.length,
       description: "Visualizar todos os projetos",
       color: "default"
+    },
+    {
+      id: "favorites",
+      label: "Favoritos",
+      icon: Users,
+      count: 0, // This will be updated from the parent component
+      description: "Projetos favoritados por você",
+      color: "blue"
     }
   ];
 
@@ -81,7 +52,7 @@ export function SmartFilters({ projects, activeFilter, onFilterChange }: SmartFi
         <span className="text-sm font-medium">Filtros Inteligentes</span>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {smartFilters.map((filter) => {
           const Icon = filter.icon;
           const isActive = activeFilter === filter.id;
@@ -106,7 +77,7 @@ export function SmartFilters({ projects, activeFilter, onFilterChange }: SmartFi
                   variant={isActive ? "secondary" : "outline"} 
                   className="text-xs"
                 >
-                  {filter.count}
+                  {filter.id === "favorites" ? favoritesCount : filter.count}
                 </Badge>
               </div>
               <div className="text-left">

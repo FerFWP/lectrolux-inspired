@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, Circle } from "lucide-react";
+import { Eye, Circle, Star } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
+import { useFavorites } from "@/hooks/use-favorites";
 
 interface Project {
   id: string;
@@ -32,6 +33,7 @@ export function CompactProjectView({
   formatCurrency
 }: CompactProjectViewProps) {
   const navigate = useNavigate();
+  const { isFavorited, toggleFavorite } = useFavorites();
 
   const getFinancialStatusIcon = (project: Project) => {
     if (project.balance < 0 || project.isCritical || project.status === "Crítico") {
@@ -102,7 +104,32 @@ export function CompactProjectView({
               </TableCell>
               <TableCell>
                 <div>
-                  <div className="font-medium text-foreground">{project.name}</div>
+                  <div className="font-medium text-foreground flex items-center gap-2">
+                    {project.name}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => toggleFavorite(project.id)}
+                        >
+                          <Star 
+                            className={`h-4 w-4 ${
+                              isFavorited(project.id) 
+                                ? "fill-yellow-400 text-yellow-400" 
+                                : "text-muted-foreground hover:text-yellow-400"
+                            }`}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {isFavorited(project.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <div className="text-sm text-muted-foreground">{project.id} • {project.area}</div>
                 </div>
               </TableCell>

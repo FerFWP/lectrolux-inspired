@@ -13,6 +13,7 @@ import { PendingUpdatesCard } from "@/components/pending-updates-card";
 import { useExport } from "@/hooks/use-export";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useFavorites } from "@/hooks/use-favorites";
 
 interface Project {
   id: string;
@@ -172,11 +173,12 @@ export default function ProjectsList() {
     category: "",
     currency: ""
   });
-  const [smartFilter, setSmartFilter] = useState("attention");
+  const [smartFilter, setSmartFilter] = useState("all");
   const [intelligentFilters, setIntelligentFilters] = useState<string[]>([]);
   const navigate = useNavigate();
   const { exportData, isExporting } = useExport();
   const { toast } = useToast();
+  const { favorites, isFavorited } = useFavorites();
 
   const formatCurrency = (amount: number, currency: string) => {
     const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
@@ -188,22 +190,8 @@ export default function ProjectsList() {
     
     // Apply smart filter first
     switch (smartFilter) {
-      case "attention":
-        baseProjects = mockProjects.filter(p => 
-          p.isCritical || 
-          p.status === "Crítico" || 
-          p.status === "Em Atraso" ||
-          p.progress < 30
-        );
-        break;
-      case "financial":
-        baseProjects = mockProjects.filter(p => 
-          p.balance < 0 || 
-          (p.realized / p.budget) > 0.9
-        );
-        break;
-      case "area":
-        baseProjects = mockProjects.filter(p => p.area === "Produção"); // Example: user's area
+      case "favorites":
+        baseProjects = mockProjects.filter(p => isFavorited(p.id));
         break;
       default:
         baseProjects = mockProjects;
@@ -449,6 +437,7 @@ export default function ProjectsList() {
             projects={mockProjects}
             activeFilter={smartFilter}
             onFilterChange={setSmartFilter}
+            favoritesCount={favorites.length}
           />
 
           {/* Controles de visualização */}

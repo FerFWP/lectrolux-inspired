@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { useCurrency } from "@/contexts/currency-context";
+
 interface Project {
   id: string;
   name: string;
@@ -22,36 +24,21 @@ interface Project {
   area: string;
   leader: string;
 }
+
 interface ExecutiveDashboardProps {
   project: Project;
   baselines: any[];
-  selectedCurrency?: string;
-  selectedYear?: string;
 }
+
 export function ExecutiveDashboard({
   project,
-  baselines,
-  selectedCurrency,
-  selectedYear
+  baselines
 }: ExecutiveDashboardProps) {
-  const formatCurrency = (amount: number, currency?: string) => {
-    const displayCurrency = currency || selectedCurrency || project.currency;
-    const symbols = {
-      BRL: "R$",
-      USD: "$",
-      SEK: "kr"
-    };
-    
-    // Simple conversion rates (mock)
-    const conversionRates = {
-      BRL: { BRL: 1, USD: 5.5, SEK: 0.6 },
-      USD: { BRL: 0.18, USD: 1, SEK: 0.11 },
-      SEK: { BRL: 1.67, USD: 9.2, SEK: 1 }
-    };
-    
-    const convertedAmount = amount * (conversionRates[project.currency as keyof typeof conversionRates]?.[displayCurrency as keyof typeof conversionRates.BRL] || 1);
-    
-    return `${symbols[displayCurrency as keyof typeof symbols]} ${convertedAmount.toLocaleString("pt-BR")}`;
+  const { selectedCurrency, selectedYear, convertAmount, refreshKey } = useCurrency();
+  const formatCurrency = (amount: number) => {
+    const symbols = { BRL: "R$", USD: "$", EUR: "€", GBP: "£", JPY: "¥", CAD: "C$", AUD: "A$", CHF: "₣", CNY: "¥", INR: "₹" };
+    const convertedAmount = convertAmount(amount, project.currency || 'BRL');
+    return `${symbols[selectedCurrency as keyof typeof symbols] || selectedCurrency} ${convertedAmount.toLocaleString("pt-BR")}`;
   };
 
   // Cálculos de métricas

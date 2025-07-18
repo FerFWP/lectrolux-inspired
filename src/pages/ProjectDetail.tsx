@@ -45,7 +45,7 @@ import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { FinancialSummary } from "@/components/financial-summary";
 import { PlanningView } from "@/components/planning-view";
 import { TransactionsView } from "@/components/transactions-view";
-import { HistoryView } from "@/components/history-view";
+import { ChangeLogView } from "@/components/change-log-view";
 import { CapexBUTable } from "@/components/capex-bu-table";
 import { CapexACTable } from "@/components/capex-ac-table";
 import { CapexSOPTable } from "@/components/capex-sop-table";
@@ -993,12 +993,8 @@ export default function ProjectDetail() {
 
             {/* Aba Histórico */}
             <TabsContent value="historico" className="space-y-6">
-              <HistoryView 
+              <ChangeLogView 
                 project={project}
-                transactions={transactions}
-                baselines={baselines}
-                selectedCurrency={selectedCurrency}
-                selectedYear={selectedYear}
               />
             </TabsContent>
 

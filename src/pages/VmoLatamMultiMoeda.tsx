@@ -6,361 +6,268 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Download, RefreshCw, Info, History } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
-interface ExchangeRateHistory {
+interface ExchangeRateData {
   id: string;
-  date: string;
-  rate: number;
-  user: string;
-}
-
-interface ProjectData {
-  id: string;
-  name: string;
   country: string;
-  unit: string;
-  originalCurrency: string;
-  consolidatedCurrency: string;
-  exchangeRate: number;
-  source: string;
-  lastUpdate: string;
-  originalBudget: number;
-  realizedBudget: number;
-  deviation: number;
+  currency: string;
+  year: string;
+  period: 'Anual' | 'Mensal';
+  annualRate?: number;
+  monthlyRates: {
+    jan?: number;
+    fev?: number;
+    mar?: number;
+    abr?: number;
+    mai?: number;
+    jun?: number;
+    jul?: number;
+    ago?: number;
+    set?: number;
+    out?: number;
+    nov?: number;
+    dez?: number;
+  };
+  type: 'BU Rate' | 'AVG Rate';
 }
 
 const VmoLatamMultiMoeda = () => {
-  const [selectedCountry, setSelectedCountry] = useState<string>('all');
-  const [selectedUnit, setSelectedUnit] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>('2024');
-  const [selectedCurrency, setSelectedCurrency] = useState<string>('BRL');
-  const [showRateModal, setShowRateModal] = useState(false);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [newRate, setNewRate] = useState('');
-  const [rateDate, setRateDate] = useState('');
+  const [showSekModal, setShowSekModal] = useState(false);
+  const [newSekRate, setNewSekRate] = useState('');
 
   // Mock data - in real app would come from API
-  const exchangeHistory: ExchangeRateHistory[] = [
-    { id: '1', date: '2024-01-15', rate: 0.52, user: 'João Silva' },
-    { id: '2', date: '2023-08-22', rate: 0.48, user: 'Maria Santos' },
-    { id: '3', date: '2023-03-10', rate: 0.51, user: 'Carlos Lima' },
-    { id: '4', date: '2022-11-05', rate: 0.47, user: 'Ana Costa' },
-  ];
-
-  const projectsData: ProjectData[] = [
+  const exchangeRatesData: ExchangeRateData[] = [
     {
       id: '1',
-      name: 'Modernização Linha A',
-      country: 'Brasil',
-      unit: 'Curitiba PR 1',
-      originalCurrency: 'BRL',
-      consolidatedCurrency: 'SEK',
-      exchangeRate: 0.52,
-      source: 'Banco Central',
-      lastUpdate: '15/01/2024',
-      originalBudget: 2500000,
-      realizedBudget: 2350000,
-      deviation: -6.0
+      country: 'Argentina',
+      currency: 'ARS',
+      year: '2024',
+      period: 'Anual',
+      annualRate: 0.0052,
+      monthlyRates: {},
+      type: 'BU Rate'
     },
     {
       id: '2',
-      name: 'Eficiência Energética',
-      country: 'Argentina',
-      unit: 'Rosário',
-      originalCurrency: 'ARS',
-      consolidatedCurrency: 'SEK',
-      exchangeRate: 0.0052,
-      source: 'BCRA',
-      lastUpdate: '15/01/2024',
-      originalBudget: 150000000,
-      realizedBudget: 165000000,
-      deviation: 10.0
+      country: 'Brasil',
+      currency: 'BRL',
+      year: '2024',
+      period: 'Mensal',
+      monthlyRates: {
+        jan: 0.52, fev: 0.51, mar: 0.53, abr: 0.50, mai: 0.49,
+        jun: 0.48, jul: 0.52, ago: 0.54, set: 0.51, out: 0.50, nov: 0.52, dez: 0.53
+      },
+      type: 'AVG Rate'
     },
     {
       id: '3',
-      name: 'Automação Industrial',
       country: 'Chile',
-      unit: 'Santiago',
-      originalCurrency: 'CLP',
-      consolidatedCurrency: 'SEK',
-      exchangeRate: 0.00108,
-      source: 'BCCh',
-      lastUpdate: '15/01/2024',
-      originalBudget: 890000000,
-      realizedBudget: 820000000,
-      deviation: -7.9
+      currency: 'CLP',
+      year: '2024',
+      period: 'Anual',
+      annualRate: 0.00108,
+      monthlyRates: {},
+      type: 'BU Rate'
     },
     {
       id: '4',
-      name: 'IoT Implementation',
-      country: 'Brasil',
-      unit: 'São Carlos SP',
-      originalCurrency: 'USD',
-      consolidatedCurrency: 'SEK',
-      exchangeRate: 10.8,
-      source: 'Fed Reserve',
-      lastUpdate: '15/01/2024',
-      originalBudget: 180000,
-      realizedBudget: 195000,
-      deviation: 8.3
+      country: 'Colômbia',
+      currency: 'COP',
+      year: '2024',
+      period: 'Mensal',
+      monthlyRates: {
+        jan: 0.00025, fev: 0.00024, mar: 0.00026, abr: 0.00023, mai: 0.00022,
+        jun: 0.00021, jul: 0.00025, ago: 0.00027, set: 0.00024, out: 0.00023, nov: 0.00025, dez: 0.00026
+      },
+      type: 'AVG Rate'
+    },
+    {
+      id: '5',
+      country: 'Equador',
+      currency: 'USD',
+      year: '2024',
+      period: 'Anual',
+      annualRate: 10.8,
+      monthlyRates: {},
+      type: 'BU Rate'
+    },
+    {
+      id: '6',
+      country: 'USA',
+      currency: 'USD',
+      year: '2024',
+      period: 'Mensal',
+      monthlyRates: {
+        jan: 10.8, fev: 10.7, mar: 10.9, abr: 10.6, mai: 10.5,
+        jun: 10.4, jul: 10.8, ago: 11.0, set: 10.7, out: 10.6, nov: 10.8, dez: 10.9
+      },
+      type: 'AVG Rate'
+    },
+    {
+      id: '7',
+      country: 'Peru',
+      currency: 'PEN',
+      year: '2024',
+      period: 'Anual',
+      annualRate: 2.95,
+      monthlyRates: {},
+      type: 'BU Rate'
+    },
+    {
+      id: '8',
+      country: 'Porto Rico',
+      currency: 'USD',
+      year: '2024',
+      period: 'Anual',
+      annualRate: 10.8,
+      monthlyRates: {},
+      type: 'BU Rate'
     }
   ];
 
-  const countries = ['Brasil', 'Argentina', 'Chile'];
-  const units = ['Curitiba PR 1', 'Curitiba PR 2', 'São Carlos SP', 'Manaus AM', 'Rosário', 'Santiago'];
-  const currencies = ['BRL', 'ARS', 'CLP', 'USD', 'SEK'];
-  const years = ['2022', '2023', '2024'];
+  const years = ['2022', '2023', '2024', '2025'];
 
-  const handleUpdateRate = () => {
-    // In real app, would make API call
-    console.log('Updating SEK rate:', newRate, 'for date:', rateDate);
-    setShowRateModal(false);
-    setNewRate('');
-    setRateDate('');
-  };
-
-  const handleExport = () => {
-    // In real app, would generate Excel/Power BI export
-    console.log('Exporting data...');
-  };
-
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: currency === 'SEK' ? 'SEK' : 'BRL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
-  const getDeviationColor = (deviation: number) => {
-    if (deviation > 5) return 'bg-destructive text-destructive-foreground';
-    if (deviation < -5) return 'bg-destructive text-destructive-foreground';
-    return 'bg-secondary text-secondary-foreground';
+  const handleAddSekRate = () => {
+    // In real app, would make API call to add new SEK BU rate
+    console.log('Adding SEK BU rate:', newSekRate, 'for year:', selectedYear);
+    setShowSekModal(false);
+    setNewSekRate('');
   };
 
   return (
     <div className="flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Multi-moeda & Câmbio</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Taxa de Câmbio</h1>
           <p className="text-muted-foreground">
-            Análise de variações cambiais e orçamentos em moedas diferentes
+            Gestão e controle de taxas de câmbio por país e período
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar
-          </Button>
-          <Dialog open={showRateModal} onOpenChange={setShowRateModal}>
-            <DialogTrigger asChild>
-              <Button>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Atualizar Câmbio SEK
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Atualizar Taxa de Câmbio SEK</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="rate">Nova Taxa</Label>
-                  <Input
-                    id="rate"
-                    placeholder="Ex: 0.52"
-                    value={newRate}
-                    onChange={(e) => setNewRate(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="date">Data de Referência</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={rateDate}
-                    onChange={(e) => setRateDate(e.target.value)}
-                  />
-                </div>
-                <Button onClick={handleUpdateRate}>Atualizar Taxa</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
 
-      {/* Filtros */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filtros</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <Label>País</Label>
-              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos os países" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {countries.map((country) => (
-                    <SelectItem key={country} value={country}>
-                      {country}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      {/* Filtros e Ação */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
+        <Card className="flex-1">
+          <CardHeader>
+            <CardTitle>Filtros</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Ano</Label>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Unidade Fabril</Label>
-              <Select value={selectedUnit} onValueChange={setSelectedUnit}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas as unidades" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {units.map((unit) => (
-                    <SelectItem key={unit} value={unit}>
-                      {unit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          </CardContent>
+        </Card>
+        
+        <Dialog open={showSekModal} onOpenChange={setShowSekModal}>
+          <DialogTrigger asChild>
+            <Button className="lg:mb-6">
+              <Plus className="mr-2 h-4 w-4" />
+              Adicionar SEK BU
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adicionar SEK BU Rate</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="sek-rate">Taxa Anual SEK</Label>
+                <Input
+                  id="sek-rate"
+                  placeholder="Ex: 10.52"
+                  value={newSekRate}
+                  onChange={(e) => setNewSekRate(e.target.value)}
+                />
+              </div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p><strong>País:</strong> Suécia</p>
+                <p><strong>Moeda:</strong> SEK</p>
+                <p><strong>Ano:</strong> {selectedYear}</p>
+                <p><strong>Período:</strong> Anual</p>
+                <p><strong>Tipo:</strong> BU Rate</p>
+              </div>
+              <Button onClick={handleAddSekRate}>Adicionar Taxa</Button>
             </div>
-            <div className="space-y-2">
-              <Label>Ano</Label>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Moeda de Visualização</Label>
-              <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.map((currency) => (
-                    <SelectItem key={currency} value={currency}>
-                      {currency}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Histórico SEK</Label>
-              <Dialog open={showHistoryModal} onOpenChange={setShowHistoryModal}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
-                    <History className="mr-2 h-4 w-4" />
-                    Ver Histórico
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Histórico de Alterações - SEK</DialogTitle>
-                  </DialogHeader>
-                  <div className="max-h-96 overflow-y-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Data</TableHead>
-                          <TableHead>Taxa</TableHead>
-                          <TableHead>Usuário</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {exchangeHistory.map((entry) => (
-                          <TableRow key={entry.id}>
-                            <TableCell>{entry.date}</TableCell>
-                            <TableCell>{entry.rate}</TableCell>
-                            <TableCell>{entry.user}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-      {/* Tabela de Projetos */}
+      {/* Tabela de Taxas de Câmbio */}
       <Card>
         <CardHeader>
-          <CardTitle>Análise Multi-moeda por Projeto</CardTitle>
+          <CardTitle>Taxas de Câmbio por País</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Projeto</TableHead>
                   <TableHead>País</TableHead>
-                  <TableHead>Unidade</TableHead>
-                  <TableHead>Moeda Original</TableHead>
-                  <TableHead>Moeda Consolidada</TableHead>
-                  <TableHead>Taxa de Câmbio</TableHead>
-                  <TableHead>Orçamento</TableHead>
-                  <TableHead>Realizado</TableHead>
-                  <TableHead>Desvio</TableHead>
+                  <TableHead>Moeda</TableHead>
+                  <TableHead>Ano</TableHead>
+                  <TableHead>Período</TableHead>
+                  <TableHead>Taxa Anual</TableHead>
+                  <TableHead>Jan</TableHead>
+                  <TableHead>Fev</TableHead>
+                  <TableHead>Mar</TableHead>
+                  <TableHead>Abr</TableHead>
+                  <TableHead>Mai</TableHead>
+                  <TableHead>Jun</TableHead>
+                  <TableHead>Jul</TableHead>
+                  <TableHead>Ago</TableHead>
+                  <TableHead>Set</TableHead>
+                  <TableHead>Out</TableHead>
+                  <TableHead>Nov</TableHead>
+                  <TableHead>Dez</TableHead>
+                  <TableHead>Tipo</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {projectsData.map((project) => (
-                  <TableRow key={project.id}>
-                    <TableCell className="font-medium">{project.name}</TableCell>
-                    <TableCell>{project.country}</TableCell>
-                    <TableCell>{project.unit}</TableCell>
+                {exchangeRatesData
+                  .filter(rate => rate.year === selectedYear)
+                  .map((rate) => (
+                  <TableRow key={rate.id}>
+                    <TableCell className="font-medium">{rate.country}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{project.originalCurrency}</Badge>
+                      <Badge variant="secondary">{rate.currency}</Badge>
                     </TableCell>
+                    <TableCell>{rate.year}</TableCell>
+                    <TableCell>{rate.period}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{project.consolidatedCurrency}</Badge>
+                      {rate.annualRate ? rate.annualRate.toFixed(5) : '—'}
                     </TableCell>
+                    <TableCell>{rate.monthlyRates.jan?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.fev?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.mar?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.abr?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.mai?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.jun?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.jul?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.ago?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.set?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.out?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.nov?.toFixed(5) || '—'}</TableCell>
+                    <TableCell>{rate.monthlyRates.dez?.toFixed(5) || '—'}</TableCell>
                     <TableCell>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-1 cursor-help">
-                              <span>{project.exchangeRate}</span>
-                              <Info className="h-3 w-3 text-muted-foreground" />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs">
-                            <div className="space-y-1">
-                              <p><strong>Fonte:</strong> {project.source}</p>
-                              <p><strong>Última atualização:</strong> {project.lastUpdate}</p>
-                              <p className="text-xs text-muted-foreground">
-                                Clique no histórico para ver alterações anteriores
-                              </p>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell>{formatCurrency(project.originalBudget, project.originalCurrency)}</TableCell>
-                    <TableCell>{formatCurrency(project.realizedBudget, project.originalCurrency)}</TableCell>
-                    <TableCell>
-                      <Badge className={getDeviationColor(project.deviation)}>
-                        {project.deviation > 0 ? '+' : ''}{project.deviation.toFixed(1)}%
+                      <Badge variant={rate.type === 'BU Rate' ? 'default' : 'outline'}>
+                        {rate.type}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -370,6 +277,11 @@ const VmoLatamMultiMoeda = () => {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Fonte */}
+      <div className="flex justify-end">
+        <p className="text-xs text-muted-foreground">Base sistema IGS</p>
+      </div>
     </div>
   );
 };

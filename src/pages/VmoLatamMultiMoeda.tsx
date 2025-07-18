@@ -36,6 +36,8 @@ interface ExchangeRateData {
 const VmoLatamMultiMoeda = () => {
   const [selectedYear, setSelectedYear] = useState<string>('2024');
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('all');
+  const [selectedType, setSelectedType] = useState<string>('all');
   const [showSekModal, setShowSekModal] = useState(false);
   const [newSekRate, setNewSekRate] = useState('');
 
@@ -237,6 +239,25 @@ const VmoLatamMultiMoeda = () => {
     { value: 'dez', label: 'Dezembro' }
   ];
 
+  const periods = [
+    { value: 'all', label: 'Todos os períodos' },
+    { value: 'Anual', label: 'Anual' },
+    { value: 'Mensal', label: 'Mensal' }
+  ];
+
+  const types = [
+    { value: 'all', label: 'Todos os tipos' },
+    { value: 'BU Rate', label: 'BU Rate' },
+    { value: 'AVG Rate', label: 'AVG Rate' }
+  ];
+
+  // Filter data based on all selected filters
+  const filteredData = exchangeRatesData.filter(rate => {
+    const yearMatch = rate.year === selectedYear;
+    const periodMatch = selectedPeriod === 'all' || rate.period === selectedPeriod;
+    const typeMatch = selectedType === 'all' || rate.type === selectedType;
+    return yearMatch && periodMatch && typeMatch;
+  });
   const handleAddSekRate = () => {
     // In real app, would make API call to add new SEK BU rate
     console.log('Adding SEK BU rate:', newSekRate, 'for year:', selectedYear);
@@ -262,7 +283,7 @@ const VmoLatamMultiMoeda = () => {
             <CardTitle>Filtros</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="space-y-2">
                 <Label>Ano</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
@@ -288,6 +309,36 @@ const VmoLatamMultiMoeda = () => {
                     {months.map((month) => (
                       <SelectItem key={month.value} value={month.value}>
                         {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Período</Label>
+                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {periods.map((period) => (
+                      <SelectItem key={period.value} value={period.value}>
+                        {period.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Tipo</Label>
+                <Select value={selectedType} onValueChange={setSelectedType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {types.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -374,9 +425,7 @@ const VmoLatamMultiMoeda = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {exchangeRatesData
-                    .filter(rate => rate.year === selectedYear)
-                    .map((rate) => (
+                  {filteredData.map((rate) => (
                     <TableRow key={rate.id}>
                       <TableCell className="font-medium">{rate.country}</TableCell>
                       <TableCell>
@@ -412,60 +461,58 @@ const VmoLatamMultiMoeda = () => {
 
             {/* Mobile/Tablet: Compact cards */}
             <div className="lg:hidden space-y-4">
-              {exchangeRatesData
-                .filter(rate => rate.year === selectedYear)
-                .map((rate) => (
-                  <Card key={rate.id} className="p-4">
-                    <div className="grid grid-cols-2 gap-2 mb-3">
-                      <div>
-                        <p className="font-semibold">{rate.country}</p>
-                        <Badge variant="secondary" className="text-xs">{rate.currency}</Badge>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant={rate.type === 'BU Rate' ? 'default' : 'outline'} className="text-xs">
-                          {rate.type}
-                        </Badge>
-                        <p className="text-sm text-muted-foreground">{rate.period}</p>
+              {filteredData.map((rate) => (
+                <Card key={rate.id} className="p-4">
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div>
+                      <p className="font-semibold">{rate.country}</p>
+                      <Badge variant="secondary" className="text-xs">{rate.currency}</Badge>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant={rate.type === 'BU Rate' ? 'default' : 'outline'} className="text-xs">
+                        {rate.type}
+                      </Badge>
+                      <p className="text-sm text-muted-foreground">{rate.period}</p>
+                    </div>
+                  </div>
+                  
+                  {rate.annualRate && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium">Taxa Anual: {rate.annualRate.toFixed(5)}</p>
+                    </div>
+                  )}
+
+                  {Object.keys(rate.monthlyRates).length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Taxas Mensais:</p>
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        {selectedMonth === 'all' ? (
+                          <>
+                            <div>Jan: {rate.monthlyRates.jan?.toFixed(5) || '—'}</div>
+                            <div>Fev: {rate.monthlyRates.fev?.toFixed(5) || '—'}</div>
+                            <div>Mar: {rate.monthlyRates.mar?.toFixed(5) || '—'}</div>
+                            <div>Abr: {rate.monthlyRates.abr?.toFixed(5) || '—'}</div>
+                            <div>Mai: {rate.monthlyRates.mai?.toFixed(5) || '—'}</div>
+                            <div>Jun: {rate.monthlyRates.jun?.toFixed(5) || '—'}</div>
+                            <div>Jul: {rate.monthlyRates.jul?.toFixed(5) || '—'}</div>
+                            <div>Ago: {rate.monthlyRates.ago?.toFixed(5) || '—'}</div>
+                            <div>Set: {rate.monthlyRates.set?.toFixed(5) || '—'}</div>
+                            <div>Out: {rate.monthlyRates.out?.toFixed(5) || '—'}</div>
+                            <div>Nov: {rate.monthlyRates.nov?.toFixed(5) || '—'}</div>
+                            <div>Dez: {rate.monthlyRates.dez?.toFixed(5) || '—'}</div>
+                          </>
+                        ) : (
+                          <div className="col-span-3 text-center font-medium">
+                            {months.find(m => m.value === selectedMonth)?.label}: {
+                              rate.monthlyRates[selectedMonth as keyof typeof rate.monthlyRates]?.toFixed(5) || '—'
+                            }
+                          </div>
+                        )}
                       </div>
                     </div>
-                    
-                    {rate.annualRate && (
-                      <div className="mb-3">
-                        <p className="text-sm font-medium">Taxa Anual: {rate.annualRate.toFixed(5)}</p>
-                      </div>
-                    )}
-
-                    {Object.keys(rate.monthlyRates).length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium">Taxas Mensais:</p>
-                        <div className="grid grid-cols-3 gap-2 text-xs">
-                          {selectedMonth === 'all' ? (
-                            <>
-                              <div>Jan: {rate.monthlyRates.jan?.toFixed(5) || '—'}</div>
-                              <div>Fev: {rate.monthlyRates.fev?.toFixed(5) || '—'}</div>
-                              <div>Mar: {rate.monthlyRates.mar?.toFixed(5) || '—'}</div>
-                              <div>Abr: {rate.monthlyRates.abr?.toFixed(5) || '—'}</div>
-                              <div>Mai: {rate.monthlyRates.mai?.toFixed(5) || '—'}</div>
-                              <div>Jun: {rate.monthlyRates.jun?.toFixed(5) || '—'}</div>
-                              <div>Jul: {rate.monthlyRates.jul?.toFixed(5) || '—'}</div>
-                              <div>Ago: {rate.monthlyRates.ago?.toFixed(5) || '—'}</div>
-                              <div>Set: {rate.monthlyRates.set?.toFixed(5) || '—'}</div>
-                              <div>Out: {rate.monthlyRates.out?.toFixed(5) || '—'}</div>
-                              <div>Nov: {rate.monthlyRates.nov?.toFixed(5) || '—'}</div>
-                              <div>Dez: {rate.monthlyRates.dez?.toFixed(5) || '—'}</div>
-                            </>
-                          ) : (
-                            <div className="col-span-3 text-center font-medium">
-                              {months.find(m => m.value === selectedMonth)?.label}: {
-                                rate.monthlyRates[selectedMonth as keyof typeof rate.monthlyRates]?.toFixed(5) || '—'
-                              }
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                ))}
+                  )}
+                </Card>
+              ))}
             </div>
           </div>
         </CardContent>

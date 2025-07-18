@@ -48,6 +48,7 @@ import { TransactionsView } from "@/components/transactions-view";
 import { HistoryView } from "@/components/history-view";
 import { CapexBUTable } from "@/components/capex-bu-table";
 import { CapexACTable } from "@/components/capex-ac-table";
+import { CapexSOPTable } from "@/components/capex-sop-table";
 import { HomeButton } from "@/components/home-button";
 import { useExport } from "@/hooks/use-export";
 import { useSapImport } from "@/hooks/use-sap-import";
@@ -909,6 +910,10 @@ export default function ProjectDetail() {
                 <Building2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Capex AC</span>
               </TabsTrigger>
+              <TabsTrigger value="capex-sop" className="gap-2">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Capex SOP</span>
+              </TabsTrigger>
             </TabsList>
 
             {/* Aba Painel de Comando Executivo */}
@@ -1144,6 +1149,13 @@ export default function ProjectDetail() {
                 project={project} 
                 globalCurrency={selectedCurrency}
                 globalYear={selectedYear}
+              />
+            </TabsContent>
+
+            {/* Aba Capex SOP */}
+            <TabsContent value="capex-sop" className="space-y-6">
+              <CapexSOPTable 
+                project={project} 
               />
             </TabsContent>
           </Tabs>

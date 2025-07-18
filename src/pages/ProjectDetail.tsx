@@ -56,6 +56,7 @@ import { EditHistory } from "@/components/edit-history";
 import { ContextualNotifications } from "@/components/contextual-notifications";
 import { MotivationalFeedback } from "@/components/motivational-feedback";
 import { GlobalCurrencyConfig } from "@/components/global-currency-config";
+import { useCurrency } from "@/contexts/currency-context";
 
 // Mock data for demo purposes - generates dynamic data based on project ID  
 const generateMockProject = (projectId: string) => {
@@ -334,9 +335,8 @@ export default function ProjectDetail() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   
-  // Global currency and year configuration
-  const [globalCurrency, setGlobalCurrency] = useState("BRL");
-  const [globalYear, setGlobalYear] = useState("2025");
+  // Global currency and year configuration from context
+  const { selectedCurrency, selectedYear, convertAmount, setSelectedCurrency, setSelectedYear, refreshKey } = useCurrency();
   const [transactionFilters, setTransactionFilters] = useState<{
     category?: string;
     capex_opex?: string;
@@ -357,16 +357,10 @@ export default function ProjectDetail() {
   const formatCurrencyWithConversion = (amount: number) => {
     const symbols = { BRL: "R$", USD: "$", SEK: "kr" };
     
-    // Simple conversion rates (mock)
-    const conversionRates = {
-      BRL: { BRL: 1, USD: 5.5, SEK: 0.6 },
-      USD: { BRL: 0.18, USD: 1, SEK: 0.11 },
-      SEK: { BRL: 1.67, USD: 9.2, SEK: 1 }
-    };
+    // Use the global currency context conversion function
+    const convertedAmount = convertAmount(amount, project.currency || 'BRL');
     
-    const convertedAmount = amount * (conversionRates[project.currency as keyof typeof conversionRates]?.[globalCurrency as keyof typeof conversionRates.BRL] || 1);
-    
-    return `${symbols[globalCurrency as keyof typeof symbols]} ${convertedAmount.toLocaleString("pt-BR")}`;
+    return `${symbols[selectedCurrency as keyof typeof symbols] || selectedCurrency} ${convertedAmount.toLocaleString("pt-BR")}`;
   };
 
   const getProgressColor = (progress: number) => {
@@ -859,10 +853,10 @@ export default function ProjectDetail() {
         <div className="container mx-auto px-6 py-4">
           <GlobalCurrencyConfig
             projectCurrency={project.currency}
-            selectedCurrency={globalCurrency}
-            selectedYear={globalYear}
-            onCurrencyChange={setGlobalCurrency}
-            onYearChange={setGlobalYear}
+            selectedCurrency={selectedCurrency}
+            selectedYear={selectedYear}
+            onCurrencyChange={setSelectedCurrency}
+            onYearChange={setSelectedYear}
           />
         </div>
 
@@ -931,8 +925,8 @@ export default function ProjectDetail() {
                 project={project}
                 transactions={transactions}
                 baselines={baselines}
-                selectedCurrency={globalCurrency}
-                selectedYear={globalYear}
+                selectedCurrency={selectedCurrency}
+                selectedYear={selectedYear}
                 onBaselineCreate={() => {
                   fetchProjectData();
                   toast({
@@ -999,8 +993,8 @@ export default function ProjectDetail() {
                 filters={transactionFilters}
                 onFiltersChange={setTransactionFilters}
                 onTransactionAdd={handleTransactionAdded}
-                selectedCurrency={globalCurrency}
-                selectedYear={globalYear}
+                selectedCurrency={selectedCurrency}
+                selectedYear={selectedYear}
               />
             </TabsContent>
 
@@ -1010,8 +1004,8 @@ export default function ProjectDetail() {
                 project={project}
                 transactions={transactions}
                 baselines={baselines}
-                selectedCurrency={globalCurrency}
-                selectedYear={globalYear}
+                selectedCurrency={selectedCurrency}
+                selectedYear={selectedYear}
               />
             </TabsContent>
 
@@ -1020,8 +1014,8 @@ export default function ProjectDetail() {
               <PlanningView 
                 project={project}
                 transactions={transactions}
-                selectedCurrency={globalCurrency}
-                selectedYear={globalYear}
+                selectedCurrency={selectedCurrency}
+                selectedYear={selectedYear}
               />
             </TabsContent>
 
@@ -1139,8 +1133,8 @@ export default function ProjectDetail() {
             <TabsContent value="capex-bu" className="space-y-6">
               <CapexBUTable 
                 project={project} 
-                globalCurrency={globalCurrency}
-                globalYear={globalYear}
+                globalCurrency={selectedCurrency}
+                globalYear={selectedYear}
               />
             </TabsContent>
 
@@ -1148,8 +1142,8 @@ export default function ProjectDetail() {
             <TabsContent value="capex-ac" className="space-y-6">
               <CapexACTable 
                 project={project} 
-                globalCurrency={globalCurrency}
-                globalYear={globalYear}
+                globalCurrency={selectedCurrency}
+                globalYear={selectedYear}
               />
             </TabsContent>
           </Tabs>

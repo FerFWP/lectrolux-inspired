@@ -35,13 +35,61 @@ interface ExchangeRateData {
 
 const VmoLatamMultiMoeda = () => {
   const [selectedYear, setSelectedYear] = useState<string>('2024');
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [showSekModal, setShowSekModal] = useState(false);
   const [newSekRate, setNewSekRate] = useState('');
 
   // Mock data - in real app would come from API
   const exchangeRatesData: ExchangeRateData[] = [
+    // 2023 Data
     {
-      id: '1',
+      id: '1-2023',
+      country: 'Argentina',
+      currency: 'ARS',
+      year: '2023',
+      period: 'Anual',
+      annualRate: 0.0048,
+      monthlyRates: {},
+      type: 'BU Rate'
+    },
+    {
+      id: '2-2023',
+      country: 'Brasil',
+      currency: 'BRL',
+      year: '2023',
+      period: 'Mensal',
+      monthlyRates: {
+        jan: 0.19, fev: 0.19, mar: 0.20, abr: 0.20, mai: 0.19,
+        jun: 0.20, jul: 0.19, ago: 0.20, set: 0.20, out: 0.20, nov: 0.19, dez: 0.20
+      },
+      type: 'AVG Rate'
+    },
+    {
+      id: '3-2023',
+      country: 'Chile',
+      currency: 'CLP',
+      year: '2023',
+      period: 'Anual',
+      annualRate: 0.00125,
+      monthlyRates: {},
+      type: 'BU Rate'
+    },
+    {
+      id: '4-2023',
+      country: 'Colômbia',
+      currency: 'COP',
+      year: '2023',
+      period: 'Mensal',
+      monthlyRates: {
+        jan: 0.00022, fev: 0.00021, mar: 0.00023, abr: 0.00021, mai: 0.00020,
+        jun: 0.00019, jul: 0.00022, ago: 0.00024, set: 0.00021, out: 0.00020, nov: 0.00022, dez: 0.00023
+      },
+      type: 'AVG Rate'
+    },
+
+    // 2024 Data
+    {
+      id: '1-2024',
       country: 'Argentina',
       currency: 'ARS',
       year: '2024',
@@ -51,7 +99,7 @@ const VmoLatamMultiMoeda = () => {
       type: 'BU Rate'
     },
     {
-      id: '2',
+      id: '2-2024',
       country: 'Brasil',
       currency: 'BRL',
       year: '2024',
@@ -63,7 +111,7 @@ const VmoLatamMultiMoeda = () => {
       type: 'AVG Rate'
     },
     {
-      id: '3',
+      id: '3-2024',
       country: 'Chile',
       currency: 'CLP',
       year: '2024',
@@ -73,7 +121,7 @@ const VmoLatamMultiMoeda = () => {
       type: 'BU Rate'
     },
     {
-      id: '4',
+      id: '4-2024',
       country: 'Colômbia',
       currency: 'COP',
       year: '2024',
@@ -85,7 +133,7 @@ const VmoLatamMultiMoeda = () => {
       type: 'AVG Rate'
     },
     {
-      id: '5',
+      id: '5-2024',
       country: 'Equador',
       currency: 'USD',
       year: '2024',
@@ -95,7 +143,7 @@ const VmoLatamMultiMoeda = () => {
       type: 'BU Rate'
     },
     {
-      id: '6',
+      id: '6-2024',
       country: 'USA',
       currency: 'USD',
       year: '2024',
@@ -107,7 +155,7 @@ const VmoLatamMultiMoeda = () => {
       type: 'AVG Rate'
     },
     {
-      id: '7',
+      id: '7-2024',
       country: 'Peru',
       currency: 'PEN',
       year: '2024',
@@ -117,7 +165,7 @@ const VmoLatamMultiMoeda = () => {
       type: 'BU Rate'
     },
     {
-      id: '8',
+      id: '8-2024',
       country: 'Porto Rico',
       currency: 'USD',
       year: '2024',
@@ -125,10 +173,69 @@ const VmoLatamMultiMoeda = () => {
       annualRate: 10.8,
       monthlyRates: {},
       type: 'BU Rate'
+    },
+
+    // 2025 Data (até junho)
+    {
+      id: '1-2025',
+      country: 'Argentina',
+      currency: 'ARS',
+      year: '2025',
+      period: 'Anual',
+      annualRate: 0.0055,
+      monthlyRates: {},
+      type: 'BU Rate'
+    },
+    {
+      id: '2-2025',
+      country: 'Brasil',
+      currency: 'BRL',
+      year: '2025',
+      period: 'Mensal',
+      monthlyRates: {
+        jan: 0.17, fev: 0.17, mar: 0.18, abr: 0.17, mai: 0.16, jun: 0.17
+      },
+      type: 'AVG Rate'
+    },
+    {
+      id: '3-2025',
+      country: 'Chile',
+      currency: 'CLP',
+      year: '2025',
+      period: 'Anual',
+      annualRate: 0.00095,
+      monthlyRates: {},
+      type: 'BU Rate'
+    },
+    {
+      id: '4-2025',
+      country: 'Colômbia',
+      currency: 'COP',
+      year: '2025',
+      period: 'Mensal',
+      monthlyRates: {
+        jan: 0.00028, fev: 0.00027, mar: 0.00029, abr: 0.00026, mai: 0.00025, jun: 0.00024
+      },
+      type: 'AVG Rate'
     }
   ];
 
   const years = ['2022', '2023', '2024', '2025'];
+  const months = [
+    { value: 'all', label: 'Todos os meses' },
+    { value: 'jan', label: 'Janeiro' },
+    { value: 'fev', label: 'Fevereiro' },
+    { value: 'mar', label: 'Março' },
+    { value: 'abr', label: 'Abril' },
+    { value: 'mai', label: 'Maio' },
+    { value: 'jun', label: 'Junho' },
+    { value: 'jul', label: 'Julho' },
+    { value: 'ago', label: 'Agosto' },
+    { value: 'set', label: 'Setembro' },
+    { value: 'out', label: 'Outubro' },
+    { value: 'nov', label: 'Novembro' },
+    { value: 'dez', label: 'Dezembro' }
+  ];
 
   const handleAddSekRate = () => {
     // In real app, would make API call to add new SEK BU rate
@@ -155,7 +262,7 @@ const VmoLatamMultiMoeda = () => {
             <CardTitle>Filtros</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Ano</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
@@ -166,6 +273,21 @@ const VmoLatamMultiMoeda = () => {
                     {years.map((year) => (
                       <SelectItem key={year} value={year}>
                         {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Mês</Label>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                        {month.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -215,65 +337,136 @@ const VmoLatamMultiMoeda = () => {
           <CardTitle>Taxas de Câmbio por País</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>País</TableHead>
-                  <TableHead>Moeda</TableHead>
-                  <TableHead>Ano</TableHead>
-                  <TableHead>Período</TableHead>
-                  <TableHead>Taxa Anual</TableHead>
-                  <TableHead>Jan</TableHead>
-                  <TableHead>Fev</TableHead>
-                  <TableHead>Mar</TableHead>
-                  <TableHead>Abr</TableHead>
-                  <TableHead>Mai</TableHead>
-                  <TableHead>Jun</TableHead>
-                  <TableHead>Jul</TableHead>
-                  <TableHead>Ago</TableHead>
-                  <TableHead>Set</TableHead>
-                  <TableHead>Out</TableHead>
-                  <TableHead>Nov</TableHead>
-                  <TableHead>Dez</TableHead>
-                  <TableHead>Tipo</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {exchangeRatesData
-                  .filter(rate => rate.year === selectedYear)
-                  .map((rate) => (
-                  <TableRow key={rate.id}>
-                    <TableCell className="font-medium">{rate.country}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{rate.currency}</Badge>
-                    </TableCell>
-                    <TableCell>{rate.year}</TableCell>
-                    <TableCell>{rate.period}</TableCell>
-                    <TableCell>
-                      {rate.annualRate ? rate.annualRate.toFixed(5) : '—'}
-                    </TableCell>
-                    <TableCell>{rate.monthlyRates.jan?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.fev?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.mar?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.abr?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.mai?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.jun?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.jul?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.ago?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.set?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.out?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.nov?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>{rate.monthlyRates.dez?.toFixed(5) || '—'}</TableCell>
-                    <TableCell>
-                      <Badge variant={rate.type === 'BU Rate' ? 'default' : 'outline'}>
-                        {rate.type}
-                      </Badge>
-                    </TableCell>
+          <div className="space-y-4">
+            {/* Desktop/Large Screens: Full table */}
+            <div className="hidden lg:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>País</TableHead>
+                    <TableHead>Moeda</TableHead>
+                    <TableHead>Ano</TableHead>
+                    <TableHead>Período</TableHead>
+                    <TableHead>Taxa Anual</TableHead>
+                    <TableHead className="text-center" colSpan={6}>Jan - Jun</TableHead>
+                    <TableHead className="text-center" colSpan={6}>Jul - Dez</TableHead>
+                    <TableHead>Tipo</TableHead>
                   </TableRow>
+                  <TableRow>
+                    <TableHead></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead></TableHead>
+                    <TableHead className="text-xs">Jan</TableHead>
+                    <TableHead className="text-xs">Fev</TableHead>
+                    <TableHead className="text-xs">Mar</TableHead>
+                    <TableHead className="text-xs">Abr</TableHead>
+                    <TableHead className="text-xs">Mai</TableHead>
+                    <TableHead className="text-xs">Jun</TableHead>
+                    <TableHead className="text-xs">Jul</TableHead>
+                    <TableHead className="text-xs">Ago</TableHead>
+                    <TableHead className="text-xs">Set</TableHead>
+                    <TableHead className="text-xs">Out</TableHead>
+                    <TableHead className="text-xs">Nov</TableHead>
+                    <TableHead className="text-xs">Dez</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {exchangeRatesData
+                    .filter(rate => rate.year === selectedYear)
+                    .map((rate) => (
+                    <TableRow key={rate.id}>
+                      <TableCell className="font-medium">{rate.country}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{rate.currency}</Badge>
+                      </TableCell>
+                      <TableCell>{rate.year}</TableCell>
+                      <TableCell>{rate.period}</TableCell>
+                      <TableCell>
+                        {rate.annualRate ? rate.annualRate.toFixed(5) : '—'}
+                      </TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.jan?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.fev?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.mar?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.abr?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.mai?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.jun?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.jul?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.ago?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.set?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.out?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.nov?.toFixed(5) || '—'}</TableCell>
+                      <TableCell className="text-xs">{rate.monthlyRates.dez?.toFixed(5) || '—'}</TableCell>
+                      <TableCell>
+                        <Badge variant={rate.type === 'BU Rate' ? 'default' : 'outline'}>
+                          {rate.type}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile/Tablet: Compact cards */}
+            <div className="lg:hidden space-y-4">
+              {exchangeRatesData
+                .filter(rate => rate.year === selectedYear)
+                .map((rate) => (
+                  <Card key={rate.id} className="p-4">
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div>
+                        <p className="font-semibold">{rate.country}</p>
+                        <Badge variant="secondary" className="text-xs">{rate.currency}</Badge>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={rate.type === 'BU Rate' ? 'default' : 'outline'} className="text-xs">
+                          {rate.type}
+                        </Badge>
+                        <p className="text-sm text-muted-foreground">{rate.period}</p>
+                      </div>
+                    </div>
+                    
+                    {rate.annualRate && (
+                      <div className="mb-3">
+                        <p className="text-sm font-medium">Taxa Anual: {rate.annualRate.toFixed(5)}</p>
+                      </div>
+                    )}
+
+                    {Object.keys(rate.monthlyRates).length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Taxas Mensais:</p>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          {selectedMonth === 'all' ? (
+                            <>
+                              <div>Jan: {rate.monthlyRates.jan?.toFixed(5) || '—'}</div>
+                              <div>Fev: {rate.monthlyRates.fev?.toFixed(5) || '—'}</div>
+                              <div>Mar: {rate.monthlyRates.mar?.toFixed(5) || '—'}</div>
+                              <div>Abr: {rate.monthlyRates.abr?.toFixed(5) || '—'}</div>
+                              <div>Mai: {rate.monthlyRates.mai?.toFixed(5) || '—'}</div>
+                              <div>Jun: {rate.monthlyRates.jun?.toFixed(5) || '—'}</div>
+                              <div>Jul: {rate.monthlyRates.jul?.toFixed(5) || '—'}</div>
+                              <div>Ago: {rate.monthlyRates.ago?.toFixed(5) || '—'}</div>
+                              <div>Set: {rate.monthlyRates.set?.toFixed(5) || '—'}</div>
+                              <div>Out: {rate.monthlyRates.out?.toFixed(5) || '—'}</div>
+                              <div>Nov: {rate.monthlyRates.nov?.toFixed(5) || '—'}</div>
+                              <div>Dez: {rate.monthlyRates.dez?.toFixed(5) || '—'}</div>
+                            </>
+                          ) : (
+                            <div className="col-span-3 text-center font-medium">
+                              {months.find(m => m.value === selectedMonth)?.label}: {
+                                rate.monthlyRates[selectedMonth as keyof typeof rate.monthlyRates]?.toFixed(5) || '—'
+                              }
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+            </div>
           </div>
         </CardContent>
       </Card>

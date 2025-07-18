@@ -47,26 +47,6 @@ export function ChangeLogView({ project }: ChangeLogViewProps) {
   // Mock data - in real app this would come from API
   const mockChangeLogs: ChangeLogEntry[] = [
     {
-      id: "log-1",
-      timestamp: new Date("2024-12-15T10:30:00"),
-      field: "Orçamento",
-      oldValue: "R$ 1.000.000",
-      newValue: "R$ 1.200.000",
-      user: "Maria Santos",
-      category: "Financeiro",
-      section: "Resumo"
-    },
-    {
-      id: "log-2", 
-      timestamp: new Date("2024-12-14T15:45:00"),
-      field: "Status",
-      oldValue: "Planejado",
-      newValue: "Em Andamento",
-      user: "João Silva",
-      category: "Status",
-      section: "Dados Cadastrais"
-    },
-    {
       id: "log-3",
       timestamp: new Date("2024-12-13T09:15:00"),
       field: "Valor Realizado",
@@ -87,16 +67,6 @@ export function ChangeLogView({ project }: ChangeLogViewProps) {
       section: "Capex SOP"
     },
     {
-      id: "log-5",
-      timestamp: new Date("2024-12-11T11:30:00"),
-      field: "Líder do Projeto",
-      oldValue: "Pedro Oliveira",
-      newValue: "Maria Santos",
-      user: "Roberto Admin",
-      category: "Equipe",
-      section: "Dados Cadastrais"
-    },
-    {
       id: "log-6",
       timestamp: new Date("2024-12-10T16:45:00"),
       field: "Investment Category",
@@ -106,16 +76,39 @@ export function ChangeLogView({ project }: ChangeLogViewProps) {
       category: "Classificação",
       section: "Capex IR"
     },
-    {
-      id: "log-7",
-      timestamp: new Date("2024-12-09T08:30:00"),
-      field: "Data de Término",
-      oldValue: "31/12/2024",
-      newValue: "31/03/2025",
-      user: "João Silva",
-      category: "Cronograma",
-      section: "Dados Cadastrais"
-    }
+    // Logs de dados cadastrais só para projetos Manual/Excel
+    ...(project.input === "Manual/Excel" ? [
+      {
+        id: "log-2", 
+        timestamp: new Date("2024-12-14T15:45:00"),
+        field: "Status",
+        oldValue: "Planejado",
+        newValue: "Em Andamento",
+        user: "João Silva",
+        category: "Status",
+        section: "Dados Cadastrais"
+      },
+      {
+        id: "log-5",
+        timestamp: new Date("2024-12-11T11:30:00"),
+        field: "Líder do Projeto",
+        oldValue: "Pedro Oliveira",
+        newValue: "Maria Santos",
+        user: "Roberto Admin",
+        category: "Equipe",
+        section: "Dados Cadastrais"
+      },
+      {
+        id: "log-7",
+        timestamp: new Date("2024-12-09T08:30:00"),
+        field: "Data de Término",
+        oldValue: "31/12/2024",
+        newValue: "31/03/2025",
+        user: "João Silva",
+        category: "Cronograma",
+        section: "Dados Cadastrais"
+      }
+    ] : [])
   ];
 
   const filteredLogs = useMemo(() => {

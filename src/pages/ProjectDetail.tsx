@@ -877,11 +877,7 @@ export default function ProjectDetail() {
         {/* Conteúdo principal com abas */}
         <div className="container mx-auto px-6 py-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-9">
-              <TabsTrigger value="comando" className="gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                <span className="hidden sm:inline">Comando</span>
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="resumo" className="gap-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Resumo</span>
@@ -915,14 +911,6 @@ export default function ProjectDetail() {
                 <span className="hidden sm:inline">Capex SOP</span>
               </TabsTrigger>
             </TabsList>
-
-            {/* Aba Painel de Comando Executivo */}
-            <TabsContent value="comando" className="space-y-6">
-              <ExecutiveDashboard 
-                project={project}
-                baselines={baselines}
-              />
-            </TabsContent>
 
             {/* Aba Resumo Executivo */}
             <TabsContent value="resumo" className="space-y-6">

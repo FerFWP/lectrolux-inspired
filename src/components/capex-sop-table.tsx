@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Check, ChevronRight, ChevronDown } from "lucide-react";
+import { Pencil, Check, ChevronRight, ChevronDown, X } from "lucide-react";
 import { useCurrency } from "@/contexts/currency-context";
 
 interface Project {
@@ -64,7 +64,7 @@ const categoriaOptions = [
 export function CapexSOPTable({ project }: CapexSOPTableProps) {
   const { selectedCurrency, convertAmount } = useCurrency();
   const [editingRow, setEditingRow] = useState<string | null>(null);
-  const [editingField, setEditingField] = useState<string | null>(null);
+  const [tempData, setTempData] = useState<CapexSOPItem | null>(null);
   const [showExtraColumns, setShowExtraColumns] = useState(false);
 
   // Mock data for demonstration
@@ -136,12 +136,30 @@ export function CapexSOPTable({ project }: CapexSOPTableProps) {
            item.jul + item.ago + item.set + item.out + item.nov + item.dez;
   };
 
-  const handleFieldEdit = (rowId: string, field: string, value: any) => {
-    setSopData(prev => prev.map(item => 
-      item.id === rowId ? { ...item, [field]: value } : item
-    ));
+  const handleRowEdit = (item: CapexSOPItem) => {
+    setEditingRow(item.id);
+    setTempData({ ...item });
+  };
+
+  const handleSaveRow = () => {
+    if (tempData && editingRow) {
+      setSopData(prev => prev.map(item => 
+        item.id === editingRow ? tempData : item
+      ));
+    }
     setEditingRow(null);
-    setEditingField(null);
+    setTempData(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRow(null);
+    setTempData(null);
+  };
+
+  const handleFieldChange = (field: string, value: any) => {
+    if (tempData) {
+      setTempData({ ...tempData, [field]: value });
+    }
   };
 
   const months = [
@@ -160,64 +178,47 @@ export function CapexSOPTable({ project }: CapexSOPTableProps) {
   ];
 
   const renderEditableCell = (item: CapexSOPItem, field: string, value: any, type: 'text' | 'number' | 'select' = 'text') => {
-    const isEditing = editingRow === item.id && editingField === field;
+    const isEditing = editingRow === item.id;
+    const displayValue = isEditing && tempData ? tempData[field as keyof CapexSOPItem] : value;
     
     if (isEditing) {
       if (type === 'select' && field === 'categoria') {
         return (
-          <div className="flex items-center gap-1">
-            <Select 
-              value={value} 
-              onValueChange={(newValue) => handleFieldEdit(item.id, field, newValue)}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {categoriaOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select 
+            value={displayValue as string} 
+            onValueChange={(newValue) => handleFieldChange(field, newValue)}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {categoriaOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
       } else {
         return (
-          <div className="flex items-center gap-1">
-            <Input
-              type={type}
-              value={value}
-              onChange={(e) => {
-                const newValue = type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value;
-                handleFieldEdit(item.id, field, newValue);
-              }}
-              className="w-32"
-              autoFocus
-            />
-          </div>
+          <Input
+            type={type}
+            value={displayValue}
+            onChange={(e) => {
+              const newValue = type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value;
+              handleFieldChange(field, newValue);
+            }}
+            className="w-32"
+          />
         );
       }
     }
 
     return (
-      <div className="flex items-center gap-2">
-        <span className="text-sm">
-          {type === 'number' && typeof value === 'number' ? formatCurrency(value) : value}
-        </span>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-6 w-6 p-0"
-          onClick={() => {
-            setEditingRow(item.id);
-            setEditingField(field);
-          }}
-        >
-          <Pencil className="h-3 w-3" />
-        </Button>
-      </div>
+      <span className="text-sm">
+        {field === 'ano' ? value : (type === 'number' && typeof value === 'number' ? formatCurrency(value) : value)}
+      </span>
     );
   };
 
@@ -250,6 +251,7 @@ export function CapexSOPTable({ project }: CapexSOPTableProps) {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[60px]">Ações</TableHead>
                   <TableHead className="w-[180px]">Categoria</TableHead>
                   <TableHead className="w-[100px]">País</TableHead>
                   <TableHead className="w-[80px]">Ano</TableHead>
@@ -275,6 +277,37 @@ export function CapexSOPTable({ project }: CapexSOPTableProps) {
               <TableBody>
                 {sopData.map((item) => (
                   <TableRow key={item.id}>
+                    <TableCell className="w-[60px]">
+                      {editingRow === item.id ? (
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0"
+                            onClick={handleSaveRow}
+                          >
+                            <Check className="h-3 w-3 text-green-600" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0"
+                            onClick={handleCancelEdit}
+                          >
+                            <X className="h-3 w-3 text-red-600" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0"
+                          onClick={() => handleRowEdit(item)}
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </TableCell>
                     <TableCell className="w-[180px]">
                       {renderEditableCell(item, 'categoria', item.categoria, 'select')}
                     </TableCell>

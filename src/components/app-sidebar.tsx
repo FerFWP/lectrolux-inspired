@@ -251,9 +251,10 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   
-  const [vmoLatamOpen, setVmoLatamOpen] = useState(
-    currentPath.startsWith("/vmo-latam")
-  );
+  const [vmoLatamOpen, setVmoLatamOpen] = useState(true); // Sempre aberto para debug
+  // const [vmoLatamOpen, setVmoLatamOpen] = useState(
+  //   currentPath.startsWith("/vmo-latam")
+  // );
   const [inteligenciaOpen, setInteligenciaOpen] = useState(
     currentPath.startsWith("/inteligencia")
   );

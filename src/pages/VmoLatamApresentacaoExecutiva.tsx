@@ -5,10 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Download, Calendar, User, FileText, TrendingUp, TrendingDown, Minus, Upload, X } from "lucide-react";
+import { Download, Calendar, User, FileText, TrendingUp, TrendingDown, Minus, Upload, X, Clock, AlertCircle, CheckCircle } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function VmoLatamApresentacaoExecutiva() {
   const [selectedYear, setSelectedYear] = useState("2024");
@@ -69,9 +70,42 @@ export default function VmoLatamApresentacaoExecutiva() {
   ];
 
   const clusterProjects = [
-    { id: "P001", name: "Sistema ERP Integrado", sop: 2500, ac: 2650, target: 2400, var: 150, assertividade: 106.0 },
-    { id: "P002", name: "Automação Fábrica 4.0", sop: 1800, ac: 1720, target: 1850, var: -130, assertividade: 95.6 },
-    { id: "P003", name: "Modernização IT Infrastructure", sop: 3200, ac: 3100, target: 3150, var: -50, assertividade: 96.9 },
+    { id: "P001", name: "Sistema ERP Integrado", sop: 2500, ac: 2650, target: 2400, var: 150, assertividade: 106.0, status: "on-track" },
+    { id: "P002", name: "Automação Fábrica 4.0", sop: 1800, ac: 1720, target: 1850, var: -130, assertividade: 95.6, status: "attention" },
+    { id: "P003", name: "Modernização IT Infrastructure", sop: 3200, ac: 3100, target: 3150, var: -50, assertividade: 96.9, status: "on-track" },
+  ];
+
+  const timelineData = [
+    { 
+      id: 1, 
+      type: "baseline", 
+      title: "Baseline atualizada", 
+      date: "15/12/2024", 
+      user: "Admin User", 
+      description: "Ajuste de +200 SEK kr no target devido a novo projeto aprovado",
+      icon: FileText,
+      color: "blue"
+    },
+    { 
+      id: 2, 
+      type: "delivery", 
+      title: "Projeto entregue", 
+      date: "01/12/2024", 
+      user: "Maria Silva", 
+      description: "Sistema ERP Integrado - Entrega antecipada resultou em economia de 150 SEK kr",
+      icon: CheckCircle,
+      color: "green"
+    },
+    { 
+      id: 3, 
+      type: "alert", 
+      title: "Alerta de desvio", 
+      date: "25/11/2024", 
+      user: "João Santos", 
+      description: "Automação Fábrica 4.0 - Identificado atraso de 2 semanas por questões de fornecedor",
+      icon: AlertCircle,
+      color: "yellow"
+    },
   ];
 
   const formatCurrency = (value: number) => {
@@ -90,6 +124,38 @@ export default function VmoLatamApresentacaoExecutiva() {
     return "bg-red-100 text-red-800";
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "on-track":
+        return <Badge className="bg-green-100 text-green-800 border-green-200">On Track</Badge>;
+      case "attention":
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Atenção</Badge>;
+      case "critical":
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Crítico</Badge>;
+      default:
+        return <Badge variant="outline">N/A</Badge>;
+    }
+  };
+
+  const getTimelineIcon = (type: string) => {
+    switch (type) {
+      case "baseline": return FileText;
+      case "delivery": return CheckCircle;
+      case "alert": return AlertCircle;
+      default: return Clock;
+    }
+  };
+
+  const getTimelineColor = (color: string) => {
+    switch (color) {
+      case "blue": return "bg-blue-500";
+      case "green": return "bg-green-500";
+      case "yellow": return "bg-yellow-500";
+      case "red": return "bg-red-500";
+      default: return "bg-gray-500";
+    }
+  };
+
   const handleClusterClick = (area: string) => {
     setSelectedCluster(area);
     setIsDrilldownOpen(true);
@@ -97,6 +163,10 @@ export default function VmoLatamApresentacaoExecutiva() {
 
   const exportPresentation = () => {
     console.log("Exportando apresentação executiva...");
+  };
+
+  const exportDrilldownPanel = () => {
+    console.log("Exportando painel de drilldown...");
   };
 
   return (
@@ -501,69 +571,146 @@ export default function VmoLatamApresentacaoExecutiva() {
 
       {/* Drilldown Sheet */}
       <Sheet open={isDrilldownOpen} onOpenChange={setIsDrilldownOpen}>
-        <SheetContent className="w-[600px] sm:w-[800px]">
-          <SheetHeader>
-            <SheetTitle className="flex items-center justify-between">
-              Detalhamento - {selectedCluster}
+        <SheetContent className="w-[520px] overflow-y-auto">
+          {/* Header */}
+          <SheetHeader className="pb-4 border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold">{selectedCluster}</h2>
+                  {getStatusBadge("on-track")}
+                </div>
+              </div>
               <Button variant="ghost" size="sm" onClick={() => setIsDrilldownOpen(false)}>
                 <X className="h-4 w-4" />
               </Button>
-            </SheetTitle>
+            </div>
           </SheetHeader>
           
           <div className="space-y-6 mt-6">
-            {/* Lista de Projetos */}
+            {/* Tabela de Projetos */}
             <div>
-              <h4 className="font-semibold mb-3">Projetos do Cluster</h4>
-              <div className="space-y-3">
-                {clusterProjects.map((project) => (
-                  <div key={project.id} className="border rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">{project.name}</span>
-                      <span className="text-sm text-gray-500">{project.id}</span>
-                    </div>
-                    <div className="grid grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-500">SOP:</span>
-                        <div className="font-medium">{formatCurrency(project.sop)}</div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">AC:</span>
-                        <div className="font-medium">{formatCurrency(project.ac)}</div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Var:</span>
-                        <div className={`font-medium ${project.var >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {formatCurrency(project.var)}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Assertividade:</span>
-                        <div className={`font-medium ${getAssertivenessBg(project.assertividade)} px-2 py-1 rounded text-center`}>
-                          {project.assertividade.toFixed(1)}%
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Justificativas */}
-            <div>
-              <h4 className="font-semibold mb-3">Justificativas e Comentários</h4>
-              <Textarea 
-                placeholder="Adicione justificativas para as variações ou comentários sobre o desempenho do cluster..."
-                className="mb-3"
-              />
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Documento
-                </Button>
-                <Button size="sm">Salvar Comentário</Button>
+              <TooltipProvider>
+                <div className="flex items-center gap-2 mb-3">
+                  <UITooltip>
+                    <TooltipTrigger asChild>
+                      <h4 className="font-semibold cursor-help">Projetos do Cluster</h4>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Lista detalhada dos projetos pertencentes a este cluster</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </div>
+              </TooltipProvider>
+              
+              <div className="bg-white border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <TooltipProvider>
+                        <th className="text-left p-3 font-medium">
+                          <UITooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">Projeto</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Nome e código do projeto</p>
+                            </TooltipContent>
+                          </UITooltip>
+                        </th>
+                        <th className="text-right p-3 font-medium">
+                          <UITooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">SOP</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Sales & Operations Planning - Valor planejado</p>
+                            </TooltipContent>
+                          </UITooltip>
+                        </th>
+                        <th className="text-right p-3 font-medium">
+                          <UITooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">AC</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Actual - Valor realizado atual</p>
+                            </TooltipContent>
+                          </UITooltip>
+                        </th>
+                        <th className="text-right p-3 font-medium">
+                          <UITooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">Target</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Meta estabelecida para o projeto</p>
+                            </TooltipContent>
+                          </UITooltip>
+                        </th>
+                        <th className="text-right p-3 font-medium">
+                          <UITooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">Var</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Variação entre AC e Target</p>
+                            </TooltipContent>
+                          </UITooltip>
+                        </th>
+                        <th className="text-right p-3 font-medium">
+                          <UITooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">Assert.</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Percentual de assertividade (AC/SOP * 100)</p>
+                            </TooltipContent>
+                          </UITooltip>
+                        </th>
+                        <th className="text-center p-3 font-medium">
+                          <UITooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">Status</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Status atual do projeto</p>
+                            </TooltipContent>
+                          </UITooltip>
+                        </th>
+                      </TooltipProvider>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clusterProjects.map((project, index) => (
+                      <tr key={project.id} className={`border-b ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                        <td className="p-3">
+                          <div>
+                            <div className="font-medium text-gray-900">{project.name}</div>
+                            <div className="text-xs text-gray-500">{project.id}</div>
+                          </div>
+                        </td>
+                        <td className="text-right p-3 font-medium">{formatCurrency(project.sop)}</td>
+                        <td className="text-right p-3 font-medium">{formatCurrency(project.ac)}</td>
+                        <td className="text-right p-3 font-medium">{formatCurrency(project.target)}</td>
+                        <td className={`text-right p-3 font-medium ${project.var >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          <div className="flex items-center justify-end gap-1">
+                            {getVariationIcon(project.var)}
+                            {formatCurrency(project.var)}
+                          </div>
+                        </td>
+                        <td className="text-right p-3">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${getAssertivenessBg(project.assertividade)}`}>
+                            {project.assertividade.toFixed(1)}%
+                          </span>
+                        </td>
+                        <td className="text-center p-3">
+                          {getStatusBadge(project.status)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
@@ -571,31 +718,109 @@ export default function VmoLatamApresentacaoExecutiva() {
 
             {/* Timeline de Alterações */}
             <div>
-              <h4 className="font-semibold mb-3">Timeline de Alterações</h4>
+              <TooltipProvider>
+                <div className="flex items-center gap-2 mb-3">
+                  <UITooltip>
+                    <TooltipTrigger asChild>
+                      <h4 className="font-semibold cursor-help">Timeline de Alterações</h4>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Histórico cronológico de mudanças e eventos importantes</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </div>
+              </TooltipProvider>
+              
+              <div className="bg-white border rounded-lg p-4">
+                <div className="space-y-4">
+                  {timelineData.map((item) => {
+                    const IconComponent = getTimelineIcon(item.type);
+                    return (
+                      <div key={item.id} className="flex items-start gap-3">
+                        <div className={`w-8 h-8 ${getTimelineColor(item.color)} rounded-full flex items-center justify-center flex-shrink-0`}>
+                          <IconComponent className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <h5 className="font-medium text-gray-900">{item.title}</h5>
+                            <span className="text-xs text-gray-500">{item.date}</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-1">{item.description}</p>
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <User className="h-3 w-3" />
+                            <span>{item.user}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Justificativas e Comentários */}
+            <div>
+              <TooltipProvider>
+                <div className="flex items-center gap-2 mb-3">
+                  <UITooltip>
+                    <TooltipTrigger asChild>
+                      <h4 className="font-semibold cursor-help">Justificativas e Comentários</h4>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Área para documentar justificativas e observações sobre o desempenho</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </div>
+              </TooltipProvider>
+              
               <div className="space-y-3">
-                <div className="flex items-start gap-3 pb-3 border-b">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <div className="font-medium">Baseline atualizada</div>
-                    <div className="text-sm text-gray-500">15/12/2024 - Revisão mensal dos targets</div>
-                    <div className="text-sm">Ajuste de +200 SEK kr no target devido a novo projeto aprovado</div>
+                <Textarea 
+                  placeholder="Adicione justificativas para as variações ou comentários sobre o desempenho do cluster..."
+                  className="min-h-[80px] text-sm"
+                  defaultValue="Cluster apresentando performance superior ao esperado devido à otimização de processos implementada no Q3. Economia adicional de 150 SEK kr identificada no projeto ERP."
+                />
+                
+                {/* Área de Upload/Visualização de Documentos */}
+                <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <div className="text-center">
+                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600 mb-2">Arraste arquivos aqui ou clique para selecionar</p>
+                    <p className="text-xs text-gray-500">PDF, Excel, PowerPoint até 10MB</p>
+                  </div>
+                  
+                  {/* Documentos anexados (simulado) */}
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center gap-2 p-2 bg-white rounded border">
+                      <FileText className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm flex-1">Ata_Reuniao_BRM_15Dec2024.pdf</span>
+                      <Button size="sm" variant="ghost">
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-white rounded border">
+                      <FileText className="h-4 w-4 text-green-600" />
+                      <span className="text-sm flex-1">Analise_Performance_Q4.xlsx</span>
+                      <Button size="sm" variant="ghost">
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 pb-3 border-b">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <div className="font-medium">Projeto entregue</div>
-                    <div className="text-sm text-gray-500">01/12/2024 - Sistema ERP Integrado</div>
-                    <div className="text-sm">Entrega antecipada resultou em economia de 150 SEK kr</div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Documento
+                    </Button>
+                    <Button size="sm">Salvar Comentário</Button>
                   </div>
-                </div>
-                <div className="flex items-start gap-3 pb-3">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <div className="font-medium">Alerta de desvio</div>
-                    <div className="text-sm text-gray-500">25/11/2024 - Automação Fábrica 4.0</div>
-                    <div className="text-sm">Identificado atraso de 2 semanas por questões de fornecedor</div>
-                  </div>
+                  <Button size="sm" variant="outline" onClick={exportDrilldownPanel}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Exportar Painel
+                  </Button>
                 </div>
               </div>
             </div>

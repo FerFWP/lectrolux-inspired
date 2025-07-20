@@ -603,18 +603,17 @@ export default function ProjectDetail() {
           <div className="container mx-auto px-6 py-4">
             {/* Navegação superior */}
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
-                <HomeButton />
+            <div className="flex items-center gap-3">
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm"
                   onClick={() => navigate("/projetos")}
-                  className="gap-2"
+                  className="gap-1 text-muted-foreground hover:text-foreground px-2 py-1"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  Voltar à Lista
+                  <ArrowLeft className="h-3 w-3" />
+                  <span className="text-xs">Voltar à Lista</span>
                 </Button>
-                <div className="h-6 border-l border-border" />
+                <div className="h-4 border-l border-border" />
                 <h1 className="text-2xl font-bold text-foreground">Detalhes do Projeto</h1>
               </div>
               

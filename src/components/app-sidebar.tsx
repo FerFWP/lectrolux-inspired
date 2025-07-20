@@ -70,7 +70,7 @@ const menuItems: MenuItem[] = [
   { title: "Sugestão de Ações", url: "/inteligencia/sugestoes", icon: Lightbulb, description: "Sugestões baseadas em IA", group: "inteligencia" },
 
   // ADMINISTRAÇÃO
-  { title: "Administração", url: "/user-administration", icon: Settings, description: "Gestão de usuários e sistema", group: "administracao" },
+  { title: "Administração", url: "/administracao", icon: Settings, description: "Gestão de usuários e sistema", group: "administracao" },
   { title: "Gamificação", url: "/gamificacao", icon: Trophy, description: "Sistema de pontuação e rankings", group: "administracao" },
 ];
 

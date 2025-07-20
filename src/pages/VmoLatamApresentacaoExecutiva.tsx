@@ -157,6 +157,7 @@ export default function VmoLatamApresentacaoExecutiva() {
   };
 
   const handleClusterClick = (area: string) => {
+    console.log("Cluster clicked:", area); // Debug log
     setSelectedCluster(area);
     setIsDrilldownOpen(true);
   };
@@ -193,6 +194,10 @@ export default function VmoLatamApresentacaoExecutiva() {
             <Button onClick={exportPresentation} className="bg-blue-600 hover:bg-blue-700">
               <Download className="h-4 w-4 mr-2" />
               Exportar Apresentação
+            </Button>
+            {/* Botão de teste temporário */}
+            <Button onClick={() => {setSelectedCluster("Test"); setIsDrilldownOpen(true);}} variant="outline">
+              Testar Drilldown
             </Button>
           </div>
         </div>

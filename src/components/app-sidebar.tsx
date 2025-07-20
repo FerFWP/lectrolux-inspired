@@ -47,7 +47,6 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   // VISÃO GERAL
-  { title: "Home", url: "/", icon: Home, description: "Página inicial do sistema", group: "visao-geral" },
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, description: "Visão geral dos projetos e KPIs", group: "visao-geral" },
   { title: "Projetos", url: "/projetos", icon: FolderOpen, description: "Gestão de portfólio de projetos", group: "visao-geral" },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, description: "Centro de relatórios financeiros", group: "visao-geral" },

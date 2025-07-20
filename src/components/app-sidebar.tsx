@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { Search, ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSidebarState } from "@/hooks/use-sidebar-state";
 import { 
   LayoutDashboard, 
   FolderOpen, 
@@ -73,11 +73,10 @@ export function AppSidebar() {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedGroups, setExpandedGroups] = useState<string[]>(["visao-geral", "vmo-latam", "inteligencia"]);
   const [filteredItems, setFilteredItems] = useState<MenuItem[]>(menuItems);
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, toggleCollapsed } = useSidebarState();
 
   const currentPath = location.pathname;
 
-  // Filter items based on search
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredItems(menuItems);
@@ -87,7 +86,6 @@ export function AppSidebar() {
         item.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredItems(filtered);
-      // Expand all groups when searching
       if (searchTerm.trim() && filtered.length > 0) {
         setExpandedGroups(menuGroups.map(g => g.id));
       }
@@ -102,10 +100,6 @@ export function AppSidebar() {
     );
   };
 
-  const toggleSidebar = () => {
-    setCollapsed(!collapsed);
-  };
-
   const isActive = (path: string) => currentPath === path;
 
   // Collapsed sidebar (60px width) - sempre visível
@@ -113,15 +107,15 @@ export function AppSidebar() {
     return (
       <div className="fixed left-0 top-0 h-full w-[60px] bg-[#0A3454] border-r border-[#195280] z-[100] flex flex-col">
         {/* Botão de expansão fixo no topo */}
-        <div className="p-3 border-b border-[#195280]">
+        <div className="p-2 border-b border-[#195280]">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={toggleSidebar}
-                  className="w-full h-8 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                  onClick={toggleCollapsed}
+                  className="w-full h-10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-5 w-5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">
@@ -136,11 +130,11 @@ export function AppSidebar() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="w-full h-8 flex items-center justify-center">
+                <div className="w-full h-10 flex items-center justify-center">
                   <img 
                     src="/src/assets/electrolux-logo.png" 
                     alt="Electrolux" 
-                    className="h-5 w-5 object-contain brightness-0 invert"
+                    className="h-6 w-6 object-contain brightness-0 invert"
                   />
                 </div>
               </TooltipTrigger>
@@ -151,9 +145,9 @@ export function AppSidebar() {
           </TooltipProvider>
         </div>
 
-        {/* Ícones dos itens de menu */}
+        {/* Ícones dos itens de menu com melhor formatação */}
         <div className="flex-1 overflow-y-auto p-2">
-          <div className="space-y-1">
+          <div className="space-y-2">
             {menuGroups.map((group, groupIndex) => {
               const groupItems = filteredItems.filter(item => item.group === group.id);
               return (
@@ -165,27 +159,27 @@ export function AppSidebar() {
                           <NavLink
                             to={item.url}
                             className={({ isActive }) =>
-                              `flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 mb-1 ${
+                              `flex items-center justify-center p-3 rounded-lg transition-all duration-200 mb-2 ${
                                 isActive
-                                  ? 'bg-[#144875] border border-[#00CFFF] text-white'
-                                  : 'text-white/70 hover:bg-[#144875] hover:text-white hover:border hover:border-[#00CFFF]/50'
+                                  ? 'bg-[#144875] border border-[#00CFFF] text-white shadow-lg'
+                                  : 'text-white/70 hover:bg-[#144875] hover:text-white hover:border hover:border-[#00CFFF]/50 hover:shadow-md'
                               }`
                             }
                           >
-                            <item.icon className="h-4 w-4" />
+                            <item.icon className="h-5 w-5 flex-shrink-0" />
                           </NavLink>
                         </TooltipTrigger>
                         <TooltipContent side="right">
                           <div>
                             <p className="font-medium text-sm">{item.title}</p>
-                            <p className="text-xs text-gray-500">{item.description}</p>
+                            <p className="text-xs text-gray-400 mt-1">{item.description}</p>
                           </div>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   ))}
                   {groupIndex < menuGroups.length - 1 && groupItems.length > 0 && (
-                    <div className="my-2 h-px bg-[#195280]" />
+                    <div className="my-3 h-px bg-[#195280] mx-2" />
                   )}
                 </div>
               );
@@ -214,7 +208,7 @@ export function AppSidebar() {
               <h2 className="text-white font-semibold text-sm">Gestão Financeira</h2>
             </div>
             <button
-              onClick={toggleSidebar}
+              onClick={toggleCollapsed}
               className="text-white/70 hover:text-white hover:bg-white/10 p-1.5 rounded transition-colors border border-[#195280] hover:border-[#00CFFF]"
             >
               <ChevronLeft className="h-4 w-4" />

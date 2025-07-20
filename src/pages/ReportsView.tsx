@@ -52,7 +52,7 @@ const reports: Report[] = [
     name: 'Portfólio',
     description: 'Visão completa do portfólio de projetos e investimentos',
     icon: PieChart,
-    route: '/vmo-latam/dashboard',
+    route: '/portfolio-cockpit',
     category: 'strategic',
     lastUpdated: 'Hoje',
     previewData: { value: '142 projetos', trend: 'stable', percentage: '0%' }

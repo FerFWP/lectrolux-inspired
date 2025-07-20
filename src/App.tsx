@@ -22,6 +22,7 @@ import VmoLatamComparativo from "./pages/VmoLatamComparativo";
 import VmoLatamGovernanca from "./pages/VmoLatamGovernanca";
 import VmoLatamCapexMeeting from "./pages/VmoLatamCapexMeeting";
 import VmoLatamAssertividadeSop from "./pages/VmoLatamAssertividadeSop";
+import PortfolioCockpit from "./pages/PortfolioCockpit";
 import ReportsView from "./pages/ReportsView";
 import AssistenteDePerguntas from "./pages/AssistenteDePerguntas";
 import ExplanationCenter from "./pages/ExplanationCenter";
@@ -47,8 +48,9 @@ const App = () => (
           <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
           <Route path="/projetos" element={<ProtectedRoute><Layout><ProjectsList /></Layout></ProtectedRoute>} />
           <Route path="/projetos/:id" element={<ProtectedRoute><Layout><ProjectDetail /></Layout></ProtectedRoute>} />
-          <Route path="/relatorios" element={<ProtectedRoute><Layout><ReportsView /></Layout></ProtectedRoute>} />
-          <Route path="/relatorios-dinamicos" element={<ProtectedRoute><Layout><PortfolioDynamicReports /></Layout></ProtectedRoute>} />
+           <Route path="/relatorios" element={<ProtectedRoute><Layout><ReportsView /></Layout></ProtectedRoute>} />
+           <Route path="/portfolio-cockpit" element={<ProtectedRoute><Layout><PortfolioCockpit /></Layout></ProtectedRoute>} />
+           <Route path="/relatorios-dinamicos" element={<ProtectedRoute><Layout><PortfolioDynamicReports /></Layout></ProtectedRoute>} />
           <Route path="/gamificacao" element={<ProtectedRoute><Layout><Gamificacao /></Layout></ProtectedRoute>} />
           <Route path="/administracao" element={<ProtectedRoute><Layout><UserAdministration /></Layout></ProtectedRoute>} />
           <Route path="/updates-center" element={<ProtectedRoute><Layout><UpdatesCenterPage /></Layout></ProtectedRoute>} />

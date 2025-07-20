@@ -486,14 +486,6 @@ const Dashboard = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setShowApprovalWorkflow(!showApprovalWorkflow)}
-          >
-            <Workflow className="h-4 w-4 mr-2" />
-            Aprovações
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
             onClick={() => navigate("/inteligencia/relatorios-dinamicos")}
           >
             <BarChart3 className="h-4 w-4 mr-2" />

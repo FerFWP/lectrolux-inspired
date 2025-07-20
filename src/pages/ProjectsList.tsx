@@ -7,9 +7,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { CompactProjectView } from "@/components/compact-project-view";
 import { SmartFilters } from "@/components/smart-filters";
 import { IntelligentSearch } from "@/components/intelligent-search";
-import { HomeButton } from "@/components/home-button";
 import { ProjectCreateDialog } from "@/components/project-create-dialog";
-import { PendingUpdatesCard } from "@/components/pending-updates-card";
+import { ProjectUploadDialog } from "@/components/project-upload-dialog";
 import { useExport } from "@/hooks/use-export";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -300,7 +299,6 @@ export default function ProjectsList() {
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
-                <HomeButton />
                 <h1 className="text-2xl font-bold text-foreground">Lista de Projetos</h1>
               </div>
               <div className="flex gap-2">
@@ -319,12 +317,10 @@ export default function ProjectsList() {
                     <p>Exportar lista de projetos para Excel com filtros aplicados</p>
                   </TooltipContent>
                 </Tooltip>
+                <ProjectUploadDialog onProjectImported={handleProjectCreated} />
                 <ProjectCreateDialog onProjectCreated={handleProjectCreated} />
               </div>
             </div>
-
-            {/* Notificações de Pendências */}
-            <PendingUpdatesCard initialExpanded={false} />
 
             {/* Barra de busca inteligente */}
             <div className="space-y-4">

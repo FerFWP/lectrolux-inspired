@@ -21,6 +21,7 @@ import VmoLatamSimulacao from "./pages/VmoLatamSimulacao";
 import VmoLatamComparativo from "./pages/VmoLatamComparativo";
 import VmoLatamGovernanca from "./pages/VmoLatamGovernanca";
 import VmoLatamCapexMeeting from "./pages/VmoLatamCapexMeeting";
+import VmoLatamAssertividadeSop from "./pages/VmoLatamAssertividadeSop";
 import ReportsView from "./pages/ReportsView";
 import AssistenteDePerguntas from "./pages/AssistenteDePerguntas";
 import ExplanationCenter from "./pages/ExplanationCenter";
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/vmo-latam/comparativo-valor" element={<ProtectedRoute><Layout><VmoLatamComparativo /></Layout></ProtectedRoute>} />
            <Route path="/vmo-latam/governanca-auditoria" element={<ProtectedRoute><Layout><VmoLatamGovernanca /></Layout></ProtectedRoute>} />
            <Route path="/vmo-latam/capex-meeting" element={<ProtectedRoute><Layout><VmoLatamCapexMeeting /></Layout></ProtectedRoute>} />
+           <Route path="/vmo-latam/assertividade-sop" element={<ProtectedRoute><Layout><VmoLatamAssertividadeSop /></Layout></ProtectedRoute>} />
            <Route path="/vmo-latam/clusters-estrategicos" element={<ProtectedRoute><Layout><ClusterEstrategicos /></Layout></ProtectedRoute>} />
           
           {/* Inteligência Routes - With Sidebar */}

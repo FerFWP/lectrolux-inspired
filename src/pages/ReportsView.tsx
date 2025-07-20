@@ -42,7 +42,7 @@ const reports: Report[] = [
     name: 'Assertividade SOP',
     description: 'Análise de assertividade dos processos Sales & Operations Planning',
     icon: Target,
-    route: '/vmo-latam/dashboard',
+    route: '/vmo-latam/assertividade-sop',
     category: 'operational',
     lastUpdated: 'Ontem',
     previewData: { value: '87.3%', trend: 'up', percentage: '+2.1%' }

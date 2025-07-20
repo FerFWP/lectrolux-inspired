@@ -5,7 +5,6 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
-import { NotificationBadge } from "@/components/ui/notification-badge";
 import { useSidebarState } from "@/hooks/use-sidebar-state";
 import { 
   LayoutDashboard, 
@@ -34,8 +33,6 @@ interface MenuItem {
   icon: any;
   description: string;
   group: string;
-  notifications?: number;
-  status?: "success" | "warning" | "error" | "info";
   shortcut?: string;
 }
 
@@ -47,8 +44,6 @@ const menuItems: MenuItem[] = [
     icon: LayoutDashboard, 
     description: "Visão geral dos projetos e KPIs principais da organização", 
     group: "visao-geral",
-    notifications: 3,
-    status: "info",
     shortcut: "Ctrl+D"
   },
   { 
@@ -57,8 +52,6 @@ const menuItems: MenuItem[] = [
     icon: FolderOpen, 
     description: "Gestão completa do portfólio de projetos estratégicos", 
     group: "visao-geral",
-    notifications: 12,
-    status: "warning",
     shortcut: "Ctrl+P"
   },
   { 
@@ -76,9 +69,7 @@ const menuItems: MenuItem[] = [
     url: "/vmo-latam/dashboard-consolidado", 
     icon: TrendingUp, 
     description: "Visão estratégica consolidada para região LATAM", 
-    group: "vmo-latam",
-    notifications: 5,
-    status: "success"
+    group: "vmo-latam"
   },
   { 
     title: "Multi-moeda & Câmbio", 
@@ -106,9 +97,7 @@ const menuItems: MenuItem[] = [
     url: "/vmo-latam/governanca-auditoria", 
     icon: Shield, 
     description: "Controles de governança e trilhas de auditoria completas", 
-    group: "vmo-latam",
-    notifications: 2,
-    status: "error"
+    group: "vmo-latam"
   },
   { 
     title: "BU Analysis / Capex Monthly", 
@@ -145,9 +134,7 @@ const menuItems: MenuItem[] = [
     url: "/inteligencia/assistente", 
     icon: MessageCircle, 
     description: "IA conversacional para consultas sobre dados e insights", 
-    group: "inteligencia",
-    notifications: 1,
-    status: "info"
+    group: "inteligencia"
   },
   { 
     title: "Explicações de Indicadores", 
@@ -280,17 +267,17 @@ export function AppSidebar() {
             >
               <div className="w-full h-12 flex items-center justify-center bg-white/10 rounded-lg">
                 <img 
-                  src="/src/assets/electrolux-logo.png" 
+                  src="/lovable-uploads/2d37f880-65b5-494e-8f7f-3ebd822105d6.png" 
                   alt="Electrolux" 
-                  className="h-8 w-8 object-contain brightness-0 invert"
+                  className="h-8 w-8 object-contain"
                 />
               </div>
             </EnhancedTooltip>
           </TooltipProvider>
         </div>
 
-        {/* Ícones dos itens de menu */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin">
+        {/* Ícones dos itens de menu com scroll */}
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 hover:scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20">
           {menuGroups.map((group, groupIndex) => {
             const groupItems = filteredItems.filter(item => item.group === group.id);
             return (
@@ -313,13 +300,6 @@ export function AppSidebar() {
                         }
                       >
                         <item.icon className="h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                        {item.notifications && (
-                          <NotificationBadge 
-                            count={item.notifications} 
-                            status={item.status}
-                            pulse={item.status === "error"}
-                          />
-                        )}
                       </NavLink>
                     </EnhancedTooltip>
                   </TooltipProvider>
@@ -338,14 +318,14 @@ export function AppSidebar() {
   // Expanded sidebar (220px width)
   return (
     <div className="fixed left-0 top-0 h-full w-[220px] bg-[#0A3454] border-r border-[#195280] z-[100] flex flex-col shadow-xl">
-      <div className="px-4 py-4 flex-1 flex flex-col">
+      <div className="px-4 py-4 flex-1 flex flex-col min-h-0">
         {/* Header com botão de colapso */}
-        <div className="mb-6">
+        <div className="mb-6 flex-shrink-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center p-2 shadow-md">
                 <img 
-                  src="/src/assets/electrolux-logo.png" 
+                  src="/lovable-uploads/2d37f880-65b5-494e-8f7f-3ebd822105d6.png" 
                   alt="Electrolux" 
                   className="w-full h-full object-contain"
                 />
@@ -375,94 +355,87 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* Menu Groups */}
-        <div className="space-y-3 flex-1 overflow-y-auto scrollbar-thin">
-          {menuGroups.map((group, groupIndex) => {
-            const groupItems = filteredItems.filter(item => item.group === group.id);
-            const isExpanded = expandedGroups.includes(group.id);
-            
-            if (groupItems.length === 0 && searchTerm) return null;
+        {/* Menu Groups com scroll funcional */}
+        <div className="flex-1 min-h-0">
+          <div className="h-full overflow-y-auto space-y-3 hover:scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/20 pr-2">
+            {menuGroups.map((group, groupIndex) => {
+              const groupItems = filteredItems.filter(item => item.group === group.id);
+              const isExpanded = expandedGroups.includes(group.id);
+              
+              if (groupItems.length === 0 && searchTerm) return null;
 
-            return (
-              <div key={group.id}>
-                <div>
-                  <TooltipProvider>
-                    <EnhancedTooltip 
-                      content={group.title}
-                      description={group.description}
-                    >
-                      <div 
-                        className={`
-                          ${group.color} text-xs font-bold uppercase tracking-wider cursor-pointer 
-                          hover:text-white transition-all duration-200 flex items-center justify-between 
-                          p-3 rounded-lg hover:bg-white/5 mt-2 group
-                        `}
-                        onClick={() => toggleGroup(group.id)}
+              return (
+                <div key={group.id}>
+                  <div>
+                    <TooltipProvider>
+                      <EnhancedTooltip 
+                        content={group.title}
+                        description={group.description}
                       >
-                        <div className="flex items-center space-x-2">
-                          <div className={`w-2 h-2 rounded-full bg-current opacity-60 group-hover:opacity-100`} />
-                          <span>{group.title}</span>
-                        </div>
-                        {groupItems.length > 0 && (
-                          <div className="transition-transform duration-200">
-                            {isExpanded ? 
-                              <ChevronDown className="h-3 w-3" /> : 
-                              <ChevronRight className="h-3 w-3" />
-                            }
+                        <div 
+                          className={`
+                            ${group.color} text-xs font-bold uppercase tracking-wider cursor-pointer 
+                            hover:text-white transition-all duration-200 flex items-center justify-between 
+                            p-3 rounded-lg hover:bg-white/5 mt-2 group
+                          `}
+                          onClick={() => toggleGroup(group.id)}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full bg-current opacity-60 group-hover:opacity-100`} />
+                            <span>{group.title}</span>
                           </div>
-                        )}
-                      </div>
-                    </EnhancedTooltip>
-                  </TooltipProvider>
-
-                  {(isExpanded || searchTerm) && (
-                    <div className="mt-2 space-y-1">
-                      {groupItems.map((item) => (
-                        <div key={item.url}>
-                          <NavLink
-                            to={item.url}
-                            className={({ isActive }) =>
-                              `relative flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 w-full text-sm group ${
-                                isActive
-                                  ? 'bg-[#144875] border-l-4 border-[#00CFFF] text-white font-medium shadow-lg'
-                                  : 'text-white/80 hover:bg-[#144875] hover:text-white hover:border-l-4 hover:border-[#00CFFF] hover:shadow-md'
-                              }`
-                            }
-                          >
-                            <div className="relative">
-                              <item.icon className="h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                              {item.notifications && (
-                                <NotificationBadge 
-                                  count={item.notifications} 
-                                  status={item.status}
-                                  pulse={item.status === "error"}
-                                />
-                              )}
+                          {groupItems.length > 0 && (
+                            <div className="transition-transform duration-200">
+                              {isExpanded ? 
+                                <ChevronDown className="h-3 w-3" /> : 
+                                <ChevronRight className="h-3 w-3" />
+                              }
                             </div>
-                            <span className="leading-tight flex-1">{item.title}</span>
-                            {item.shortcut && (
-                              <kbd className="hidden group-hover:inline-flex h-5 select-none items-center gap-1 rounded border bg-white/10 px-1.5 font-mono text-[10px] font-medium text-white/60">
-                                {item.shortcut}
-                              </kbd>
-                            )}
-                          </NavLink>
+                          )}
                         </div>
-                      ))}
-                    </div>
+                      </EnhancedTooltip>
+                    </TooltipProvider>
+
+                    {(isExpanded || searchTerm) && (
+                      <div className="mt-2 space-y-1">
+                        {groupItems.map((item) => (
+                          <div key={item.url}>
+                            <NavLink
+                              to={item.url}
+                              className={({ isActive }) =>
+                                `relative flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 w-full text-sm group ${
+                                  isActive
+                                    ? 'bg-[#144875] border-l-4 border-[#00CFFF] text-white font-medium shadow-lg'
+                                    : 'text-white/80 hover:bg-[#144875] hover:text-white hover:border-l-4 hover:border-[#00CFFF] hover:shadow-md'
+                                }`
+                              }
+                            >
+                              <item.icon className="h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                              <span className="leading-tight flex-1">{item.title}</span>
+                              {item.shortcut && (
+                                <kbd className="hidden group-hover:inline-flex h-5 select-none items-center gap-1 rounded border bg-white/10 px-1.5 font-mono text-[10px] font-medium text-white/60">
+                                  {item.shortcut}
+                                </kbd>
+                              )}
+                            </NavLink>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {groupIndex < menuGroups.length - 1 && (
+                    <div className="my-4 h-px bg-gradient-to-r from-transparent via-[#195280] to-transparent" />
                   )}
                 </div>
-
-                {groupIndex < menuGroups.length - 1 && (
-                  <div className="my-4 h-px bg-gradient-to-r from-transparent via-[#195280] to-transparent" />
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {/* Search Results */}
         {searchTerm && filteredItems.length === 0 && (
-          <div className="text-center py-8">
+          <div className="text-center py-8 flex-shrink-0">
             <SearchIcon className="h-8 w-8 text-white/50 mx-auto mb-3" />
             <p className="text-white/70 text-sm font-medium">Nenhum resultado encontrado</p>
             <p className="text-white/50 text-xs mt-1">Tente outros termos de busca</p>

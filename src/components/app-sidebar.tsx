@@ -65,12 +65,6 @@ const mainMenuItems = [
     description: "Centro de relatórios financeiros"
   },
   {
-    title: "Relatórios Dinâmicos",
-    url: "/relatorios-dinamicos",
-    icon: FileBarChart,
-    description: "Relatórios personalizados"
-  },
-  {
     title: "Gamificação",
     url: "/gamificacao",
     icon: Award,

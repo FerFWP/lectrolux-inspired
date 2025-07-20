@@ -3,7 +3,10 @@ import {
   Search, Filter, Download, Eye, TrendingUp, TrendingDown, 
   AlertTriangle, CheckCircle, Clock, Pause, Target, 
   Building, DollarSign, Calendar, Users, ArrowRight,
-  BarChart3, PieChart, Activity, Zap, FileText
+  BarChart3, PieChart, Activity, Zap, FileText, Heart,
+  Star, MessageSquare, X, ChevronRight, Flag, Lightbulb,
+  MapPin, User, Mail, Phone, ExternalLink, Copy, Share2,
+  ChevronDown, ChevronUp, Clock3
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,6 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/hooks/use-toast';
 
 interface Project {
@@ -26,6 +31,8 @@ interface Project {
   site: string;
   type: string;
   leader: string;
+  leaderEmail: string;
+  leaderPhone: string;
   completion: number;
   budget: number;
   committed: number;
@@ -40,7 +47,42 @@ interface Project {
   endDate: string;
   lastUpdate: string;
   risks: string[];
+  opportunities: string[];
+  highlights: string[];
+  nextSteps: string[];
   nextMilestones: string[];
+  phases: Phase[];
+  comments: Comment[];
+  isFavorite?: boolean;
+  isFollowing?: boolean;
+  savingsTarget: number;
+  kpiHistory: KPIHistory[];
+}
+
+interface Phase {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: 'completed' | 'in-progress' | 'pending' | 'delayed';
+  completion: number;
+}
+
+interface Comment {
+  id: string;
+  author: string;
+  date: string;
+  text: string;
+  type: 'update' | 'risk' | 'milestone' | 'comment';
+}
+
+interface KPIHistory {
+  month: string;
+  budget: number;
+  realized: number;
+  committed: number;
+  plannedSavings: number;
+  realizedSavings: number;
 }
 
 // Mock data
@@ -48,32 +90,105 @@ const mockProjects: Project[] = [
   {
     id: '1', name: 'Automação Linha A', code: 'AUTO-001', area: 'Produção', 
     status: 'ok', category: 'Automação', site: 'Curitiba', type: 'Capex',
-    leader: 'Maria Silva', completion: 85, budget: 2500000, committed: 2400000, 
-    realized: 2100000, plannedSavings: 800000, realizedSavings: 680000,
+    leader: 'Maria Silva', leaderEmail: 'maria.silva@electrolux.com', leaderPhone: '+55 41 99999-0001',
+    completion: 85, budget: 2500000, committed: 2400000, realized: 2100000, 
+    plannedSavings: 800000, realizedSavings: 680000, savingsTarget: 850000,
     buStatus: 'green', irStatus: 'green', timingStatus: 'yellow', savingStatus: 'green',
     startDate: '2024-01-15', endDate: '2024-12-30', lastUpdate: '2024-07-20',
-    risks: ['Atraso na entrega de equipamentos'], 
-    nextMilestones: ['Instalação final - Ago 2024', 'Testes - Set 2024']
+    risks: ['Atraso na entrega de equipamentos'],
+    opportunities: ['Otimização adicional identificada', 'Possível aplicação em outras linhas'],
+    highlights: ['Redução de 40% no tempo de setup', 'Melhoria na qualidade do produto'],
+    nextSteps: ['Finalizar instalação dos sensores', 'Treinamento da equipe de operação'],
+    nextMilestones: ['Instalação final - Ago 2024', 'Testes - Set 2024'],
+    isFavorite: true,
+    isFollowing: false,
+    phases: [
+      { id: '1', name: 'Planejamento', startDate: '2024-01-15', endDate: '2024-02-28', status: 'completed', completion: 100 },
+      { id: '2', name: 'Aquisição', startDate: '2024-03-01', endDate: '2024-05-31', status: 'completed', completion: 100 },
+      { id: '3', name: 'Instalação', startDate: '2024-06-01', endDate: '2024-09-30', status: 'in-progress', completion: 75 },
+      { id: '4', name: 'Testes', startDate: '2024-10-01', endDate: '2024-11-30', status: 'pending', completion: 0 },
+      { id: '5', name: 'Go-live', startDate: '2024-12-01', endDate: '2024-12-30', status: 'pending', completion: 0 }
+    ],
+    comments: [
+      { id: '1', author: 'Maria Silva', date: '2024-07-20', text: 'Instalação dos equipamentos principais concluída com sucesso', type: 'update' },
+      { id: '2', author: 'João Técnico', date: '2024-07-19', text: 'Identificado atraso na entrega dos sensores - impacto de 1 semana', type: 'risk' },
+      { id: '3', author: 'Ana Gerente', date: '2024-07-18', text: 'Milestone de aquisição atingido antes do prazo', type: 'milestone' }
+    ],
+    kpiHistory: [
+      { month: 'Jan', budget: 2500000, realized: 125000, committed: 2400000, plannedSavings: 800000, realizedSavings: 0 },
+      { month: 'Fev', budget: 2500000, realized: 350000, committed: 2400000, plannedSavings: 800000, realizedSavings: 0 },
+      { month: 'Mar', budget: 2500000, realized: 650000, committed: 2400000, plannedSavings: 800000, realizedSavings: 120000 },
+      { month: 'Abr', budget: 2500000, realized: 980000, committed: 2400000, plannedSavings: 800000, realizedSavings: 250000 },
+      { month: 'Mai', budget: 2500000, realized: 1350000, committed: 2400000, plannedSavings: 800000, realizedSavings: 380000 },
+      { month: 'Jun', budget: 2500000, realized: 1720000, committed: 2400000, plannedSavings: 800000, realizedSavings: 520000 },
+      { month: 'Jul', budget: 2500000, realized: 2100000, committed: 2400000, plannedSavings: 800000, realizedSavings: 680000 }
+    ]
   },
   {
     id: '2', name: 'Eficiência Energética', code: 'EE-002', area: 'Sustentabilidade',
     status: 'critical', category: 'Energia', site: 'São Paulo', type: 'Opex',
-    leader: 'João Santos', completion: 35, budget: 1800000, committed: 1600000,
-    realized: 630000, plannedSavings: 1200000, realizedSavings: 420000,
+    leader: 'João Santos', leaderEmail: 'joao.santos@electrolux.com', leaderPhone: '+55 11 99999-0002',
+    completion: 35, budget: 1800000, committed: 1600000, realized: 630000, 
+    plannedSavings: 1200000, realizedSavings: 420000, savingsTarget: 1300000,
     buStatus: 'red', irStatus: 'yellow', timingStatus: 'red', savingStatus: 'red',
     startDate: '2024-03-01', endDate: '2024-11-15', lastUpdate: '2024-07-19',
-    risks: ['Orçamento insuficiente', 'Resistência interna'], 
-    nextMilestones: ['Revisão de escopo - Ago 2024']
+    risks: ['Orçamento insuficiente', 'Resistência interna', 'Dependência de aprovações externas'],
+    opportunities: ['Incentivos fiscais disponíveis', 'Parceria com fornecedor'],
+    highlights: ['Redução de 15% no consumo energético', 'Certificação ambiental'],
+    nextSteps: ['Revisar escopo do projeto', 'Reunião com stakeholders'],
+    nextMilestones: ['Revisão de escopo - Ago 2024'],
+    isFavorite: false,
+    isFollowing: true,
+    phases: [
+      { id: '1', name: 'Diagnóstico', startDate: '2024-03-01', endDate: '2024-04-30', status: 'completed', completion: 100 },
+      { id: '2', name: 'Planejamento', startDate: '2024-05-01', endDate: '2024-06-30', status: 'delayed', completion: 80 },
+      { id: '3', name: 'Implementação', startDate: '2024-07-01', endDate: '2024-10-31', status: 'in-progress', completion: 20 },
+      { id: '4', name: 'Validação', startDate: '2024-11-01', endDate: '2024-11-15', status: 'pending', completion: 0 }
+    ],
+    comments: [
+      { id: '1', author: 'João Santos', date: '2024-07-19', text: 'Necessário revisão do orçamento devido a custos adicionais', type: 'risk' },
+      { id: '2', author: 'Carlos CFO', date: '2024-07-18', text: 'Aprovação de budget adicional em análise', type: 'update' }
+    ],
+    kpiHistory: [
+      { month: 'Mar', budget: 1800000, realized: 90000, committed: 1600000, plannedSavings: 1200000, realizedSavings: 0 },
+      { month: 'Abr', budget: 1800000, realized: 180000, committed: 1600000, plannedSavings: 1200000, realizedSavings: 50000 },
+      { month: 'Mai', budget: 1800000, realized: 320000, committed: 1600000, plannedSavings: 1200000, realizedSavings: 150000 },
+      { month: 'Jun', budget: 1800000, realized: 480000, committed: 1600000, plannedSavings: 1200000, realizedSavings: 280000 },
+      { month: 'Jul', budget: 1800000, realized: 630000, committed: 1600000, plannedSavings: 1200000, realizedSavings: 420000 }
+    ]
   },
   {
     id: '3', name: 'Melhoria Qualidade', code: 'QUA-003', area: 'Qualidade',
     status: 'attention', category: 'Processo', site: 'Manaus', type: 'Capex',
-    leader: 'Ana Costa', completion: 60, budget: 950000, committed: 850000,
-    realized: 570000, plannedSavings: 400000, realizedSavings: 240000,
+    leader: 'Ana Costa', leaderEmail: 'ana.costa@electrolux.com', leaderPhone: '+55 92 99999-0003',
+    completion: 60, budget: 950000, committed: 850000, realized: 570000, 
+    plannedSavings: 400000, realizedSavings: 240000, savingsTarget: 450000,
     buStatus: 'yellow', irStatus: 'green', timingStatus: 'yellow', savingStatus: 'yellow',
     startDate: '2024-02-01', endDate: '2024-10-31', lastUpdate: '2024-07-18',
     risks: ['Dependência de fornecedor único'],
-    nextMilestones: ['Fase 2 implementação - Set 2024']
+    opportunities: ['Melhoria contínua identificada', 'Aplicação em outros processos'],
+    highlights: ['Redução de 30% nos defeitos', 'Melhoria na satisfação do cliente'],
+    nextSteps: ['Validação dos resultados', 'Documentação de processos'],
+    nextMilestones: ['Fase 2 implementação - Set 2024'],
+    isFavorite: false,
+    isFollowing: false,
+    phases: [
+      { id: '1', name: 'Análise', startDate: '2024-02-01', endDate: '2024-03-31', status: 'completed', completion: 100 },
+      { id: '2', name: 'Implementação Fase 1', startDate: '2024-04-01', endDate: '2024-07-31', status: 'in-progress', completion: 85 },
+      { id: '3', name: 'Implementação Fase 2', startDate: '2024-08-01', endDate: '2024-10-31', status: 'pending', completion: 0 }
+    ],
+    comments: [
+      { id: '1', author: 'Ana Costa', date: '2024-07-18', text: 'Fase 1 quase concluída, resultados promissores', type: 'update' },
+      { id: '2', author: 'Pedro Qualidade', date: '2024-07-17', text: 'Indicadores de qualidade melhoraram significativamente', type: 'milestone' }
+    ],
+    kpiHistory: [
+      { month: 'Fev', budget: 950000, realized: 47500, committed: 850000, plannedSavings: 400000, realizedSavings: 0 },
+      { month: 'Mar', budget: 950000, realized: 142500, committed: 850000, plannedSavings: 400000, realizedSavings: 40000 },
+      { month: 'Abr', budget: 950000, realized: 237500, committed: 850000, plannedSavings: 400000, realizedSavings: 80000 },
+      { month: 'Mai', budget: 950000, realized: 332500, committed: 850000, plannedSavings: 400000, realizedSavings: 120000 },
+      { month: 'Jun', budget: 950000, realized: 427500, committed: 850000, plannedSavings: 400000, realizedSavings: 160000 },
+      { month: 'Jul', budget: 950000, realized: 570000, committed: 850000, plannedSavings: 400000, realizedSavings: 240000 }
+    ]
   }
 ];
 
@@ -89,7 +204,7 @@ const formatCurrency = (value: number, fromCurrency: string = 'BRL'): string => 
 };
 
 export default function PortfolioCockpit() {
-  const [projects] = useState<Project[]>(mockProjects);
+  const [projects, setProjects] = useState<Project[]>(mockProjects);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(mockProjects);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -190,6 +305,379 @@ export default function PortfolioCockpit() {
       title: "Exportando relatório",
       description: "O arquivo será baixado em instantes...",
     });
+  };
+
+  const toggleFavorite = (projectId: string) => {
+    setProjects(prev => prev.map(p => 
+      p.id === projectId ? { ...p, isFavorite: !p.isFavorite } : p
+    ));
+    toast({
+      title: "Favorito atualizado",
+      description: "Projeto adicionado/removido dos favoritos",
+    });
+  };
+
+  const toggleFollowing = (projectId: string) => {
+    setProjects(prev => prev.map(p => 
+      p.id === projectId ? { ...p, isFollowing: !p.isFollowing } : p
+    ));
+    toast({
+      title: "Acompanhamento atualizado",
+      description: "Você está agora acompanhando/não acompanhando este projeto",
+    });
+  };
+
+  const exportProject = (project: Project) => {
+    toast({
+      title: "Exportando projeto",
+      description: `Dados do projeto ${project.code} serão exportados...`,
+    });
+  };
+
+  const getPhaseStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-500';
+      case 'in-progress': return 'bg-blue-500';
+      case 'delayed': return 'bg-red-500';
+      case 'pending': return 'bg-gray-300';
+      default: return 'bg-gray-300';
+    }
+  };
+
+  const ProjectDetailModal = ({ project, onClose }: { project: Project; onClose: () => void }) => {
+    if (!project) return null;
+
+    return (
+      <Dialog open={!!project} onOpenChange={() => onClose()}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+          <DialogHeader className="pb-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <DialogTitle className="text-2xl font-bold">{project.name}</DialogTitle>
+                  <Badge className={`${getStatusColor(project.status)} border`}>
+                    {getStatusIcon(project.status)}
+                    <span className="ml-1 capitalize">{project.status}</span>
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    Atualizado {new Date(project.lastUpdate).toLocaleDateString('pt-BR')}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="font-medium">{project.code}</span>
+                  <span>•</span>
+                  <span>{project.area}</span>
+                  <span>•</span>
+                  <div className="flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    <span>{project.leader}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleFavorite(project.id)}
+                  className={project.isFavorite ? "text-red-500" : "text-muted-foreground"}
+                >
+                  <Heart className={`w-4 h-4 ${project.isFavorite ? "fill-current" : ""}`} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleFollowing(project.id)}
+                  className={project.isFollowing ? "text-blue-500" : "text-muted-foreground"}
+                >
+                  <Star className={`w-4 h-4 ${project.isFollowing ? "fill-current" : ""}`} />
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => exportProject(project)}>
+                  <Download className="w-4 h-4 mr-1" />
+                  Exportar
+                </Button>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <ScrollArea className="max-h-[calc(90vh-120px)]">
+            <div className="space-y-6">
+              {/* Próximos Passos - Destaque no topo */}
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ArrowRight className="w-5 h-5 text-blue-600" />
+                    Próximos Passos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {project.nextSteps.map((step, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                        <span className="text-sm">{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Semáforos */}
+              <div className="grid grid-cols-4 gap-4">
+                {[
+                  { label: 'BU (Business)', status: project.buStatus, tooltip: 'Business Unit - Viabilidade financeira' },
+                  { label: 'IR (Investment)', status: project.irStatus, tooltip: 'Investment Return - Retorno do investimento' },
+                  { label: 'Timing', status: project.timingStatus, tooltip: 'Cronograma e prazo de entrega' },
+                  { label: 'Saving', status: project.savingStatus, tooltip: 'Economia/savings realizados vs. planejados' }
+                ].map((item) => (
+                  <Card key={item.label}>
+                    <CardContent className="p-4 text-center">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="space-y-2">
+                            <div className={`w-8 h-8 rounded-full mx-auto ${getRadarColor(item.status)}`} />
+                            <div className="text-sm font-medium">{item.label}</div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{item.tooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* KPIs */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-1">Orçamento</div>
+                    <div className="text-lg font-bold">{formatCurrency(project.budget)}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-1">Realizado*</div>
+                    <div className="text-lg font-bold">{formatCurrency(project.realized)}</div>
+                    <div className="text-xs text-muted-foreground">*Inclui compromissos</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-1">Comprometido</div>
+                    <div className="text-lg font-bold">{formatCurrency(project.committed)}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-1">Savings</div>
+                    <div className="text-lg font-bold text-green-600">{formatCurrency(project.realizedSavings)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      Meta: {formatCurrency(project.savingsTarget)}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                  <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                  <TabsTrigger value="performance">Performance</TabsTrigger>
+                  <TabsTrigger value="logs">Histórico</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="overview" className="space-y-4">
+                  {/* Destaques Executivos */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Lightbulb className="w-4 h-4 text-green-600" />
+                          Highlights
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {project.highlights.map((highlight, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <CheckCircle className="w-3 h-3 text-green-500 mt-1 flex-shrink-0" />
+                              <span className="text-sm">{highlight}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 text-red-600" />
+                          Riscos
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {project.risks.map((risk, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <AlertTriangle className="w-3 h-3 text-red-500 mt-1 flex-shrink-0" />
+                              <span className="text-sm">{risk}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Target className="w-4 h-4 text-blue-600" />
+                          Oportunidades
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {project.opportunities.map((opportunity, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <Target className="w-3 h-3 text-blue-500 mt-1 flex-shrink-0" />
+                              <span className="text-sm">{opportunity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Informações de Contato */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Informações de Contato</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium">{project.leader}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-muted-foreground" />
+                          <a href={`mailto:${project.leaderEmail}`} className="text-blue-600 hover:underline">
+                            {project.leaderEmail}
+                          </a>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <span>{project.leaderPhone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-muted-foreground" />
+                          <span>{project.site}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="timeline" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Clock3 className="w-5 h-5" />
+                        Timeline de Fases - Mini Gantt
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {project.phases.map((phase) => (
+                          <div key={phase.id} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-3 h-3 rounded-full ${getPhaseStatusColor(phase.status)}`} />
+                                <span className="font-medium">{phase.name}</span>
+                                <Badge variant="outline" className="text-xs">
+                                  {new Date(phase.startDate).toLocaleDateString('pt-BR')} - {new Date(phase.endDate).toLocaleDateString('pt-BR')}
+                                </Badge>
+                              </div>
+                              <div className="text-sm font-medium">
+                                {phase.completion}%
+                              </div>
+                            </div>
+                            <Progress value={phase.completion} className="h-2" />
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Próximos Marcos</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {project.nextMilestones.map((milestone, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <Flag className="w-4 h-4 text-orange-500" />
+                            <span className="text-sm">{milestone}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="performance" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Variação de KPIs (Últimos 6 Meses)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-64 flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
+                        <div className="text-center text-muted-foreground">
+                          <BarChart3 className="w-12 h-12 mx-auto mb-2" />
+                          <p>Gráfico de variação de KPIs</p>
+                          <p className="text-sm">Orçamento vs Realizado vs Savings</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="logs" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5" />
+                        Histórico de Comentários e Atualizações
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {project.comments.map((comment) => (
+                          <div key={comment.id} className="border-l-2 border-muted pl-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-sm">{comment.author}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {comment.type}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(comment.date).toLocaleDateString('pt-BR')}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{comment.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   return (

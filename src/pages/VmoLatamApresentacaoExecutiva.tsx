@@ -20,8 +20,18 @@ export default function VmoLatamApresentacaoExecutiva() {
   const [showOptionalColumns, setShowOptionalColumns] = useState(false);
   const [chartView, setChartView] = useState("monthly");
   const [selectedBaseline, setSelectedBaseline] = useState("current");
+  const [compareBaseline, setCompareBaseline] = useState("");
+  const [showComparison, setShowComparison] = useState(false);
   const [isDrilldownOpen, setIsDrilldownOpen] = useState(false);
   const [selectedCluster, setSelectedCluster] = useState("");
+  const [draggedDimension, setDraggedDimension] = useState<string | null>(null);
+  const [pivotRows, setPivotRows] = useState<string[]>([]);
+  const [pivotColumns, setPivotColumns] = useState<string[]>([]);
+  const [pivotFilters, setPivotFilters] = useState({
+    ano: "2024",
+    area: "All",
+    projeto: "All"
+  });
 
   // Dados simulados para as tabelas
   const comparativeData = [
@@ -106,6 +116,59 @@ export default function VmoLatamApresentacaoExecutiva() {
       icon: AlertCircle,
       color: "yellow"
     },
+  ];
+
+  // Dados simulados para baselines
+  const baselineData = {
+    current: {
+      name: "Baseline Atual (Dez 2024)",
+      comment: "Ajustes realizados conforme revisão trimestral. Inclusão de 3 novos projetos estratégicos e reavaliação de timelines devido a mudanças de prioridade de negócio.",
+      date: "15/12/2024",
+      user: "Admin User",
+      data: comparativeData
+    },
+    nov2024: {
+      name: "Baseline Nov 2024",
+      comment: "Revisão mensal com ajustes de cronograma devido a atrasos em fornecedores internacionais.",
+      date: "15/11/2024",
+      user: "Maria Silva",
+      data: [
+        { area: "BRM", target: 14800, acSop: 15900, var: 1100, goGet: 750, ajusteManual: 150 },
+        { area: "Business Excellence", target: 11800, acSop: 11200, var: -600, goGet: 250, ajusteManual: -150 },
+        { area: "Group Solutions", target: 17800, acSop: 18600, var: 800, goGet: 550, ajusteManual: 100 },
+        { area: "DP&D", target: 21800, acSop: 21500, var: -300, goGet: 350, ajusteManual: -100 },
+      ]
+    },
+    oct2024: {
+      name: "Baseline Out 2024",
+      comment: "Baseline aprovada em comitê executivo com novos investimentos em digitalização.",
+      date: "15/10/2024",
+      user: "João Santos",
+      data: [
+        { area: "BRM", target: 14500, acSop: 15600, var: 1100, goGet: 700, ajusteManual: 100 },
+        { area: "Business Excellence", target: 11500, acSop: 10900, var: -600, goGet: 200, ajusteManual: -200 },
+        { area: "Group Solutions", target: 17500, acSop: 18300, var: 800, goGet: 500, ajusteManual: 50 },
+        { area: "DP&D", target: 21500, acSop: 21200, var: -300, goGet: 300, ajusteManual: -150 },
+      ]
+    }
+  };
+
+  // Dados simulados para tabela dinâmica
+  const pivotData = [
+    { ano: "2024", area: "BRM", projeto: "ERP System", mes: "Jan", tipo: "Target", valor: 1250 },
+    { ano: "2024", area: "BRM", projeto: "ERP System", mes: "Jan", tipo: "AC", valor: 1350 },
+    { ano: "2024", area: "BRM", projeto: "Automation", mes: "Jan", tipo: "Target", valor: 800 },
+    { ano: "2024", area: "BRM", projeto: "Automation", mes: "Jan", tipo: "AC", valor: 750 },
+    { ano: "2024", area: "Business Excellence", projeto: "Process Optimization", mes: "Jan", tipo: "Target", valor: 1000 },
+    { ano: "2024", area: "Business Excellence", projeto: "Process Optimization", mes: "Jan", tipo: "AC", valor: 980 },
+  ];
+
+  const availableDimensions = [
+    { id: "ano", label: "Ano", description: "Filtrar por ano fiscal" },
+    { id: "area", label: "Área", description: "Área ou cluster organizacional" },
+    { id: "projeto", label: "Projeto", description: "Projeto específico" },
+    { id: "mes", label: "Mês", description: "Mês de referência" },
+    { id: "tipo", label: "Tipo de Valor", description: "Target, AC, SOP, etc." }
   ];
 
   const formatCurrency = (value: number) => {
@@ -506,44 +569,149 @@ export default function VmoLatamApresentacaoExecutiva() {
         </Card>
       </div>
 
-      {/* Baseline/Histórico */}
+      {/* Histórico/Baseline Melhorado */}
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">Histórico de Baselines</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4 mb-4">
-            <Select value={selectedBaseline} onValueChange={setSelectedBaseline}>
-              <SelectTrigger className="w-64">
-                <SelectValue placeholder="Selecionar Baseline" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="current">Baseline Atual (Dez 2024)</SelectItem>
-                <SelectItem value="nov2024">Baseline Nov 2024</SelectItem>
-                <SelectItem value="oct2024">Baseline Out 2024</SelectItem>
-                <SelectItem value="sep2024">Baseline Set 2024</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
-              <FileText className="h-4 w-4 mr-2" />
-              Comparar Baselines
-            </Button>
+          {/* Seleção de Baselines */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Baseline Principal:</label>
+              <Select value={selectedBaseline} onValueChange={setSelectedBaseline}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Selecionar Baseline" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="current">Baseline Atual (Dez 2024)</SelectItem>
+                  <SelectItem value="nov2024">Baseline Nov 2024</SelectItem>
+                  <SelectItem value="oct2024">Baseline Out 2024</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Comparar com:</label>
+              <Select value={compareBaseline} onValueChange={(value) => {
+                setCompareBaseline(value);
+                setShowComparison(value !== "");
+              }}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Selecionar para comparar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Nenhuma</SelectItem>
+                  <SelectItem value="current">Baseline Atual (Dez 2024)</SelectItem>
+                  <SelectItem value="nov2024">Baseline Nov 2024</SelectItem>
+                  <SelectItem value="oct2024">Baseline Out 2024</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {/* Timeline Horizontal de Baselines */}
+          <div className="mb-6">
+            <h4 className="font-semibold mb-3">Timeline de Baselines</h4>
+            <div className="flex items-center gap-4 overflow-x-auto pb-4">
+              {Object.entries(baselineData).map(([key, baseline], index) => (
+                <div key={key} className="flex items-center gap-2 min-w-0">
+                  <div 
+                    className={`w-4 h-4 rounded-full cursor-pointer ${
+                      selectedBaseline === key ? 'bg-blue-600' : 'bg-gray-300'
+                    }`}
+                    onClick={() => setSelectedBaseline(key)}
+                  />
+                  <div className="text-sm min-w-max">
+                    <div className="font-medium">{baseline.name}</div>
+                    <div className="text-gray-500">{baseline.date}</div>
+                  </div>
+                  {index < Object.entries(baselineData).length - 1 && (
+                    <div className="w-8 h-0.5 bg-gray-300 mx-2" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tabela de Comparação */}
+          {showComparison && compareBaseline && (
+            <div className="mb-6">
+              <h4 className="font-semibold mb-3">Comparação entre Baselines</h4>
+              <div className="bg-white border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left p-3 font-medium">Área</th>
+                      <th className="text-center p-3 font-medium" colSpan={2}>
+                        {baselineData[selectedBaseline as keyof typeof baselineData]?.name}
+                      </th>
+                      <th className="text-center p-3 font-medium" colSpan={2}>
+                        {baselineData[compareBaseline as keyof typeof baselineData]?.name}
+                      </th>
+                      <th className="text-center p-3 font-medium">Variação</th>
+                    </tr>
+                    <tr className="bg-gray-50 border-t">
+                      <th className="p-3"></th>
+                      <th className="text-right p-3 text-xs">Target</th>
+                      <th className="text-right p-3 text-xs">AC+SOP</th>
+                      <th className="text-right p-3 text-xs">Target</th>
+                      <th className="text-right p-3 text-xs">AC+SOP</th>
+                      <th className="text-right p-3 text-xs">Target Δ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {baselineData[selectedBaseline as keyof typeof baselineData]?.data.map((row, index) => {
+                      const compareRow = baselineData[compareBaseline as keyof typeof baselineData]?.data[index];
+                      const targetDiff = row.target - (compareRow?.target || 0);
+                      const hasChanged = targetDiff !== 0;
+                      
+                      return (
+                        <tr key={index} className={`border-b ${hasChanged ? 'bg-yellow-50' : ''}`}>
+                          <td className="p-3 font-medium">{row.area}</td>
+                          <td className={`text-right p-3 ${hasChanged ? 'bg-blue-100 font-semibold' : ''}`}>
+                            {formatCurrency(row.target)}
+                          </td>
+                          <td className="text-right p-3">{formatCurrency(row.acSop)}</td>
+                          <td className="text-right p-3">{formatCurrency(compareRow?.target || 0)}</td>
+                          <td className="text-right p-3">{formatCurrency(compareRow?.acSop || 0)}</td>
+                          <td className={`text-right p-3 font-semibold ${
+                            targetDiff > 0 ? 'text-green-600' : targetDiff < 0 ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            <div className="flex items-center justify-end gap-1">
+                              {hasChanged && getVariationIcon(targetDiff)}
+                              {formatCurrency(targetDiff)}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
           
+          {/* Comentário da Baseline Selecionada */}
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">Comentário da Baseline Atual:</h4>
+            <h4 className="font-semibold mb-2">
+              Comentário - {baselineData[selectedBaseline as keyof typeof baselineData]?.name}
+            </h4>
             <Textarea 
               className="mb-3 bg-white"
-              defaultValue="Ajustes realizados conforme revisão trimestral. Inclusão de 3 novos projetos estratégicos e reavaliação de timelines devido a mudanças de prioridade de negócio."
+              value={baselineData[selectedBaseline as keyof typeof baselineData]?.comment || ""}
+              readOnly
             />
             <div className="text-sm text-gray-600">
-              <span>Última atualização: 15/12/2024 - Admin User</span>
+              <span>
+                Última atualização: {baselineData[selectedBaseline as keyof typeof baselineData]?.date} - {baselineData[selectedBaseline as keyof typeof baselineData]?.user}
+              </span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Tabela Dinâmica/Cubo */}
+      {/* Cubo/Tabela Dinâmica Melhorado */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -555,21 +723,261 @@ export default function VmoLatamApresentacaoExecutiva() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-2">Arraste e solte dimensões para customizar a análise:</p>
-            <div className="flex gap-2 flex-wrap">
-              <Badge variant="outline" className="cursor-move hover:bg-blue-50">Ano</Badge>
-              <Badge variant="outline" className="cursor-move hover:bg-blue-50">Área</Badge>
-              <Badge variant="outline" className="cursor-move hover:bg-blue-50">Projeto</Badge>
-              <Badge variant="outline" className="cursor-move hover:bg-blue-50">Mês</Badge>
-              <Badge variant="outline" className="cursor-move hover:bg-blue-50">Tipo de Valor</Badge>
+          {/* Filtros Rápidos */}
+          <div className="mb-6">
+            <h4 className="font-semibold mb-3">Filtros Rápidos</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Ano</label>
+                <Select value={pivotFilters.ano} onValueChange={(value) => 
+                  setPivotFilters(prev => ({ ...prev, ano: value }))
+                }>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2024">2024</SelectItem>
+                    <SelectItem value="2023">2023</SelectItem>
+                    <SelectItem value="2022">2022</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Área</label>
+                <Select value={pivotFilters.area} onValueChange={(value) => 
+                  setPivotFilters(prev => ({ ...prev, area: value }))
+                }>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">Todas as Áreas</SelectItem>
+                    <SelectItem value="BRM">BRM</SelectItem>
+                    <SelectItem value="Business Excellence">Business Excellence</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Projeto</label>
+                <Select value={pivotFilters.projeto} onValueChange={(value) => 
+                  setPivotFilters(prev => ({ ...prev, projeto: value }))
+                }>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">Todos os Projetos</SelectItem>
+                    <SelectItem value="ERP System">ERP System</SelectItem>
+                    <SelectItem value="Automation">Automation</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-          
-          <div className="bg-gray-50 p-6 rounded-lg min-h-32 border-2 border-dashed border-gray-300 flex items-center justify-center">
-            <p className="text-center text-gray-500">
-              Solte as dimensões aqui para criar sua análise customizada
-            </p>
+
+          {/* Configuração de Dimensões */}
+          <div className="mb-6">
+            <h4 className="font-semibold mb-3">Configuração da Tabela Dinâmica</h4>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Dimensões Disponíveis */}
+              <div>
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger asChild>
+                      <h5 className="text-sm font-medium mb-2 cursor-help">Dimensões Disponíveis</h5>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Arraste as dimensões para as áreas de linhas ou colunas</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+                <div className="space-y-2">
+                  {availableDimensions.map((dimension) => (
+                    <TooltipProvider key={dimension.id}>
+                      <UITooltip>
+                        <TooltipTrigger asChild>
+                          <Badge 
+                            variant="outline" 
+                            className="w-full justify-start cursor-move hover:bg-blue-50 border-blue-200 p-2"
+                            draggable
+                          >
+                            {dimension.label}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{dimension.description}</p>
+                        </TooltipContent>
+                      </UITooltip>
+                    </TooltipProvider>
+                  ))}
+                </div>
+              </div>
+
+              {/* Área de Linhas */}
+              <div>
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger asChild>
+                      <h5 className="text-sm font-medium mb-2 cursor-help">Linhas</h5>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Dimensões que aparecerão como linhas na tabela</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+                <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4 min-h-[120px]">
+                  {pivotRows.length === 0 ? (
+                    <p className="text-center text-blue-600 text-sm">
+                      Solte dimensões aqui para linhas
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {pivotRows.map((row, index) => (
+                        <Badge key={index} variant="default" className="w-full justify-between">
+                          {row}
+                          <X className="h-3 w-3 cursor-pointer" onClick={() => 
+                            setPivotRows(prev => prev.filter((_, i) => i !== index))
+                          } />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Área de Colunas */}
+              <div>
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger asChild>
+                      <h5 className="text-sm font-medium mb-2 cursor-help">Colunas</h5>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Dimensões que aparecerão como colunas na tabela</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+                <div className="bg-green-50 border-2 border-dashed border-green-300 rounded-lg p-4 min-h-[120px]">
+                  {pivotColumns.length === 0 ? (
+                    <p className="text-center text-green-600 text-sm">
+                      Solte dimensões aqui para colunas
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {pivotColumns.map((col, index) => (
+                        <Badge key={index} variant="default" className="w-full justify-between">
+                          {col}
+                          <X className="h-3 w-3 cursor-pointer" onClick={() => 
+                            setPivotColumns(prev => prev.filter((_, i) => i !== index))
+                          } />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Preview da Tabela Dinâmica */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold">Preview da Tabela</h4>
+              <Button size="sm" onClick={() => {
+                setPivotRows(["area"]);
+                setPivotColumns(["tipo"]);
+              }}>
+                Exemplo Rápido
+              </Button>
+            </div>
+            <div className="bg-white border rounded-lg overflow-hidden">
+              {pivotRows.length > 0 || pivotColumns.length > 0 ? (
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <TooltipProvider>
+                        <th className="text-left p-3 font-medium border-r">
+                          <UITooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">Dimensão</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Linhas da tabela dinâmica</p>
+                            </TooltipContent>
+                          </UITooltip>
+                        </th>
+                        {pivotColumns.includes("tipo") ? (
+                          <>
+                            <th className="text-center p-3 font-medium">
+                              <UITooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">Target</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Valores alvo estabelecidos</p>
+                                </TooltipContent>
+                              </UITooltip>
+                            </th>
+                            <th className="text-center p-3 font-medium">
+                              <UITooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">AC</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Valores realizados (Actual)</p>
+                                </TooltipContent>
+                              </UITooltip>
+                            </th>
+                            <th className="text-center p-3 font-medium">
+                              <UITooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">Variação</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Diferença entre AC e Target</p>
+                                </TooltipContent>
+                              </UITooltip>
+                            </th>
+                          </>
+                        ) : (
+                          <th className="text-center p-3 font-medium">Valores</th>
+                        )}
+                      </TooltipProvider>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pivotRows.includes("area") ? (
+                      ["BRM", "Business Excellence", "Group Solutions"].map((area, index) => (
+                        <tr key={index} className="border-b">
+                          <td className="p-3 font-medium border-r">{area}</td>
+                          {pivotColumns.includes("tipo") ? (
+                            <>
+                              <td className="text-center p-3">{formatCurrency(15000 + index * 2000)}</td>
+                              <td className="text-center p-3">{formatCurrency(15500 + index * 1800)}</td>
+                              <td className="text-center p-3 text-green-600 font-semibold">
+                                {formatCurrency(500 - index * 200)}
+                              </td>
+                            </>
+                          ) : (
+                            <td className="text-center p-3">{formatCurrency(15000 + index * 2000)}</td>
+                          )}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="text-center p-8 text-gray-500">
+                          Configure as dimensões acima para visualizar os dados
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="text-center p-8 text-gray-500">
+                  Arraste dimensões para as áreas de linhas e colunas para criar sua tabela dinâmica
+                </div>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

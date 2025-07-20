@@ -20,7 +20,7 @@ export default function VmoLatamApresentacaoExecutiva() {
   const [showOptionalColumns, setShowOptionalColumns] = useState(false);
   const [chartView, setChartView] = useState("monthly");
   const [selectedBaseline, setSelectedBaseline] = useState("current");
-  const [compareBaseline, setCompareBaseline] = useState("");
+  const [compareBaseline, setCompareBaseline] = useState("none");
   const [showComparison, setShowComparison] = useState(false);
   const [isDrilldownOpen, setIsDrilldownOpen] = useState(false);
   const [selectedCluster, setSelectedCluster] = useState("");
@@ -257,10 +257,6 @@ export default function VmoLatamApresentacaoExecutiva() {
             <Button onClick={exportPresentation} className="bg-blue-600 hover:bg-blue-700">
               <Download className="h-4 w-4 mr-2" />
               Exportar Apresentação
-            </Button>
-            {/* Botão de teste temporário */}
-            <Button onClick={() => {setSelectedCluster("Test"); setIsDrilldownOpen(true);}} variant="outline">
-              Testar Drilldown
             </Button>
           </div>
         </div>
@@ -595,13 +591,13 @@ export default function VmoLatamApresentacaoExecutiva() {
               <label className="text-sm font-medium">Comparar com:</label>
               <Select value={compareBaseline} onValueChange={(value) => {
                 setCompareBaseline(value);
-                setShowComparison(value !== "");
+                setShowComparison(value !== "none");
               }}>
                 <SelectTrigger className="w-64">
                   <SelectValue placeholder="Selecionar para comparar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhuma</SelectItem>
+                  <SelectItem value="none">Nenhuma</SelectItem>
                   <SelectItem value="current">Baseline Atual (Dez 2024)</SelectItem>
                   <SelectItem value="nov2024">Baseline Nov 2024</SelectItem>
                   <SelectItem value="oct2024">Baseline Out 2024</SelectItem>
@@ -635,7 +631,7 @@ export default function VmoLatamApresentacaoExecutiva() {
           </div>
 
           {/* Tabela de Comparação */}
-          {showComparison && compareBaseline && (
+          {showComparison && compareBaseline && compareBaseline !== "none" && (
             <div className="mb-6">
               <h4 className="font-semibold mb-3">Comparação entre Baselines</h4>
               <div className="bg-white border rounded-lg overflow-hidden">

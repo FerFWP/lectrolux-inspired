@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Search, ChevronRight, ChevronDown, Menu, ArrowRight } from "lucide-react";
+import { Search, ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -120,24 +120,25 @@ export function AppSidebar() {
   // Collapsed sidebar (60px width)
   if (collapsed) {
     return (
-      <Sidebar className="w-[60px] bg-[#0A3454] border-r border-[#195280]">
-        <SidebarContent className="px-2 py-3">
-          {/* Botão para expandir fixo no topo */}
-          <div className="mb-4 flex justify-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors border border-[#195280] hover:border-[#00CFFF] w-10 h-10 flex items-center justify-center">
-                    <ArrowRight className="h-4 w-4" />
-                  </SidebarTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Expandir menu</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+      <Sidebar className="relative w-[60px] bg-[#0A3454] border-r border-[#195280] overflow-visible">
+        {/* Trigger absoluto, sempre visível */}
+        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-20">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg">
+                  <ChevronRight className="h-4 w-4" />
+                </SidebarTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Expandir menu</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
 
+        {/* Conteúdo colapsado (ícones) começa após o trigger */}
+        <SidebarContent className="pt-14 px-2">
           {/* Logo compacto */}
           <div className="mb-4 flex justify-center">
             <TooltipProvider>
@@ -158,7 +159,7 @@ export function AppSidebar() {
             </TooltipProvider>
           </div>
 
-          {/* Menu items compactos */}
+          {/* Ícones de cada item de menu */}
           <div className="space-y-1">
             {menuGroups.map((group, groupIndex) => {
               const groupItems = filteredItems.filter(item => item.group === group.id);
@@ -220,7 +221,7 @@ export function AppSidebar() {
               <h2 className="text-white font-semibold text-sm">Gestão Financeira</h2>
             </div>
             <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-1.5 rounded transition-colors border border-[#195280] hover:border-[#00CFFF]">
-              <Menu className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
             </SidebarTrigger>
           </div>
 

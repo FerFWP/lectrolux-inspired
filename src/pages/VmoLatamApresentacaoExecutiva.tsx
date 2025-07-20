@@ -579,17 +579,17 @@ export default function VmoLatamApresentacaoExecutiva() {
         <SheetContent className="w-[520px] overflow-y-auto">
           {/* Header */}
           <SheetHeader className="pb-4 border-b">
-            <div className="flex items-center justify-between">
+            <SheetTitle className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-semibold">{selectedCluster}</h2>
+                  <h2 className="text-lg font-semibold">Detalhamento - {selectedCluster}</h2>
                   {getStatusBadge("on-track")}
                 </div>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setIsDrilldownOpen(false)}>
                 <X className="h-4 w-4" />
               </Button>
-            </div>
+            </SheetTitle>
           </SheetHeader>
           
           <div className="space-y-6 mt-6">

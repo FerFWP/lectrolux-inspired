@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Download, Calendar, User, FileText, TrendingUp, TrendingDown, Minus, Upload, X, Clock, AlertCircle, CheckCircle } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { Download, Calendar, User, FileText, TrendingUp, TrendingDown, Minus, Upload, X, Clock, AlertCircle, CheckCircle, ChevronLeft, ChevronRight, Presentation, Maximize2 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -32,6 +32,10 @@ export default function VmoLatamApresentacaoExecutiva() {
     area: "All",
     projeto: "All"
   });
+  const [presentationMode, setPresentationMode] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const totalSlides = 11;
 
   // Dados simulados para as tabelas
   const comparativeData = [
@@ -171,6 +175,15 @@ export default function VmoLatamApresentacaoExecutiva() {
     { id: "tipo", label: "Tipo de Valor", description: "Target, AC, SOP, etc." }
   ];
 
+  // Dados para gráficos de pizza
+  const assertivenessPieData = [
+    { name: ">100%", value: 1, color: "#22c55e" },
+    { name: "80-100%", value: 2, color: "#eab308" },
+    { name: "<80%", value: 1, color: "#ef4444" }
+  ];
+
+  const COLORS = ['#22c55e', '#eab308', '#ef4444'];
+
   const formatCurrency = (value: number) => {
     return `${value.toLocaleString()} SEK kr`;
   };
@@ -233,6 +246,504 @@ export default function VmoLatamApresentacaoExecutiva() {
     console.log("Exportando painel de drilldown...");
   };
 
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
+
+  const downloadSlide = () => {
+    console.log(`Baixando slide ${currentSlide + 1}...`);
+  };
+
+  const downloadPresentation = () => {
+    console.log("Baixando apresentação completa...");
+  };
+
+  // Controles de teclado
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!presentationMode) return;
+      
+      switch (e.key) {
+        case 'ArrowRight':
+        case ' ':
+          e.preventDefault();
+          nextSlide();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          prevSlide();
+          break;
+        case 'Escape':
+          e.preventDefault();
+          setPresentationMode(false);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [presentationMode, currentSlide]);
+
+  // Componente do Modo Apresentação
+  const PresentationMode = () => {
+    const slideContent = () => {
+      switch (currentSlide) {
+        case 0: // Slide de Capa
+          return (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
+              <img 
+                src="/lovable-uploads/2d37f880-65b5-494e-8f7f-3ebd822105d6.png" 
+                alt="Electrolux Logo" 
+                className="h-20 w-auto mb-8"
+              />
+              <h1 className="text-6xl font-bold text-gray-900 mb-4">
+                BA LA – IT BA LA
+              </h1>
+              <h2 className="text-4xl font-semibold text-blue-700 mb-6">
+                2024 Overview – New Baseline
+              </h2>
+              <div className="text-2xl text-gray-600 space-y-2">
+                <p>Apresentação Executiva de Resultados</p>
+                <p className="text-xl">Dezembro 2024</p>
+                <p className="text-lg text-gray-500">Preparado por: Admin User</p>
+              </div>
+            </div>
+          );
+
+        case 1: // KPIs Gerais
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">KPIs Principais</h1>
+                <p className="text-2xl text-gray-600">Visão Consolidada 2024</p>
+              </div>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="bg-white p-8 rounded-xl shadow-lg border-l-8 border-blue-600">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-semibold text-gray-700 mb-2">Target Total</h3>
+                    <p className="text-5xl font-bold text-blue-600">{formatCurrency(totalRow.target)}</p>
+                  </div>
+                </div>
+                <div className="bg-white p-8 rounded-xl shadow-lg border-l-8 border-green-600">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-semibold text-gray-700 mb-2">AC+SOP</h3>
+                    <p className="text-5xl font-bold text-green-600">{formatCurrency(totalRow.acSop)}</p>
+                  </div>
+                </div>
+                <div className="bg-white p-8 rounded-xl shadow-lg border-l-8 border-purple-600">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-semibold text-gray-700 mb-2">Variação Total</h3>
+                    <p className={`text-5xl font-bold ${totalRow.var >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(totalRow.var)}
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-white p-8 rounded-xl shadow-lg border-l-8 border-orange-600">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-semibold text-gray-700 mb-2">Performance</h3>
+                    <p className="text-5xl font-bold text-orange-600">
+                      {((totalRow.acSop / totalRow.target) * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
+        case 2: // Tabela Comparativa Anual
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">Comparativo Anual</h1>
+                <p className="text-2xl text-gray-600">Target vs AC+SOP por Área (SEK kr)</p>
+              </div>
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <table className="w-full text-xl">
+                  <thead className="bg-blue-700 text-white">
+                    <tr>
+                      <th className="text-left p-6 text-2xl font-bold">Área</th>
+                      <th className="text-right p-6 text-2xl font-bold">Target</th>
+                      <th className="text-right p-6 text-2xl font-bold">AC+SOP</th>
+                      <th className="text-right p-6 text-2xl font-bold">Variação</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparativeData.map((row, index) => (
+                      <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-50`}>
+                        <td className="p-6 font-bold text-gray-900">{row.area}</td>
+                        <td className="text-right p-6 font-semibold">{formatCurrency(row.target)}</td>
+                        <td className="text-right p-6 font-semibold">{formatCurrency(row.acSop)}</td>
+                        <td className={`text-right p-6 font-bold text-2xl ${
+                          row.var >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {formatCurrency(row.var)}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="bg-blue-100 border-t-4 border-blue-700">
+                      <td className="p-6 font-bold text-2xl text-blue-900">{totalRow.area}</td>
+                      <td className="text-right p-6 font-bold text-2xl">{formatCurrency(totalRow.target)}</td>
+                      <td className="text-right p-6 font-bold text-2xl">{formatCurrency(totalRow.acSop)}</td>
+                      <td className={`text-right p-6 font-bold text-3xl ${
+                        totalRow.var >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {formatCurrency(totalRow.var)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+
+        case 3: // Tabela YTD
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">Year-to-Date</h1>
+                <p className="text-2xl text-gray-600">Performance Acumulada 2024</p>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                  <table className="w-full text-lg">
+                    <thead className="bg-green-700 text-white">
+                      <tr>
+                        <th className="text-left p-4 text-xl font-bold">Área</th>
+                        <th className="text-right p-4 text-xl font-bold">AC YTD</th>
+                        <th className="text-right p-4 text-xl font-bold">Target YTD</th>
+                        <th className="text-right p-4 text-xl font-bold">Var</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ytdData.map((row, index) => (
+                        <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                          <td className="p-4 font-semibold">{row.area}</td>
+                          <td className="text-right p-4">{formatCurrency(row.acYtd)}</td>
+                          <td className="text-right p-4">{formatCurrency(row.targetYtd)}</td>
+                          <td className={`text-right p-4 font-bold ${
+                            row.var >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {formatCurrency(row.var)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={ytdData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="area" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                      <Legend />
+                      <Bar dataKey="acYtd" fill="#22c55e" name="AC YTD" />
+                      <Bar dataKey="targetYtd" fill="#3b82f6" name="Target YTD" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          );
+
+        case 4: // Assertividade Mensal
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">Assertividade Mensal</h1>
+                <p className="text-2xl text-gray-600">Performance vs Planejado (%)</p>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                  <table className="w-full text-lg">
+                    <thead className="bg-purple-700 text-white">
+                      <tr>
+                        <th className="text-left p-4 text-xl font-bold">Área</th>
+                        <th className="text-right p-4 text-xl font-bold">SOP</th>
+                        <th className="text-right p-4 text-xl font-bold">AC</th>
+                        <th className="text-right p-4 text-xl font-bold">Assert.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {assertivenessData.map((row, index) => (
+                        <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                          <td className="p-4 font-semibold">{row.area}</td>
+                          <td className="text-right p-4">{formatCurrency(row.sopMes)}</td>
+                          <td className="text-right p-4">{formatCurrency(row.acMes)}</td>
+                          <td className="text-right p-4">
+                            <span className={`px-4 py-2 rounded-full text-lg font-bold ${getAssertivenessBg(row.assertividade)}`}>
+                              {row.assertividade.toFixed(1)}%
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="bg-white rounded-xl shadow-lg p-6 flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={assertivenessPieData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value}`}
+                      >
+                        {assertivenessPieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          );
+
+        case 5: // Gráfico Principal
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">Evolução Target vs AC+SOP</h1>
+                <p className="text-2xl text-gray-600">Acompanhamento Anual 2024</p>
+              </div>
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <ResponsiveContainer width="100%" height={500}>
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" tick={{ fontSize: 16 }} />
+                    <YAxis tick={{ fontSize: 16 }} />
+                    <Tooltip 
+                      formatter={(value, name) => [formatCurrency(Number(value)), name]}
+                      labelStyle={{ fontSize: '16px' }}
+                      contentStyle={{ fontSize: '16px' }}
+                    />
+                    <Legend iconSize={20} />
+                    <Line 
+                      type="monotone" 
+                      dataKey="target" 
+                      stroke="#ef4444" 
+                      strokeWidth={4}
+                      name="Target (-25%)"
+                      strokeDasharray="8 8"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="acSop" 
+                      stroke="#3b82f6" 
+                      strokeWidth={4}
+                      name="AC+SOP"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          );
+
+        case 6: // Gráfico Evolução Mensal
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">Execução Mensal</h1>
+                <p className="text-2xl text-gray-600">BU vs AC+SOP vs Realizados vs Planejados</p>
+              </div>
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <ResponsiveContainer width="100%" height={500}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" tick={{ fontSize: 16 }} />
+                    <YAxis tick={{ fontSize: 16 }} />
+                    <Tooltip 
+                      formatter={(value, name) => [formatCurrency(Number(value)), name]}
+                      labelStyle={{ fontSize: '16px' }}
+                      contentStyle={{ fontSize: '16px' }}
+                    />
+                    <Legend iconSize={20} />
+                    <Bar dataKey="bu" fill="#8884d8" name="BU" />
+                    <Bar dataKey="ac" fill="#82ca9d" name="AC+SOP" />
+                    <Bar dataKey="realizados" fill="#ffc658" name="Realizados" />
+                    <Bar dataKey="planejados" fill="#ff7c7c" name="Planejados" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          );
+
+        case 7: // Drilldown Área/Cluster
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">Detalhamento por Cluster</h1>
+                <p className="text-2xl text-gray-600">Projetos e Performance - BRM</p>
+              </div>
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <table className="w-full text-lg">
+                  <thead className="bg-indigo-700 text-white">
+                    <tr>
+                      <th className="text-left p-4 text-xl font-bold">Projeto</th>
+                      <th className="text-right p-4 text-xl font-bold">SOP</th>
+                      <th className="text-right p-4 text-xl font-bold">AC</th>
+                      <th className="text-right p-4 text-xl font-bold">Target</th>
+                      <th className="text-right p-4 text-xl font-bold">Assert.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clusterProjects.map((project, index) => (
+                      <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                        <td className="p-4 font-semibold">{project.name}</td>
+                        <td className="text-right p-4">{formatCurrency(project.sop)}</td>
+                        <td className="text-right p-4">{formatCurrency(project.ac)}</td>
+                        <td className="text-right p-4">{formatCurrency(project.target)}</td>
+                        <td className="text-right p-4">
+                          <span className={`px-3 py-2 rounded-full text-lg font-bold ${getAssertivenessBg(project.assertividade)}`}>
+                            {project.assertividade.toFixed(1)}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="bg-blue-50 p-6 rounded-xl">
+                <h3 className="text-2xl font-bold text-blue-900 mb-3">Insights Principais</h3>
+                <p className="text-xl text-blue-800">
+                  Cluster BRM apresentando performance superior ao esperado devido à otimização de processos implementada no Q3. 
+                  Economia adicional de 150 SEK kr identificada no projeto ERP.
+                </p>
+              </div>
+            </div>
+          );
+
+        case 8: // Histórico/Baseline
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">Histórico de Baselines</h1>
+                <p className="text-2xl text-gray-600">Evolução e Comparação</p>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {Object.entries(baselineData).map(([key, baseline]) => (
+                  <div key={key} className="bg-white rounded-xl shadow-lg p-6">
+                    <h3 className="text-2xl font-bold text-blue-700 mb-4">{baseline.name}</h3>
+                    <div className="space-y-3">
+                      <p className="text-lg"><strong>Data:</strong> {baseline.date}</p>
+                      <p className="text-lg"><strong>Responsável:</strong> {baseline.user}</p>
+                      <div className="border-t pt-3">
+                        <p className="text-sm text-gray-600">{baseline.comment}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-3xl font-bold text-center text-gray-900 mb-4">Timeline de Evoluções</h3>
+                <div className="flex items-center justify-between">
+                  <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+                  <div className="flex-1 h-1 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 mx-4"></div>
+                  <div className="w-4 h-4 bg-yellow-500 rounded-full"></div>
+                  <div className="flex-1 h-1 bg-gradient-to-r from-yellow-500 to-green-500 mx-4"></div>
+                  <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                </div>
+                <div className="flex justify-between mt-3 text-sm text-gray-600">
+                  <span>Out 2024</span>
+                  <span>Nov 2024</span>
+                  <span>Dez 2024</span>
+                </div>
+              </div>
+            </div>
+          );
+
+        case 9: // Cubo/Tabela Dinâmica
+          return (
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">Análise Customizada</h1>
+                <p className="text-2xl text-gray-600">Tabela Dinâmica - Área vs Tipo de Valor</p>
+              </div>
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <table className="w-full text-xl">
+                  <thead className="bg-gray-700 text-white">
+                    <tr>
+                      <th className="text-left p-6 text-2xl font-bold">Área</th>
+                      <th className="text-center p-6 text-2xl font-bold">Target</th>
+                      <th className="text-center p-6 text-2xl font-bold">AC</th>
+                      <th className="text-center p-6 text-2xl font-bold">Variação</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {["BRM", "Business Excellence", "Group Solutions"].map((area, index) => (
+                      <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                        <td className="p-6 font-bold text-gray-900">{area}</td>
+                        <td className="text-center p-6 font-semibold">{formatCurrency(15000 + index * 2000)}</td>
+                        <td className="text-center p-6 font-semibold">{formatCurrency(15500 + index * 1800)}</td>
+                        <td className="text-center p-6 font-bold text-green-600">
+                          {formatCurrency(500 - index * 200)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="bg-yellow-50 p-6 rounded-xl">
+                <h3 className="text-2xl font-bold text-yellow-900 mb-3">Filtros Aplicados</h3>
+                <div className="grid grid-cols-3 gap-4 text-lg">
+                  <p><strong>Ano:</strong> 2024</p>
+                  <p><strong>Período:</strong> Q4</p>
+                  <p><strong>Moeda:</strong> SEK kr</p>
+                </div>
+              </div>
+            </div>
+          );
+
+        case 10: // Slide de Encerramento
+          return (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
+              <img 
+                src="/lovable-uploads/2d37f880-65b5-494e-8f7f-3ebd822105d6.png" 
+                alt="Electrolux Logo" 
+                className="h-20 w-auto mb-8"
+              />
+              <h1 className="text-6xl font-bold text-gray-900 mb-6">
+                Principais Destaques
+              </h1>
+              <div className="space-y-6 text-2xl text-gray-700 max-w-4xl">
+                <div className="bg-green-100 p-6 rounded-xl">
+                  <p className="font-semibold text-green-800">✓ Performance 108% do target anual</p>
+                </div>
+                <div className="bg-blue-100 p-6 rounded-xl">
+                  <p className="font-semibold text-blue-800">✓ Economia adicional de 1.4M SEK kr identificada</p>
+                </div>
+                <div className="bg-purple-100 p-6 rounded-xl">
+                  <p className="font-semibold text-purple-800">✓ 3 novos projetos estratégicos aprovados</p>
+                </div>
+              </div>
+              <div className="mt-12 text-xl text-gray-600">
+                <p className="font-semibold">Próximos Passos:</p>
+                <p>Implementação Q1 2025 • Revisão mensal • Otimização contínua</p>
+              </div>
+              <div className="mt-8 text-lg text-gray-500">
+                <p>Contato: admin@electrolux.com</p>
+              </div>
+            </div>
+          );
+
+        default:
+          return <div>Slide não encontrado</div>;
+      }
+    };
+
+    return slideContent();
+  };
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       {/* Header Fixo */}
@@ -257,6 +768,10 @@ export default function VmoLatamApresentacaoExecutiva() {
             <Button onClick={exportPresentation} className="bg-blue-600 hover:bg-blue-700">
               <Download className="h-4 w-4 mr-2" />
               Exportar Apresentação
+            </Button>
+            <Button onClick={() => setPresentationMode(true)} className="bg-purple-600 hover:bg-purple-700">
+              <Presentation className="h-4 w-4 mr-2" />
+              Modo Apresentação
             </Button>
           </div>
         </div>
@@ -564,6 +1079,96 @@ export default function VmoLatamApresentacaoExecutiva() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modo Apresentação */}
+      {presentationMode && (
+        <div className="fixed inset-0 bg-black z-50 flex flex-col">
+          {/* Controles de Navegação */}
+          <div className="bg-black/90 p-4 flex items-center justify-between text-white">
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={() => setPresentationMode(false)}
+                variant="outline"
+                className="text-white border-white hover:bg-white hover:text-black"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Sair
+              </Button>
+              <span className="text-lg font-medium">
+                Slide {currentSlide + 1} de {totalSlides}
+              </span>
+            </div>
+            
+            {/* Navegação Central */}
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={prevSlide}
+                variant="outline"
+                className="text-white border-white hover:bg-white hover:text-black"
+                disabled={currentSlide === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              {/* Miniaturas dos Slides */}
+              <div className="flex gap-2 mx-4">
+                {Array.from({ length: totalSlides }, (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentSlide(i)}
+                    className={`w-3 h-3 rounded-full transition-colors ${
+                      i === currentSlide ? 'bg-white' : 'bg-white/30 hover:bg-white/60'
+                    }`}
+                  />
+                ))}
+              </div>
+              
+              <Button 
+                onClick={nextSlide}
+                variant="outline"
+                className="text-white border-white hover:bg-white hover:text-black"
+                disabled={currentSlide === totalSlides - 1}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Controles de Ação */}
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={downloadSlide}
+                variant="outline"
+                className="text-white border-white hover:bg-white hover:text-black"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Baixar Slide
+              </Button>
+              <Button 
+                onClick={downloadPresentation}
+                variant="outline"
+                className="text-white border-white hover:bg-white hover:text-black"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Baixar Tudo
+              </Button>
+            </div>
+          </div>
+
+          {/* Área do Slide */}
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="w-full max-w-[1920px] h-[1080px] max-h-[90vh] bg-white rounded-lg shadow-2xl aspect-video overflow-auto">
+              <div className="w-full h-full p-12">
+                <PresentationMode />
+              </div>
+            </div>
+          </div>
+
+          {/* Controles de Teclado */}
+          <div className="bg-black/90 p-2 text-center text-white/60 text-sm">
+            Use as setas ← → ou clique nos pontos para navegar • ESC para sair
+          </div>
+        </div>
+      )}
 
       {/* Histórico/Baseline Melhorado */}
       <Card>

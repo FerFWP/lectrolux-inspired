@@ -6,8 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, Line, LineChart, ComposedChart } from 'recharts';
-import { Download, TrendingUp, TrendingDown, AlertTriangle, Calendar, DollarSign, Info, Eye, ChevronDown, ChevronRight } from "lucide-react";
+import { Download, TrendingUp, TrendingDown, AlertTriangle, Calendar, DollarSign, Info, Eye, ChevronDown, ChevronRight, ArrowLeft } from "lucide-react";
 import { getMockData } from "@/lib/mock-data";
+import { useNavigate } from 'react-router-dom';
 
 // Mock data específico para BU Analysis
 const mockBUData = {
@@ -179,6 +180,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function VmoLatamCapexMeeting() {
+  const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState("2024");
   const [selectedArea, setSelectedArea] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -211,9 +213,19 @@ export default function VmoLatamCapexMeeting() {
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">BU Analysis / Capex Monthly Meeting</h1>
-            <p className="text-muted-foreground">Análise detalhada do CAPEX e performance mensal por BU</p>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/relatorios')}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar para Relatórios
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">BU Analysis / Capex Monthly Meeting</h1>
+              <p className="text-muted-foreground">Análise detalhada do CAPEX e performance mensal por BU</p>
+            </div>
           </div>
           <Button onClick={exportReport} className="gap-2">
             <Download className="h-4 w-4" />

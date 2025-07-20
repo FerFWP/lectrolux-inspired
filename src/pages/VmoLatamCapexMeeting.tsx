@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, Line, LineChart, ComposedChart } from 'recharts';
-import { Download, TrendingUp, TrendingDown, AlertTriangle, Calendar, DollarSign, Info, Eye, ChevronDown, ChevronRight, ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, Line, LineChart, ComposedChart, Cell } from 'recharts';
+import { Download, TrendingUp, TrendingDown, AlertTriangle, Calendar, DollarSign, Info, Eye, ChevronDown, ChevronRight, ArrowLeft, Search, User, HelpCircle } from "lucide-react";
 import { getMockData } from "@/lib/mock-data";
 import { useNavigate } from 'react-router-dom';
 
@@ -57,6 +60,8 @@ const mockBUData = {
       id: "P001",
       name: "Modernização Linha A",
       area: "Operações",
+      currency: "BRL",
+      committed: 2900000,
       ytdPlan: 3200000,
       ytdAC: 2850000,
       deltaYTD: -350000,
@@ -66,15 +71,25 @@ const mockBUData = {
       fyBU: 4000000,
       status: "attention",
       expandable: true,
+      details: {
+        manager: "João Silva",
+        startDate: "2024-01-15",
+        endDate: "2024-12-15",
+        description: "Modernização completa da linha de produção A com novas tecnologias",
+        risks: "Atraso na entrega de equipamentos",
+        nextMilestone: "Instalação fase 2 - Mar/2024"
+      },
       subProjects: [
-        { name: "Fase 1 - Preparação", ytdPlan: 1200000, ytdAC: 1100000, deltaYTD: -100000, status: "ok" },
-        { name: "Fase 2 - Implementação", ytdPlan: 2000000, ytdAC: 1750000, deltaYTD: -250000, status: "attention" }
+        { name: "Fase 1 - Preparação", currency: "BRL", committed: 1150000, ytdPlan: 1200000, ytdAC: 1100000, deltaYTD: -100000, status: "ok" },
+        { name: "Fase 2 - Implementação", currency: "BRL", committed: 1750000, ytdPlan: 2000000, ytdAC: 1750000, deltaYTD: -250000, status: "attention" }
       ]
     },
     {
       id: "P002",
       name: "Sistema Qualidade",
       area: "Qualidade",
+      currency: "USD",
+      committed: 1750000,
       ytdPlan: 1800000,
       ytdAC: 1650000,
       deltaYTD: -150000,
@@ -83,12 +98,22 @@ const mockBUData = {
       fy: 2400000,
       fyBU: 2300000,
       status: "ok",
-      expandable: false
+      expandable: false,
+      details: {
+        manager: "Ana Costa",
+        startDate: "2024-02-01",
+        endDate: "2024-10-30",
+        description: "Implementação de sistema integrado de qualidade",
+        risks: "Baixo risco",
+        nextMilestone: "Go-live sistema - Jun/2024"
+      }
     },
     {
       id: "P003",
       name: "Eficiência Energética",
       area: "Sustentabilidade",
+      currency: "EUR",
+      committed: 2200000,
       ytdPlan: 2500000,
       ytdAC: 1900000,
       deltaYTD: -600000,
@@ -98,9 +123,17 @@ const mockBUData = {
       fyBU: 3100000,
       status: "critical",
       expandable: true,
+      details: {
+        manager: "Carlos Mendez",
+        startDate: "2024-01-01",
+        endDate: "2024-11-30",
+        description: "Projeto de eficiência energética com painéis solares e conversão LED",
+        risks: "Atraso na aprovação de licenças ambientais",
+        nextMilestone: "Instalação painéis - Mai/2024"
+      },
       subProjects: [
-        { name: "Solar Panels", ytdPlan: 1500000, ytdAC: 1200000, deltaYTD: -300000, status: "attention" },
-        { name: "LED Conversion", ytdPlan: 1000000, ytdAC: 700000, deltaYTD: -300000, status: "critical" }
+        { name: "Solar Panels", currency: "EUR", committed: 1300000, ytdPlan: 1500000, ytdAC: 1200000, deltaYTD: -300000, status: "attention" },
+        { name: "LED Conversion", currency: "EUR", committed: 900000, ytdPlan: 1000000, ytdAC: 700000, deltaYTD: -300000, status: "critical" }
       ]
     }
   ],
@@ -156,9 +189,15 @@ const getHighlightIcon = (type: string) => {
 // Custom tooltip component
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
+    const hasMaxDeviation = payload.some((entry: any) => 
+      entry.name === "Realizado" && Math.abs(entry.value - payload.find((p: any) => p.name === "Planejado")?.value || 0) > 500000
+    );
+    
     return (
-      <div className="bg-background border border-border rounded-lg shadow-lg p-3 min-w-[200px]">
-        <p className="font-medium text-foreground mb-2">{label}</p>
+      <div className={`border border-border rounded-lg shadow-lg p-3 min-w-[200px] ${hasMaxDeviation ? 'bg-red-50 border-red-200' : 'bg-background'}`}>
+        <p className="font-medium text-foreground mb-2">
+          {label} {hasMaxDeviation && <span className="text-red-600 text-xs">(Maior Desvio)</span>}
+        </p>
         <div className="space-y-1">
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center justify-between">
@@ -179,6 +218,51 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+// Modal de detalhes do projeto
+const ProjectDetailsModal = ({ project, isOpen, onClose }: { project: any; isOpen: boolean; onClose: () => void }) => (
+  <Dialog open={isOpen} onOpenChange={onClose}>
+    <DialogContent className="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Detalhes do Projeto: {project?.name}</DialogTitle>
+      </DialogHeader>
+      {project && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Gestor Responsável</label>
+              <p className="text-sm">{project.details?.manager || "—"}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Área</label>
+              <p className="text-sm">{project.area}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Data de Início</label>
+              <p className="text-sm">{project.details?.startDate || "—"}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Data Final</label>
+              <p className="text-sm">{project.details?.endDate || "—"}</p>
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground">Descrição</label>
+            <p className="text-sm">{project.details?.description || "—"}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground">Riscos Identificados</label>
+            <p className="text-sm">{project.details?.risks || "—"}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground">Próximo Marco</label>
+            <p className="text-sm">{project.details?.nextMilestone || "—"}</p>
+          </div>
+        </div>
+      )}
+    </DialogContent>
+  </Dialog>
+);
+
 export default function VmoLatamCapexMeeting() {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState("2024");
@@ -188,6 +272,15 @@ export default function VmoLatamCapexMeeting() {
   const [selectedFinancialStatus, setSelectedFinancialStatus] = useState("all");
   const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
   const [showMoreHighlights, setShowMoreHighlights] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+
+  const userProfile = {
+    name: "Maria Silva",
+    role: "PMO Senior",
+    permissions: ["leitura", "exportação", "drill-down"]
+  };
 
   const toggleProjectExpansion = (projectId: string) => {
     setExpandedProjects(prev => 
@@ -208,9 +301,34 @@ export default function VmoLatamCapexMeeting() {
     }, 0);
   };
 
+  // Funções para abrir modal de detalhes
+  const openProjectDetails = (project: any) => {
+    setSelectedProject(project);
+    setIsProjectModalOpen(true);
+  };
+
+  // Filtrar projetos pela busca
+  const filteredProjects = mockBUData.projects.filter(project =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.area.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <TooltipProvider>
       <div className="p-6 space-y-6">
+        {/* Breadcrumb */}
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/relatorios">Relatórios</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>BU Analysis / Capex Monthly Meeting</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -227,10 +345,34 @@ export default function VmoLatamCapexMeeting() {
               <p className="text-muted-foreground">Análise detalhada do CAPEX e performance mensal por BU</p>
             </div>
           </div>
-          <Button onClick={exportReport} className="gap-2">
-            <Download className="h-4 w-4" />
-            Exportar Relatório
-          </Button>
+          <div className="flex items-center gap-4">
+            {/* Indicador de Perfil do Usuário */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2 px-3 py-2 border rounded-lg bg-muted/50">
+                  <User className="h-4 w-4" />
+                  <div className="text-sm">
+                    <div className="font-medium">{userProfile.name}</div>
+                    <div className="text-xs text-muted-foreground">{userProfile.role}</div>
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-1">
+                  <p className="font-medium">Permissões:</p>
+                  <ul className="text-xs space-y-1">
+                    {userProfile.permissions.map((permission, index) => (
+                      <li key={index}>• {permission}</li>
+                    ))}
+                  </ul>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+            <Button onClick={exportReport} className="gap-2">
+              <Download className="h-4 w-4" />
+              Exportar Relatório
+            </Button>
+          </div>
         </div>
 
         {/* Filtros */}
@@ -518,18 +660,45 @@ export default function VmoLatamCapexMeeting() {
         {/* Tabela Central (Drill-down) */}
         <Card>
           <CardHeader>
-            <CardTitle>Drill-down por Projeto</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Drill-down por Projeto</CardTitle>
+              <div className="flex items-center gap-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar projeto ou área..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-64"
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Projeto/Área</TableHead>
+                  <TableHead className="text-center">
+                    <Tooltip>
+                      <TooltipTrigger>Moeda</TooltipTrigger>
+                      <TooltipContent>
+                        <p>Moeda original do projeto</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableHead>
+                  <TableHead className="text-right">
+                    <Tooltip>
+                      <TooltipTrigger>Comprometido</TooltipTrigger>
+                      <TooltipContent>
+                        <p>Valor já comprometido/contratado</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableHead>
                   <TableHead className="text-right">
                     <Tooltip>
                       <TooltipTrigger>YTD Plan</TooltipTrigger>
                       <TooltipContent>
-                        <p>Year-to-Date Planejado</p>
+                        <p>Year-to-Date Planejado - Origem: SAP Planning</p>
                       </TooltipContent>
                     </Tooltip>
                   </TableHead>
@@ -537,7 +706,7 @@ export default function VmoLatamCapexMeeting() {
                     <Tooltip>
                       <TooltipTrigger>YTD AC</TooltipTrigger>
                       <TooltipContent>
-                        <p>Year-to-Date Actual</p>
+                        <p>Year-to-Date Actual - Origem: SAP Real</p>
                       </TooltipContent>
                     </Tooltip>
                   </TableHead>
@@ -545,14 +714,42 @@ export default function VmoLatamCapexMeeting() {
                     <Tooltip>
                       <TooltipTrigger>ΔYTD</TooltipTrigger>
                       <TooltipContent>
-                        <p>Delta Year-to-Date</p>
+                        <p>Delta Year-to-Date (Realizado - Planejado)</p>
                       </TooltipContent>
                     </Tooltip>
                   </TableHead>
-                  <TableHead className="text-right">BU</TableHead>
-                  <TableHead className="text-right">SOP</TableHead>
-                  <TableHead className="text-right">FY</TableHead>
-                  <TableHead className="text-right">FY-BU</TableHead>
+                  <TableHead className="text-right">
+                    <Tooltip>
+                      <TooltipTrigger>BU</TooltipTrigger>
+                      <TooltipContent>
+                        <p>Business Unit Budget - Origem: Input Manual</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableHead>
+                  <TableHead className="text-right">
+                    <Tooltip>
+                      <TooltipTrigger>SOP</TooltipTrigger>
+                      <TooltipContent>
+                        <p>Sales & Operations Planning - Origem: Sistema SOP</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableHead>
+                  <TableHead className="text-right">
+                    <Tooltip>
+                      <TooltipTrigger>FY</TooltipTrigger>
+                      <TooltipContent>
+                        <p>Full Year Budget - Origem: SAP Planning</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableHead>
+                  <TableHead className="text-right">
+                    <Tooltip>
+                      <TooltipTrigger>FY-BU</TooltipTrigger>
+                      <TooltipContent>
+                        <p>Full Year vs Business Unit - Cálculo: FY - BU</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableHead>
                   <TableHead className="text-center">
                     <Tooltip>
                       <TooltipTrigger>Status</TooltipTrigger>
@@ -565,7 +762,7 @@ export default function VmoLatamCapexMeeting() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockBUData.projects.map((project) => (
+                {filteredProjects.map((project) => (
                   <>
                     <TableRow key={project.id} className="hover:bg-muted/50">
                       <TableCell>
@@ -589,6 +786,22 @@ export default function VmoLatamCapexMeeting() {
                           </div>
                         </div>
                       </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline" className="text-xs">
+                          {project.currency}
+                          {project.currency !== selectedCurrency && (
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="h-3 w-3 ml-1" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Convertido para {selectedCurrency} usando taxa {mockBUData.exchangeRate.rate}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{formatCurrency(project.committed || 0, selectedCurrency)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(project.ytdPlan, selectedCurrency)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(project.ytdAC, selectedCurrency)}</TableCell>
                       <TableCell className={`text-right ${project.deltaYTD < 0 ? 'text-red-600' : 'text-green-600'}`}>
@@ -609,7 +822,11 @@ export default function VmoLatamCapexMeeting() {
                         </Tooltip>
                       </TableCell>
                       <TableCell>
-                        <Button size="sm" variant="ghost">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => openProjectDetails(project)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -621,6 +838,12 @@ export default function VmoLatamCapexMeeting() {
                         <TableCell className="pl-12">
                           <div className="text-sm">{subProject.name}</div>
                         </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="outline" className="text-xs">
+                            {subProject.currency}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right text-sm">{formatCurrency(subProject.committed || 0, selectedCurrency)}</TableCell>
                         <TableCell className="text-right text-sm">{formatCurrency(subProject.ytdPlan, selectedCurrency)}</TableCell>
                         <TableCell className="text-right text-sm">{formatCurrency(subProject.ytdAC, selectedCurrency)}</TableCell>
                         <TableCell className={`text-right text-sm ${subProject.deltaYTD < 0 ? 'text-red-600' : 'text-green-600'}`}>
@@ -642,6 +865,8 @@ export default function VmoLatamCapexMeeting() {
                 {/* Linha de Total */}
                 <TableRow className="border-t-2 font-bold bg-muted/30">
                   <TableCell>Total</TableCell>
+                  <TableCell className="text-center">—</TableCell>
+                  <TableCell className="text-right">{formatCurrency(calculateTotal('committed'), selectedCurrency)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculateTotal('ytdPlan'), selectedCurrency)}</TableCell>
                   <TableCell className="text-right">{formatCurrency(calculateTotal('ytdAC'), selectedCurrency)}</TableCell>
                   <TableCell className={`text-right ${calculateTotal('deltaYTD') < 0 ? 'text-red-600' : 'text-green-600'}`}>
@@ -662,25 +887,32 @@ export default function VmoLatamCapexMeeting() {
         {/* Legenda dos Status */}
         <Card>
           <CardHeader>
-            <CardTitle>Legenda dos Status</CardTitle>
+            <CardTitle className="text-lg">Legenda dos Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-6 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span>OK - Projeto dentro do orçamento e cronograma</span>
+                <span><strong>OK:</strong> Projeto dentro do orçamento e cronograma</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <span>Atenção - Desvios menores, monitoramento necessário</span>
+                <span><strong>Atenção:</strong> Desvios menores, monitoramento necessário</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <span>Crítico - Desvios significativos, ação imediata necessária</span>
+                <span><strong>Crítico:</strong> Desvios significativos, ação imediata necessária</span>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Modal de Detalhes do Projeto */}
+        <ProjectDetailsModal 
+          project={selectedProject} 
+          isOpen={isProjectModalOpen} 
+          onClose={() => setIsProjectModalOpen(false)} 
+        />
       </div>
     </TooltipProvider>
   );

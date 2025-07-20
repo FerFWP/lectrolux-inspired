@@ -397,50 +397,21 @@ export function AppSidebar() {
                     <SidebarGroupContent className="mt-2">
                       <SidebarMenu className="space-y-1">
                         {groupItems.map((item) => (
-                          <SidebarMenuItem key={item.url} className="group">
+                          <SidebarMenuItem key={item.url}>
                             <SidebarMenuButton asChild>
-                              <div className="flex items-center w-full">
-                                <NavLink
-                                  to={item.url}
-                                  className={({ isActive }) =>
-                                    `flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 flex-1 ${
-                                      isActive
-                                        ? 'bg-[#00CFFF]/20 border-l-4 border-[#00CFFF] text-white shadow-lg backdrop-blur-sm'
-                                        : 'text-[#B0C4D6] hover:bg-white/10 hover:text-white hover:border-l-4 hover:border-white/30'
-                                    }`
-                                  }
-                                >
-                                  <item.icon className="h-4 w-4 flex-shrink-0" />
-                                  <span className="text-sm font-medium leading-tight">{item.title}</span>
-                                </NavLink>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 h-auto text-[#B0C4D6] hover:text-[#FFD700] hover:bg-white/10"
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          toggleFavorite(item.url);
-                                        }}
-                                      >
-                                        {isFavorite(item.url) ? (
-                                          <StarIcon className="h-4 w-4 fill-[#FFD700] text-[#FFD700]" />
-                                        ) : (
-                                          <Star className="h-4 w-4" />
-                                        )}
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>{isFavorite(item.url) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}</p>
-                                      {favorites.length >= 3 && !isFavorite(item.url) && (
-                                        <p className="text-xs text-yellow-500">Máximo 3 favoritos</p>
-                                      )}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
+                              <NavLink
+                                to={item.url}
+                                className={({ isActive }) =>
+                                  `flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 w-full ${
+                                    isActive
+                                      ? 'bg-[#00CFFF]/20 border-l-4 border-[#00CFFF] text-white shadow-lg backdrop-blur-sm'
+                                      : 'text-[#B0C4D6] hover:bg-white/10 hover:text-white hover:border-l-4 hover:border-white/30'
+                                  }`
+                                }
+                              >
+                                <item.icon className="h-4 w-4 flex-shrink-0" />
+                                <span className="text-sm font-medium leading-tight">{item.title}</span>
+                              </NavLink>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
                         ))}

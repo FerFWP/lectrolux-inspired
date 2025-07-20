@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, Line, LineChart, ComposedChart, Cell } from 'recharts';
-import { Download, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, Info, ArrowLeft, Trophy, Activity, CheckCircle, XCircle } from "lucide-react";
+import { Download, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, Info, ArrowLeft, Trophy, Activity, CheckCircle, XCircle, Search, Eye, Plus, Minus } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 // Mock data para Assertividade SOP
@@ -18,8 +20,15 @@ const mockSopData = {
     totalRealized: 39450000,
     biggestDeviation: -5750000,
     biggestDeviationMonth: "Março",
+    biggestPositiveDeviation: 1200000,
+    biggestPositiveDeviationMonth: "Fevereiro",
     mostAccurateMonth: "Janeiro",
-    mostAccurateAccuracy: 95.2
+    mostAccurateAccuracy: 95.2,
+    projectStatusCount: {
+      critical: 2,
+      attention: 3,
+      excellent: 8
+    }
   },
   lastUpdated: "2024-01-15 16:45:23",
   projectRanking: [
@@ -189,11 +198,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function VmoLatamAssertividadeSop() {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState("2024");
+  const [selectedYears, setSelectedYears] = useState(["2024"]);
   const [selectedProject, setSelectedProject] = useState("all");
   const [selectedArea, setSelectedArea] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedCurrency, setSelectedCurrency] = useState("SEK");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProjectDetails, setSelectedProjectDetails] = useState<string | null>(null);
+  const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
 
   const exportReport = () => {
     console.log("Exportando relatório de Assertividade SOP...");
@@ -353,9 +366,51 @@ export default function VmoLatamAssertividadeSop() {
           </CardContent>
         </Card>
 
-        {/* Cards KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* % Assertividade do Portfólio */}
+        {/* Status Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Projetos por Status</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge variant="destructive" className="bg-red-100 text-red-800">
+                      Crítico: {mockSopData.kpis.projectStatusCount.critical}
+                    </Badge>
+                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                      Atenção: {mockSopData.kpis.projectStatusCount.attention}
+                    </Badge>
+                    <Badge variant="default" className="bg-green-100 text-green-800">
+                      Excelente: {mockSopData.kpis.projectStatusCount.excellent}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                        Maior Superávit <Info className="h-3 w-3" />
+                      </p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Maior desvio positivo (superávit) registrado no período</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <p className="text-2xl font-bold text-green-600">{formatCurrency(mockSopData.kpis.biggestPositiveDeviation)}</p>
+                  <p className="text-xs text-muted-foreground">{mockSopData.kpis.biggestPositiveDeviationMonth}</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -367,7 +422,17 @@ export default function VmoLatamAssertividadeSop() {
                       </p>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Percentual médio de assertividade do portfólio (Realizado/Planejado)</p>
+                      <div className="space-y-2">
+                        <p><strong>Assertividade:</strong> Medida da precisão do planejamento financeiro</p>
+                        <p><strong>Cálculo:</strong> (Valor Realizado ÷ Valor Planejado) × 100</p>
+                        <p><strong>Interpretação:</strong></p>
+                        <ul className="text-xs space-y-1">
+                          <li>• ≥90%: Excelente planejamento</li>
+                          <li>• 80-89%: Bom planejamento</li>
+                          <li>• 70-79%: Requer atenção</li>
+                          <li>• &lt;70%: Crítico</li>
+                        </ul>
+                      </div>
                     </TooltipContent>
                   </Tooltip>
                   <p className="text-2xl font-bold text-blue-600">{mockSopData.kpis.portfolioAccuracy}%</p>
@@ -377,6 +442,10 @@ export default function VmoLatamAssertividadeSop() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Cards KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
           {/* Total Planejado */}
           <Card>
@@ -424,7 +493,7 @@ export default function VmoLatamAssertividadeSop() {
             </CardContent>
           </Card>
 
-          {/* Maior Desvio */}
+          {/* Maior Desvio Negativo */}
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -432,11 +501,11 @@ export default function VmoLatamAssertividadeSop() {
                   <Tooltip>
                     <TooltipTrigger>
                       <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                        Maior Desvio <Info className="h-3 w-3" />
+                        Maior Déficit <Info className="h-3 w-3" />
                       </p>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Maior desvio absoluto registrado no período</p>
+                      <p>Maior desvio negativo (déficit) registrado no período</p>
                     </TooltipContent>
                   </Tooltip>
                   <p className="text-2xl font-bold text-red-600">{formatCurrency(Math.abs(mockSopData.kpis.biggestDeviation))}</p>
@@ -474,15 +543,30 @@ export default function VmoLatamAssertividadeSop() {
         {/* Ranking de Projetos */}
         <Card>
           <CardHeader>
-            <CardTitle>Ranking de Assertividade por Projeto</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Ranking de Assertividade por Projeto</CardTitle>
+              <div className="flex items-center gap-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar projeto..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-64"
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {mockSopData.projectRanking.map((project, index) => {
+              {mockSopData.projectRanking
+                .filter(project => 
+                  project.name.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((project, index) => {
                 const status = getAccuracyStatus(project.accuracy);
                 const StatusIcon = status.icon;
                 return (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold">
                         {index + 1}
@@ -495,6 +579,63 @@ export default function VmoLatamAssertividadeSop() {
                     <div className="flex items-center gap-2">
                       <span className={`text-lg font-bold ${status.color}`}>{project.accuracy}%</span>
                       <StatusIcon className={`h-5 w-5 ${status.color}`} />
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl">
+                          <DialogHeader>
+                            <DialogTitle>Detalhes do Projeto: {project.name}</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <h4 className="font-medium mb-2">Performance Mensal</h4>
+                                <div className="space-y-2">
+                                  {["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"].map(month => {
+                                    const projectData = mockSopData.projectsData.find(p => p.name === project.name);
+                                    const monthData = projectData?.monthlyDetails[month as keyof typeof projectData.monthlyDetails];
+                                    const isCritical = monthData && monthData.accuracy < 70;
+                                    return (
+                                      <div key={month} className={`p-2 rounded border ${isCritical ? 'bg-red-50 border-red-200' : ''}`}>
+                                        <div className="flex justify-between items-center">
+                                          <span className="font-medium">{month}</span>
+                                          <span className={`text-sm ${isCritical ? 'text-red-600' : ''}`}>
+                                            {monthData?.accuracy.toFixed(1)}%
+                                          </span>
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                          P: {formatCurrency(monthData?.planned || 0)} | R: {formatCurrency(monthData?.realized || 0)}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="font-medium mb-2">Motivos dos Desvios</h4>
+                                <div className="space-y-2">
+                                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                    <p className="text-sm font-medium">Março - Desvio Crítico</p>
+                                    <p className="text-xs text-muted-foreground">Atraso na entrega de equipamentos importados devido a questões alfandegárias.</p>
+                                  </div>
+                                  <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                                    <p className="text-sm font-medium">Abril - Recuperação</p>
+                                    <p className="text-xs text-muted-foreground">Implementação de plano de contingência acelerou execução.</p>
+                                  </div>
+                                </div>
+                                <div className="mt-4">
+                                  <p className="text-sm text-muted-foreground">
+                                    <strong>Nota:</strong> Valores realizados incluem compromissos assumidos.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 );
@@ -506,53 +647,178 @@ export default function VmoLatamAssertividadeSop() {
         {/* Tabela Dinâmica */}
         <Card>
           <CardHeader>
-            <CardTitle>Planejado vs Realizado por Projeto e Mês</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Planejado vs Realizado por Projeto e Mês</CardTitle>
+              <div className="text-sm text-muted-foreground">
+                * R = Realizado (inclui compromissos)
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="min-w-[200px]">Projeto/Área</TableHead>
+                    <TableHead className="min-w-[200px]">
+                      <div className="flex items-center gap-2">
+                        Projeto/Área
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Info className="h-3 w-3" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Clique no ícone de olho para ver detalhes do projeto</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TableHead>
                     {["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"].map(month => (
-                      <TableHead key={month} className="text-center min-w-[120px]">{month}</TableHead>
+                      <TableHead key={month} className="text-center min-w-[120px]">
+                        <div className="flex items-center justify-center gap-1">
+                          {month}
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className="h-3 w-3" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <div className="space-y-1">
+                                <p>P = Planejado (SOP)</p>
+                                <p>R = Realizado (AC + Compromissos)</p>
+                                <p>% = Assertividade</p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TableHead>
                     ))}
                     <TableHead className="text-center">Total</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockSopData.projectsData.map((project) => (
+                  {mockSopData.projectsData
+                    .filter(project => 
+                      project.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map((project) => (
                     <>
                       {/* Linha do Projeto */}
-                      <TableRow key={project.id} className="border-b-2">
+                      <TableRow key={project.id} className="border-b-2 hover:bg-muted/50">
                         <TableCell className="font-medium">
-                          <div>
-                            <div className="font-medium">{project.name}</div>
-                            <div className="text-sm text-muted-foreground">{project.area}</div>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium">{project.name}</div>
+                              <div className="text-sm text-muted-foreground">{project.area}</div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={() => {
+                                  const newExpanded = new Set(expandedProjects);
+                                  if (expandedProjects.has(project.id)) {
+                                    newExpanded.delete(project.id);
+                                  } else {
+                                    newExpanded.add(project.id);
+                                  }
+                                  setExpandedProjects(newExpanded);
+                                }}
+                              >
+                                {expandedProjects.has(project.id) ? 
+                                  <Minus className="h-3 w-3" /> : 
+                                  <Plus className="h-3 w-3" />
+                                }
+                              </Button>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-4xl">
+                                  <DialogHeader>
+                                    <DialogTitle>Detalhes do Projeto: {project.name}</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <h4 className="font-medium mb-2">Performance Mensal</h4>
+                                        <div className="space-y-2">
+                                          {["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"].map(month => {
+                                            const monthData = project.monthlyDetails[month as keyof typeof project.monthlyDetails];
+                                            const isCritical = monthData && monthData.accuracy < 70;
+                                            return (
+                                              <div key={month} className={`p-2 rounded border ${isCritical ? 'bg-red-50 border-red-200' : ''}`}>
+                                                <div className="flex justify-between items-center">
+                                                  <span className="font-medium flex items-center gap-1">
+                                                    {month}
+                                                    {isCritical && <AlertTriangle className="h-3 w-3 text-red-600" />}
+                                                  </span>
+                                                  <span className={`text-sm ${isCritical ? 'text-red-600' : ''}`}>
+                                                    {monthData?.accuracy.toFixed(1)}%
+                                                  </span>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">
+                                                  P: {formatCurrency(monthData?.planned || 0)} | R: {formatCurrency(monthData?.realized || 0)}
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <h4 className="font-medium mb-2">Motivos dos Desvios</h4>
+                                        <div className="space-y-2">
+                                          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                            <p className="text-sm font-medium">Março - Desvio Crítico</p>
+                                            <p className="text-xs text-muted-foreground">Atraso na entrega de equipamentos importados devido a questões alfandegárias.</p>
+                                          </div>
+                                          <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                                            <p className="text-sm font-medium">Abril - Recuperação</p>
+                                            <p className="text-xs text-muted-foreground">Implementação de plano de contingência acelerou execução.</p>
+                                          </div>
+                                        </div>
+                                        <div className="mt-4">
+                                          <p className="text-sm text-muted-foreground">
+                                            <strong>Nota:</strong> Valores realizados incluem compromissos assumidos.
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
                           </div>
                         </TableCell>
                         {["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"].map(month => {
                           const data = project.monthlyDetails[month as keyof typeof project.monthlyDetails];
                           const deviation = data ? data.realized - data.planned : 0;
                           const accuracy = data ? calculateAccuracy(data.planned, data.realized) : 0;
+                          const isCritical = accuracy < 70;
                           return (
-                            <TableCell key={month} className="text-center">
+                            <TableCell key={month} className={`text-center ${isCritical ? 'bg-red-50' : ''}`}>
                               <Tooltip>
                                 <TooltipTrigger>
                                   <div className="space-y-1">
                                     <div className="text-xs text-muted-foreground">P: {formatCurrency(data?.planned || 0)}</div>
                                     <div className="text-xs font-medium">R: {formatCurrency(data?.realized || 0)}</div>
-                                    <div className={`text-xs font-bold ${deviation < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                    <div className={`text-xs font-bold flex items-center justify-center gap-1 ${
+                                      isCritical ? 'text-red-600' : 
+                                      deviation < 0 ? 'text-red-600' : 'text-green-600'
+                                    }`}>
                                       {accuracy.toFixed(1)}%
+                                      {isCritical && <AlertTriangle className="h-3 w-3" />}
                                     </div>
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <div className="space-y-1">
-                                    <p>Planejado: {formatCurrency(data?.planned || 0)}</p>
-                                    <p>Realizado: {formatCurrency(data?.realized || 0)}</p>
+                                    <p>Planejado (SOP): {formatCurrency(data?.planned || 0)}</p>
+                                    <p>Realizado (AC + Compromissos): {formatCurrency(data?.realized || 0)}</p>
                                     <p>Desvio: {formatCurrency(deviation)}</p>
                                     <p>Assertividade: {accuracy.toFixed(1)}%</p>
+                                    {isCritical && <p className="text-red-600 font-medium">⚠️ Crítico</p>}
                                   </div>
                                 </TooltipContent>
                               </Tooltip>
@@ -567,6 +833,31 @@ export default function VmoLatamAssertividadeSop() {
                           </div>
                         </TableCell>
                       </TableRow>
+
+                      {/* Drill-down details se expandido */}
+                      {expandedProjects.has(project.id) && (
+                        <TableRow className="bg-muted/20">
+                          <TableCell colSpan={8}>
+                            <div className="p-4 space-y-2">
+                              <h5 className="font-medium">Detalhes Adicionais</h5>
+                              <div className="grid grid-cols-3 gap-4 text-sm">
+                                <div>
+                                  <span className="font-medium">Categoria:</span> {project.category}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Moeda Original:</span> {project.currency}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Status:</span> 
+                                  <Badge variant={project.status === "Atrasado" ? "destructive" : "default"} className="ml-2">
+                                    {project.status}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </>
                   ))}
                   
@@ -577,12 +868,18 @@ export default function VmoLatamAssertividadeSop() {
                       const totalPlanned = calculateMonthTotal('planned', month);
                       const totalRealized = calculateMonthTotal('realized', month);
                       const accuracy = calculateAccuracy(totalPlanned, totalRealized);
+                      const isCritical = accuracy < 70;
                       return (
-                        <TableCell key={month} className="text-center">
+                        <TableCell key={month} className={`text-center ${isCritical ? 'bg-red-50' : ''}`}>
                           <div className="space-y-1">
                             <div className="text-xs">P: {formatCurrency(totalPlanned)}</div>
                             <div className="text-xs font-medium">R: {formatCurrency(totalRealized)}</div>
-                            <div className="text-xs font-bold text-blue-600">{accuracy.toFixed(1)}%</div>
+                            <div className={`text-xs font-bold flex items-center justify-center gap-1 ${
+                              isCritical ? 'text-red-600' : 'text-blue-600'
+                            }`}>
+                              {accuracy.toFixed(1)}%
+                              {isCritical && <AlertTriangle className="h-3 w-3" />}
+                            </div>
                           </div>
                         </TableCell>
                       );
@@ -596,6 +893,29 @@ export default function VmoLatamAssertividadeSop() {
                   </TableRow>
                 </TableBody>
               </Table>
+            </div>
+            
+            {/* Legenda dos Status */}
+            <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+              <h4 className="font-medium mb-2">Legenda de Status de Assertividade</h4>
+              <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span>Excelente (≥90%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-blue-600" />
+                  <span>Bom (80-89%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  <span>Atenção (70-79%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-4 w-4 text-red-600" />
+                  <span>Crítico (&lt;70%)</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -614,9 +934,23 @@ export default function VmoLatamAssertividadeSop() {
                   <YAxis tickFormatter={(value) => `${(value/1000000).toFixed(1)}M kr`} />
                   <RechartsTooltip content={<CustomTooltip />} />
                   <Legend />
-                  <Bar dataKey="planned" fill="#3b82f6" name="Planejado (SOP)" />
-                  <Bar dataKey="realized" fill="#10b981" name="Realizado (AC)" />
-                  <Line type="monotone" dataKey="accuracy" stroke="#f59e0b" strokeWidth={3} name="Assertividade %" />
+                   <Bar dataKey="planned" fill="#3b82f6" name="Planejado (SOP)">
+                     {mockSopData.monthlyData.map((entry, index) => (
+                       <Cell 
+                         key={`cell-planned-${index}`} 
+                         fill={entry.isHighlight ? "#1e40af" : "#3b82f6"} 
+                       />
+                     ))}
+                   </Bar>
+                   <Bar dataKey="realized" fill="#10b981" name="Realizado (AC)">
+                     {mockSopData.monthlyData.map((entry, index) => (
+                       <Cell 
+                         key={`cell-realized-${index}`} 
+                         fill={entry.isHighlight ? "#047857" : "#10b981"} 
+                       />
+                     ))}
+                   </Bar>
+                   <Line type="monotone" dataKey="accuracy" stroke="#f59e0b" strokeWidth={3} name="Assertividade %" />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>

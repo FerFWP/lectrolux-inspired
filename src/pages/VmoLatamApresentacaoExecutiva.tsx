@@ -1680,7 +1680,7 @@ export default function VmoLatamApresentacaoExecutiva() {
                   <div className="space-y-4">
                     <div className="flex items-start space-x-3">
                       <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                      <p className="text-lg">Revisar projetos com assertividade < 95%</p>
+                      <p className="text-lg">Revisar projetos com assertividade &lt; 95%</p>
                     </div>
                     <div className="flex items-start space-x-3">
                       <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>

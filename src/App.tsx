@@ -20,6 +20,7 @@ import VmoLatamMultiMoeda from "./pages/VmoLatamMultiMoeda";
 import VmoLatamSimulacao from "./pages/VmoLatamSimulacao";
 import VmoLatamComparativo from "./pages/VmoLatamComparativo";
 import VmoLatamGovernanca from "./pages/VmoLatamGovernanca";
+import VmoLatamCapexMeeting from "./pages/VmoLatamCapexMeeting";
 import AssistenteDePerguntas from "./pages/AssistenteDePerguntas";
 import ExplanationCenter from "./pages/ExplanationCenter";
 import Gamificacao from "./pages/Gamificacao";
@@ -54,8 +55,9 @@ const App = () => (
           <Route path="/vmo-latam/multi-moeda-cambio" element={<ProtectedRoute><Layout><VmoLatamMultiMoeda /></Layout></ProtectedRoute>} />
           <Route path="/vmo-latam/simulacao-cenarios" element={<ProtectedRoute><Layout><VmoLatamSimulacao /></Layout></ProtectedRoute>} />
           <Route path="/vmo-latam/comparativo-valor" element={<ProtectedRoute><Layout><VmoLatamComparativo /></Layout></ProtectedRoute>} />
-          <Route path="/vmo-latam/governanca-auditoria" element={<ProtectedRoute><Layout><VmoLatamGovernanca /></Layout></ProtectedRoute>} />
-          <Route path="/vmo-latam/clusters-estrategicos" element={<ProtectedRoute><Layout><ClusterEstrategicos /></Layout></ProtectedRoute>} />
+           <Route path="/vmo-latam/governanca-auditoria" element={<ProtectedRoute><Layout><VmoLatamGovernanca /></Layout></ProtectedRoute>} />
+           <Route path="/vmo-latam/capex-meeting" element={<ProtectedRoute><Layout><VmoLatamCapexMeeting /></Layout></ProtectedRoute>} />
+           <Route path="/vmo-latam/clusters-estrategicos" element={<ProtectedRoute><Layout><ClusterEstrategicos /></Layout></ProtectedRoute>} />
           
           {/* Inteligência Routes - With Sidebar */}
           <Route path="/inteligencia/assistente" element={<ProtectedRoute><Layout><AssistenteDePerguntas /></Layout></ProtectedRoute>} />

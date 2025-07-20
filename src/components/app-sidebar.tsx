@@ -110,6 +110,12 @@ const vmoLatamSubmenu = [
     description: "Logs, registros de decisões, justificativas e exportação para compliance",
   },
   {
+    title: "BU Analysis / Capex Monthly Meeting",
+    url: "/vmo-latam/capex-meeting",
+    icon: BarChart3,
+    description: "Análise detalhada do CAPEX e performance mensal por BU",
+  },
+  {
     title: "Clusters Estratégicos",
     url: "/vmo-latam/clusters-estrategicos",
     icon: Target,

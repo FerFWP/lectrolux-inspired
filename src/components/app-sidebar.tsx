@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Star, StarIcon, ChevronRight, ChevronDown, User, X } from "lucide-react";
+import { Search, ChevronRight, ChevronDown, Menu, ArrowRight } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -14,9 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Separator } from "@/components/ui/separator";
 import { 
   LayoutDashboard, 
   FolderOpen, 
@@ -31,14 +29,12 @@ import {
   FileText, 
   Users, 
   MessageCircle, 
-  FileBarChart, 
   HelpCircle, 
   Search as SearchIcon, 
   Lightbulb, 
   Settings, 
   Trophy,
-  Home,
-  Menu
+  Home
 } from "lucide-react";
 
 interface MenuItem {
@@ -79,10 +75,10 @@ const menuItems: MenuItem[] = [
 ];
 
 const menuGroups = [
-  { id: "visao-geral", title: "VISÃO GERAL", subtitle: "" },
-  { id: "vmo-latam", title: "VMO LATAM", subtitle: "Visão regional e análises estratégicas LATAM" },
-  { id: "inteligencia", title: "INTELIGÊNCIA", subtitle: "Recursos de IA e analytics avançados" },
-  { id: "administracao", title: "ADMINISTRAÇÃO", subtitle: "Configurações e gestão do sistema" },
+  { id: "visao-geral", title: "VISÃO GERAL", description: "Funcionalidades básicas do sistema" },
+  { id: "vmo-latam", title: "VMO LATAM", description: "Visão regional e análises estratégicas LATAM" },
+  { id: "inteligencia", title: "INTELIGÊNCIA", description: "Recursos de IA e analytics avançados" },
+  { id: "administracao", title: "ADMINISTRAÇÃO", description: "Configurações e gestão do sistema" },
 ];
 
 export function AppSidebar() {
@@ -90,25 +86,10 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
-  const [favorites, setFavorites] = useState<string[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(["visao-geral", "vmo-latam", "inteligencia"]);
   const [filteredItems, setFilteredItems] = useState<MenuItem[]>(menuItems);
 
   const currentPath = location.pathname;
-  const userName = "Admin User"; // This would come from auth context
-
-  // Load favorites from localStorage
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem("sidebar-favorites");
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, []);
-
-  // Save favorites to localStorage
-  useEffect(() => {
-    localStorage.setItem("sidebar-favorites", JSON.stringify(favorites));
-  }, [favorites]);
 
   // Filter items based on search
   useEffect(() => {
@@ -127,17 +108,6 @@ export function AppSidebar() {
     }
   }, [searchTerm]);
 
-  const toggleFavorite = (url: string) => {
-    setFavorites(prev => {
-      if (prev.includes(url)) {
-        return prev.filter(fav => fav !== url);
-      } else if (prev.length < 3) {
-        return [...prev, url];
-      }
-      return prev;
-    });
-  };
-
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev =>
       prev.includes(groupId)
@@ -147,75 +117,34 @@ export function AppSidebar() {
   };
 
   const isActive = (path: string) => currentPath === path;
-  const isFavorite = (url: string) => favorites.includes(url);
 
-  const favoriteItems = menuItems.filter(item => favorites.includes(item.url));
-
-  // Collapsed sidebar (68px)
+  // Collapsed sidebar (60px)
   if (collapsed) {
     return (
-      <Sidebar className="w-16 bg-gradient-to-b from-[#0A3454] to-[#195280] border-r border-[#195280]">
-        <SidebarContent className="p-2">
+      <Sidebar className="w-15 bg-[#0A3454] border-r border-[#195280]">
+        <SidebarContent className="px-3 py-4">
           {/* Logo compacto */}
-          <div className="mb-4">
+          <div className="mb-6">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center justify-center p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                  <div className="flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors">
                     <img 
                       src="/src/assets/electrolux-logo.png" 
                       alt="Electrolux" 
-                      className="h-8 w-8 object-contain brightness-0 invert"
+                      className="h-6 w-6 object-contain brightness-0 invert"
                     />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p className="font-semibold">Gestão Financeira</p>
-                  <p className="text-xs text-gray-500">Electrolux LATAM</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
 
-          {/* Toggle button */}
-          <div className="mb-4 flex justify-center">
-            <SidebarTrigger className="text-[#B0C4D6] hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors" />
-          </div>
-
-          {/* Favoritos compactos */}
-          {favoriteItems.length > 0 && (
-            <div className="space-y-2 mb-4">
-              {favoriteItems.slice(0, 3).map((item) => (
-                <TooltipProvider key={item.url}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <NavLink
-                        to={item.url}
-                        className={({ isActive }) =>
-                          `flex items-center justify-center p-3 rounded-lg transition-all duration-200 ${
-                            isActive
-                              ? 'bg-[#00CFFF]/20 border-l-4 border-[#00CFFF] text-white shadow-lg'
-                              : 'text-[#B0C4D6] hover:bg-white/10 hover:text-white'
-                          }`
-                        }
-                      >
-                        <Star className="h-4 w-4 fill-[#FFD700] text-[#FFD700]" />
-                      </NavLink>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p className="font-medium">⭐ {item.title}</p>
-                      <p className="text-xs text-gray-500">{item.description}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
-            </div>
-          )}
-
-          <Separator className="mb-4 bg-[#195280]" />
-
           {/* Menu items compactos */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             {menuGroups.map((group) => {
               const groupItems = filteredItems.filter(item => item.group === group.id);
               return (
@@ -229,8 +158,8 @@ export function AppSidebar() {
                             className={({ isActive }) =>
                               `flex items-center justify-center p-3 rounded-lg transition-all duration-200 ${
                                 isActive
-                                  ? 'bg-[#00CFFF]/20 border-l-4 border-[#00CFFF] text-white shadow-lg'
-                                  : 'text-[#B0C4D6] hover:bg-white/10 hover:text-white'
+                                  ? 'bg-[#144875] border-l-4 border-[#00CFFF] text-white'
+                                  : 'text-white/70 hover:bg-[#144875] hover:text-white'
                               }`
                             }
                           >
@@ -239,115 +168,77 @@ export function AppSidebar() {
                         </TooltipTrigger>
                         <TooltipContent side="right">
                           <div>
-                            <p className="font-medium">{item.title}</p>
-                            <p className="text-sm text-gray-500">{item.description}</p>
+                            <p className="font-medium text-sm">{item.title}</p>
+                            <p className="text-xs text-gray-500">{item.description}</p>
                           </div>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   ))}
                   {group.id !== "administracao" && groupItems.length > 0 && (
-                    <div className="my-2 h-px bg-[#195280]" />
+                    <div className="my-3 h-px bg-[#195280]" />
                   )}
                 </div>
               );
             })}
+          </div>
+
+          {/* Botão para expandir no rodapé */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors">
+                    <ArrowRight className="h-4 w-4" />
+                  </SidebarTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Expandir menu</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </SidebarContent>
       </Sidebar>
     );
   }
 
-  // Expanded sidebar (260px)
+  // Expanded sidebar (220px)
   return (
-    <Sidebar className="w-64 bg-gradient-to-b from-[#0A3454] to-[#195280] border-r border-[#195280]">
-      <SidebarContent className="p-4">
-        {/* Header completo */}
+    <Sidebar className="w-55 bg-[#0A3454] border-r border-[#195280]">
+      <SidebarContent className="px-3 py-4">
+        {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-2 shadow-sm">
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1.5">
                 <img 
                   src="/src/assets/electrolux-logo.png" 
                   alt="Electrolux" 
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div>
-                <h2 className="text-white font-bold text-base leading-tight">Gestão Financeira</h2>
-                <p className="text-[#B0C4D6] text-sm">Electrolux LATAM</p>
-              </div>
+              <h2 className="text-white font-semibold text-sm">Gestão Financeira</h2>
             </div>
-            <SidebarTrigger className="text-[#B0C4D6] hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors">
+            <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-1.5 rounded transition-colors">
               <Menu className="h-4 w-4" />
             </SidebarTrigger>
           </div>
 
-          {/* Welcome Message */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 mb-4 border border-white/20">
-            <p className="text-white text-sm flex items-center">
-              <User className="w-4 h-4 mr-2 text-[#00CFFF]" />
-              Olá, <span className="font-medium ml-1">{userName}!</span>
-            </p>
-          </div>
-
           {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#B0C4D6]" />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
             <Input
-              placeholder="Buscar funções ou relatórios..."
+              placeholder="Buscar..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white/10 backdrop-blur-sm border-[#195280] text-white placeholder:text-[#B0C4D6] focus:border-[#00CFFF] focus:ring-1 focus:ring-[#00CFFF]/50"
+              className="h-8 pl-10 bg-white/10 border-[#195280] text-white text-xs placeholder:text-white/50 focus:border-[#00CFFF] focus:ring-0"
             />
-            {searchTerm && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 text-[#B0C4D6] hover:text-white"
-                onClick={() => setSearchTerm("")}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
           </div>
-
-          {/* Favorites */}
-          {favoriteItems.length > 0 && (
-            <div className="mb-4">
-              <h3 className="text-[#B0C4D6] text-xs font-semibold mb-3 flex items-center tracking-wider">
-                <Star className="w-3 h-3 mr-2 text-[#FFD700]" />
-                FAVORITOS
-              </h3>
-              <div className="flex space-x-2">
-                {favoriteItems.slice(0, 3).map((item, index) => (
-                  <TooltipProvider key={item.url}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <NavLink
-                          to={item.url}
-                          className="group relative p-3 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 border border-white/20 hover:border-[#00CFFF]/50 flex-1"
-                        >
-                          <div className="flex items-center justify-center">
-                            <item.icon className="h-5 w-5 text-[#00CFFF] group-hover:scale-110 transition-transform" />
-                          </div>
-                          <Star className="absolute -top-1 -right-1 h-3 w-3 fill-[#FFD700] text-[#FFD700]" />
-                        </NavLink>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-medium">⭐ {item.title}</p>
-                        <p className="text-xs text-gray-500">{item.description}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Menu Groups */}
-        <div className="space-y-1">
+        <div className="space-y-2">
           {menuGroups.map((group, groupIndex) => {
             const groupItems = filteredItems.filter(item => item.group === group.id);
             const isExpanded = expandedGroups.includes(group.id);
@@ -358,43 +249,33 @@ export function AppSidebar() {
             return (
               <div key={group.id}>
                 <SidebarGroup>
-                  <SidebarGroupLabel 
-                    className={`
-                      text-[#B0C4D6] text-xs font-bold tracking-wider cursor-pointer 
-                      hover:text-white transition-colors flex items-center justify-between 
-                      p-3 rounded-lg hover:bg-white/5
-                      ${hasActiveItem ? 'text-white bg-white/10' : ''}
-                    `}
-                    onClick={() => toggleGroup(group.id)}
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center">
-                        {group.title}
-                        {hasActiveItem && (
-                          <div className="w-2 h-2 bg-[#00CFFF] rounded-full ml-2" />
-                        )}
-                      </div>
-                      {group.subtitle && (
-                        <div className="text-xs font-normal text-[#B0C4D6]/80 mt-1 leading-tight">
-                          {group.subtitle}
-                        </div>
-                      )}
-                    </div>
-                    {groupItems.length > 0 && (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs bg-white/10 px-2 py-1 rounded-full">
-                          {groupItems.length}
-                        </span>
-                        {isExpanded ? 
-                          <ChevronDown className="h-3 w-3" /> : 
-                          <ChevronRight className="h-3 w-3" />
-                        }
-                      </div>
-                    )}
-                  </SidebarGroupLabel>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <SidebarGroupLabel 
+                          className={`
+                            text-[#6BA6D9] text-xs font-semibold uppercase tracking-wider cursor-pointer 
+                            hover:text-white transition-colors flex items-center justify-between 
+                            p-2 rounded hover:bg-white/5 mt-2
+                          `}
+                          onClick={() => toggleGroup(group.id)}
+                        >
+                          <div>{group.title}</div>
+                          {groupItems.length > 0 && (
+                            isExpanded ? 
+                            <ChevronDown className="h-3 w-3" /> : 
+                            <ChevronRight className="h-3 w-3" />
+                          )}
+                        </SidebarGroupLabel>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{group.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
                   {(isExpanded || searchTerm) && (
-                    <SidebarGroupContent className="mt-2">
+                    <SidebarGroupContent className="mt-1">
                       <SidebarMenu className="space-y-1">
                         {groupItems.map((item) => (
                           <SidebarMenuItem key={item.url}>
@@ -402,15 +283,15 @@ export function AppSidebar() {
                               <NavLink
                                 to={item.url}
                                 className={({ isActive }) =>
-                                  `flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 w-full ${
+                                  `flex items-center space-x-3 p-2.5 rounded-lg transition-all duration-200 w-full text-sm ${
                                     isActive
-                                      ? 'bg-[#00CFFF]/20 border-l-4 border-[#00CFFF] text-white shadow-lg backdrop-blur-sm'
-                                      : 'text-[#B0C4D6] hover:bg-white/10 hover:text-white hover:border-l-4 hover:border-white/30'
+                                      ? 'bg-[#144875] border-l-4 border-[#00CFFF] text-white font-medium'
+                                      : 'text-white/80 hover:bg-[#144875] hover:text-white hover:border-l-4 hover:border-[#00CFFF]'
                                   }`
                                 }
                               >
-                                <item.icon className="h-4 w-4 flex-shrink-0" />
-                                <span className="text-sm font-medium leading-tight">{item.title}</span>
+                                <item.icon className="h-[18px] w-[18px] flex-shrink-0" />
+                                <span className="leading-tight">{item.title}</span>
                               </NavLink>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
@@ -421,7 +302,7 @@ export function AppSidebar() {
                 </SidebarGroup>
 
                 {groupIndex < menuGroups.length - 1 && (
-                  <Separator className="my-3 bg-[#195280]" />
+                  <div className="my-4 h-px bg-[#195280]" />
                 )}
               </div>
             );
@@ -431,9 +312,8 @@ export function AppSidebar() {
         {/* Search Results */}
         {searchTerm && filteredItems.length === 0 && (
           <div className="text-center py-8">
-            <SearchIcon className="h-8 w-8 text-[#B0C4D6] mx-auto mb-2" />
-            <p className="text-[#B0C4D6] text-sm">Nenhum resultado encontrado</p>
-            <p className="text-[#B0C4D6]/60 text-xs">Tente termos diferentes</p>
+            <SearchIcon className="h-6 w-6 text-white/50 mx-auto mb-2" />
+            <p className="text-white/70 text-xs">Nenhum resultado encontrado</p>
           </div>
         )}
       </SidebarContent>

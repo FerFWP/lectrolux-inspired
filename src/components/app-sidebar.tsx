@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Search, ChevronRight, ChevronDown, Menu, ArrowRight } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -33,8 +34,7 @@ import {
   Search as SearchIcon, 
   Lightbulb, 
   Settings, 
-  Trophy,
-  Home
+  Trophy
 } from "lucide-react";
 
 interface MenuItem {
@@ -117,13 +117,29 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
 
-  // Collapsed sidebar (60px)
+  // Collapsed sidebar (60px width)
   if (collapsed) {
     return (
-      <Sidebar className="w-15 bg-[#0A3454] border-r border-[#195280]">
-        <SidebarContent className="px-3 py-4">
+      <Sidebar className="w-[60px] bg-[#0A3454] border-r border-[#195280]">
+        <SidebarContent className="px-2 py-3">
+          {/* Botão para expandir fixo no topo */}
+          <div className="mb-4 flex justify-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors border border-[#195280] hover:border-[#00CFFF] w-10 h-10 flex items-center justify-center">
+                    <ArrowRight className="h-4 w-4" />
+                  </SidebarTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Expandir menu</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
           {/* Logo compacto */}
-          <div className="mb-6">
+          <div className="mb-4 flex justify-center">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -131,7 +147,7 @@ export function AppSidebar() {
                     <img 
                       src="/src/assets/electrolux-logo.png" 
                       alt="Electrolux" 
-                      className="h-6 w-6 object-contain brightness-0 invert"
+                      className="h-5 w-5 object-contain brightness-0 invert"
                     />
                   </div>
                 </TooltipTrigger>
@@ -143,8 +159,8 @@ export function AppSidebar() {
           </div>
 
           {/* Menu items compactos */}
-          <div className="space-y-2">
-            {menuGroups.map((group) => {
+          <div className="space-y-1">
+            {menuGroups.map((group, groupIndex) => {
               const groupItems = filteredItems.filter(item => item.group === group.id);
               return (
                 <div key={group.id}>
@@ -155,14 +171,14 @@ export function AppSidebar() {
                           <NavLink
                             to={item.url}
                             className={({ isActive }) =>
-                              `flex items-center justify-center p-3 rounded-lg transition-all duration-200 ${
+                              `flex items-center justify-center p-2.5 rounded-lg transition-all duration-200 mb-1 ${
                                 isActive
-                                  ? 'bg-[#144875] border-l-4 border-[#00CFFF] text-white'
-                                  : 'text-white/70 hover:bg-[#144875] hover:text-white'
+                                  ? 'bg-[#144875] border border-[#00CFFF] text-white'
+                                  : 'text-white/70 hover:bg-[#144875] hover:text-white hover:border hover:border-[#00CFFF]/50'
                               }`
                             }
                           >
-                            <item.icon className="h-5 w-5" />
+                            <item.icon className="h-4 w-4" />
                           </NavLink>
                         </TooltipTrigger>
                         <TooltipContent side="right">
@@ -174,39 +190,23 @@ export function AppSidebar() {
                       </Tooltip>
                     </TooltipProvider>
                   ))}
-                  {group.id !== "administracao" && groupItems.length > 0 && (
-                    <div className="my-3 h-px bg-[#195280]" />
+                  {groupIndex < menuGroups.length - 1 && groupItems.length > 0 && (
+                    <div className="my-2 mx-2 h-px bg-[#195280]" />
                   )}
                 </div>
               );
             })}
-          </div>
-
-          {/* Botão para expandir no rodapé */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors">
-                    <ArrowRight className="h-4 w-4" />
-                  </SidebarTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Expandir menu</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
         </SidebarContent>
       </Sidebar>
     );
   }
 
-  // Expanded sidebar (220px)
+  // Expanded sidebar (220px width)
   return (
-    <Sidebar className="w-55 bg-[#0A3454] border-r border-[#195280]">
+    <Sidebar className="w-[220px] bg-[#0A3454] border-r border-[#195280]">
       <SidebarContent className="px-3 py-4">
-        {/* Header */}
+        {/* Header com botão de colapso */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
@@ -219,7 +219,7 @@ export function AppSidebar() {
               </div>
               <h2 className="text-white font-semibold text-sm">Gestão Financeira</h2>
             </div>
-            <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-1.5 rounded transition-colors">
+            <SidebarTrigger className="text-white/70 hover:text-white hover:bg-white/10 p-1.5 rounded transition-colors border border-[#195280] hover:border-[#00CFFF]">
               <Menu className="h-4 w-4" />
             </SidebarTrigger>
           </div>
@@ -241,7 +241,6 @@ export function AppSidebar() {
           {menuGroups.map((group, groupIndex) => {
             const groupItems = filteredItems.filter(item => item.group === group.id);
             const isExpanded = expandedGroups.includes(group.id);
-            const hasActiveItem = groupItems.some(item => isActive(item.url));
             
             if (groupItems.length === 0 && searchTerm) return null;
 

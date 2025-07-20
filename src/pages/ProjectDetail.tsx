@@ -40,7 +40,7 @@ import { ProjectEditDialog } from "@/components/project-edit-dialog";
 import { BaselineDialog } from "@/components/baseline-dialog";
 import { TransactionDialog } from "@/components/transaction-dialog";
 import { PortfolioComparisonDialog } from "@/components/portfolio-comparison-dialog";
-import { LogsDialog } from "@/components/logs-dialog";
+
 import { ExecutiveDashboard } from "@/components/executive-dashboard";
 import { FinancialSummary } from "@/components/financial-summary";
 import { PlanningView } from "@/components/planning-view";
@@ -619,15 +619,6 @@ export default function ProjectDetail() {
               
               {/* Ações rápidas */}
               <div className="flex gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <LogsDialog 
-                      projectId={project.project_code || id} 
-                      projectName={project.name} 
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>Ver histórico de alterações</TooltipContent>
-                </Tooltip>
                 
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -895,30 +886,14 @@ export default function ProjectDetail() {
         {/* Conteúdo principal com abas */}
         <div className="container mx-auto px-6 py-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-8">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="resumo" className="gap-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Resumo</span>
               </TabsTrigger>
-              <TabsTrigger value="planejamento" className="gap-2">
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Planejamento</span>
-              </TabsTrigger>
-              <TabsTrigger value="realizados" className="gap-2">
-                <DollarSign className="h-4 w-4" />
-                <span className="hidden sm:inline">Realizados</span>
-              </TabsTrigger>
-              <TabsTrigger value="historico" className="gap-2">
-                <History className="h-4 w-4" />
-                <span className="hidden sm:inline">Histórico</span>
-              </TabsTrigger>
               <TabsTrigger value="capex-ir" className="gap-2">
                 <Building2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Capex IR</span>
-              </TabsTrigger>
-              <TabsTrigger value="capex-bu" className="gap-2">
-                <Building2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Capex BU</span>
               </TabsTrigger>
               <TabsTrigger value="capex-ac" className="gap-2">
                 <Building2 className="h-4 w-4" />
@@ -927,6 +902,14 @@ export default function ProjectDetail() {
               <TabsTrigger value="capex-sop" className="gap-2">
                 <Building2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Capex SOP</span>
+              </TabsTrigger>
+              <TabsTrigger value="capex-bu" className="gap-2">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Capex BU</span>
+              </TabsTrigger>
+              <TabsTrigger value="historico" className="gap-2">
+                <History className="h-4 w-4" />
+                <span className="hidden sm:inline">Histórico</span>
               </TabsTrigger>
             </TabsList>
 
@@ -996,33 +979,10 @@ export default function ProjectDetail() {
               </div>
             </TabsContent>
 
-            {/* Aba Realizados */}
-            <TabsContent value="realizados" className="space-y-6">
-              <TransactionsView 
-                project={project}
-                transactions={transactions}
-                filters={transactionFilters}
-                onFiltersChange={setTransactionFilters}
-                onTransactionAdd={handleTransactionAdded}
-                selectedCurrency={selectedCurrency}
-                selectedYear={selectedYear}
-              />
-            </TabsContent>
-
             {/* Aba Histórico */}
             <TabsContent value="historico" className="space-y-6">
               <ChangeLogView 
                 project={project}
-              />
-            </TabsContent>
-
-            {/* Aba Planejamento */}
-            <TabsContent value="planejamento" className="space-y-6">
-              <PlanningView 
-                project={project}
-                transactions={transactions}
-                selectedCurrency={selectedCurrency}
-                selectedYear={selectedYear}
               />
             </TabsContent>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Search, Filter, Download, Eye, TrendingUp, TrendingDown, 
   AlertTriangle, CheckCircle, Clock, Pause, Target, 
@@ -204,6 +205,7 @@ const formatCurrency = (value: number, fromCurrency: string = 'BRL'): string => 
 };
 
 export default function PortfolioCockpit() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>(mockProjects);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(mockProjects);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -861,7 +863,7 @@ export default function PortfolioCockpit() {
                     <Card 
                       key={project.id} 
                       className={`cursor-pointer hover:shadow-md transition-shadow border ${getStatusColor(project.status)}`}
-                      onClick={() => setSelectedProject(project)}
+                      onClick={() => navigate(`/project-deep-dive/${project.id}`)}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between mb-2">
@@ -1037,7 +1039,7 @@ export default function PortfolioCockpit() {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            onClick={() => setSelectedProject(project)}
+                            onClick={() => navigate(`/project-deep-dive/${project.id}`)}
                           >
                             <Eye className="w-4 h-4" />
                           </Button>

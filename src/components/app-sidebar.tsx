@@ -122,6 +122,18 @@ const vmoLatamSubmenu = [
     description: "Análise detalhada do CAPEX e performance mensal por BU",
   },
   {
+    title: "Assertividade SOP",
+    url: "/vmo-latam/assertividade-sop",
+    icon: Target,
+    description: "Análise de assertividade e desvios entre SOP e realizado",
+  },
+  {
+    title: "Apresentação Executiva de Resultados",
+    url: "/vmo-latam/apresentacao-executiva",
+    icon: FileText,
+    description: "Dashboard executivo para reunião de diretoria IT/BA/LA com tabelas comparativas e análises estratégicas",
+  },
+  {
     title: "Clusters Estratégicos",
     url: "/vmo-latam/clusters-estrategicos",
     icon: Target,

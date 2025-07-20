@@ -53,21 +53,21 @@ const menuItems: MenuItem[] = [
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, description: "Centro de relatórios financeiros", group: "visao-geral" },
 
   // VMO LATAM
-  { title: "Dashboard Consolidado", url: "/vmo-latam/dashboard", icon: TrendingUp, description: "Visão consolidada LATAM", group: "vmo-latam" },
-  { title: "Multi-moeda & Câmbio", url: "/vmo-latam/multi-moeda", icon: Globe, description: "Conversão e análise multi-moeda", group: "vmo-latam" },
-  { title: "Simulação de Cenários", url: "/vmo-latam/simulacao", icon: Calculator, description: "Simulação e projeções financeiras", group: "vmo-latam" },
-  { title: "Comparativo de Valor", url: "/vmo-latam/comparativo", icon: ArrowLeftRight, description: "Análise comparativa de investimentos", group: "vmo-latam" },
-  { title: "Governança & Auditoria", url: "/vmo-latam/governanca", icon: Shield, description: "Controles e auditoria", group: "vmo-latam" },
+  { title: "Dashboard Consolidado", url: "/vmo-latam/dashboard-consolidado", icon: TrendingUp, description: "Visão consolidada LATAM", group: "vmo-latam" },
+  { title: "Multi-moeda & Câmbio", url: "/vmo-latam/multi-moeda-cambio", icon: Globe, description: "Conversão e análise multi-moeda", group: "vmo-latam" },
+  { title: "Simulação de Cenários", url: "/vmo-latam/simulacao-cenarios", icon: Calculator, description: "Simulação e projeções financeiras", group: "vmo-latam" },
+  { title: "Comparativo de Valor", url: "/vmo-latam/comparativo-valor", icon: ArrowLeftRight, description: "Análise comparativa de investimentos", group: "vmo-latam" },
+  { title: "Governança & Auditoria", url: "/vmo-latam/governanca-auditoria", icon: Shield, description: "Controles e auditoria", group: "vmo-latam" },
   { title: "BU Analysis / Capex Monthly", url: "/vmo-latam/capex-meeting", icon: PieChart, description: "Análise mensal de CAPEX por BU", group: "vmo-latam" },
   { title: "Assertividade SOP", url: "/vmo-latam/assertividade-sop", icon: Target, description: "Análise de assertividade SOP", group: "vmo-latam" },
   { title: "Apresentação Executiva", url: "/vmo-latam/apresentacao-executiva", icon: FileText, description: "Apresentação para diretoria", group: "vmo-latam" },
-  { title: "Clusters Estratégicos", url: "/clusters-estrategicos", icon: Users, description: "Agrupamento estratégico de projetos", group: "vmo-latam" },
+  { title: "Clusters Estratégicos", url: "/vmo-latam/clusters-estrategicos", icon: Users, description: "Agrupamento estratégico de projetos", group: "vmo-latam" },
 
   // INTELIGÊNCIA
-  { title: "Assistente de Perguntas", url: "/assistente-perguntas", icon: MessageCircle, description: "IA para perguntas sobre dados", group: "inteligencia" },
-  { title: "Explicações de Indicadores", url: "/explanation-center", icon: HelpCircle, description: "Explicações detalhadas de KPIs", group: "inteligencia" },
-  { title: "Pesquisa Avançada (RAG)", url: "/advanced-search", icon: SearchIcon, description: "Busca inteligente com IA", group: "inteligencia" },
-  { title: "Sugestão de Ações", url: "/action-suggestions", icon: Lightbulb, description: "Sugestões baseadas em IA", group: "inteligencia" },
+  { title: "Assistente de Perguntas", url: "/inteligencia/assistente", icon: MessageCircle, description: "IA para perguntas sobre dados", group: "inteligencia" },
+  { title: "Explicações de Indicadores", url: "/inteligencia/explicacoes", icon: HelpCircle, description: "Explicações detalhadas de KPIs", group: "inteligencia" },
+  { title: "Pesquisa Avançada (RAG)", url: "/inteligencia/pesquisa-avancada", icon: SearchIcon, description: "Busca inteligente com IA", group: "inteligencia" },
+  { title: "Sugestão de Ações", url: "/inteligencia/sugestoes", icon: Lightbulb, description: "Sugestões baseadas em IA", group: "inteligencia" },
 
   // ADMINISTRAÇÃO
   { title: "Administração", url: "/user-administration", icon: Settings, description: "Gestão de usuários e sistema", group: "administracao" },

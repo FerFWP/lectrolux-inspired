@@ -59,9 +59,15 @@ const mainMenuItems = [
     description: "Gerenciamento de projetos"
   },
   {
+    title: "Relatórios",
+    url: "/relatorios",
+    icon: FileText,
+    description: "Centro de relatórios financeiros"
+  },
+  {
     title: "Relatórios Dinâmicos",
     url: "/relatorios-dinamicos",
-    icon: FileText,
+    icon: FileBarChart,
     description: "Relatórios personalizados"
   },
   {

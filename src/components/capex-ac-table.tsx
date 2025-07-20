@@ -207,12 +207,24 @@ export function CapexACTable({ project, globalCurrency, globalYear }: CapexACTab
     setData(initialData);
   }, [project]);
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number, exchangeRateKey?: string) => {
+    let finalValue = value;
+    
+    // Apply conversion if needed
+    if (exchangeRateKey) {
+      finalValue = convertCurrency(value, exchangeRateKey);
+    }
+    
+    // Simplify SEK display to show only "kr" symbol regardless of SEK type
+    if (selectedCurrency.startsWith('SEK')) {
+      return `kr ${finalValue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
+    }
+    
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
       minimumFractionDigits: 0,
-    }).format(value);
+    }).format(finalValue);
   };
 
   const handleStartEdit = (rowId: string) => {

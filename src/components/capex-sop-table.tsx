@@ -128,7 +128,11 @@ export function CapexSOPTable({ project }: CapexSOPTableProps) {
   const formatCurrency = (amount: number) => {
     const symbols = { BRL: "R$", USD: "$", EUR: "€", GBP: "£", JPY: "¥", CAD: "C$", AUD: "A$", CHF: "₣", CNY: "¥", INR: "₹" };
     const convertedAmount = convertAmount(amount, project.currency || 'BRL');
-    return `${symbols[selectedCurrency as keyof typeof symbols] || selectedCurrency} ${convertedAmount.toLocaleString("pt-BR")}`;
+    
+    // Simplify SEK display to show only "kr" symbol regardless of SEK type
+    const currencySymbol = selectedCurrency.startsWith('SEK') ? 'kr' : (symbols[selectedCurrency as keyof typeof symbols] || selectedCurrency);
+    
+    return `${currencySymbol} ${convertedAmount.toLocaleString("pt-BR")}`;
   };
 
   const calculateTotal = (item: CapexSOPItem) => {

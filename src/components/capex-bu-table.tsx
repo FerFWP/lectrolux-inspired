@@ -172,12 +172,14 @@ export function CapexBUTable({ project, globalCurrency, globalYear }: CapexBUTab
       finalValue = convertCurrency(value, selectedCurrency);
     }
     
-    // Determinar a moeda de exibição
-    const displayCurrency = selectedCurrency.startsWith('SEK') ? 'SEK' : 'BRL';
+    // Simplify SEK display to show only "kr" symbol regardless of SEK type
+    if (selectedCurrency.startsWith('SEK')) {
+      return `kr ${finalValue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
+    }
     
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: displayCurrency,
+      currency: 'BRL',
       minimumFractionDigits: 0,
     }).format(finalValue);
   };

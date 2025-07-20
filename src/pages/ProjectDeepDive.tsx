@@ -59,101 +59,139 @@ interface ProjectDetail {
   isFavorite: boolean;
 }
 
-// Mock data para demonstração
-const mockProjectData: ProjectDetail = {
-  id: '1',
-  name: 'Sistema IoT Inteligente',
-  code: 'IOT-2024-001',
-  area: 'Inovação',
-  status: 'attention',
-  category: 'Tecnologia',
-  site: 'São Paulo',
-  type: 'Estratégico',
-  leader: 'Ana Silva',
-  leaderEmail: 'ana.silva@electrolux.com',
-  leaderPhone: '+55 11 99999-9999',
-  completion: 65,
-  budget: 2500000,
-  committed: 1800000,
-  realized: 1625000,
-  balance: 875000,
-  plannedSavings: 800000,
-  realizedSavings: 520000,
-  buStatus: 'yellow',
-  irStatus: 'green',
-  timingStatus: 'red',
-  savingStatus: 'yellow',
-  startDate: '2024-01-15',
-  endDate: '2024-12-31',
-  lastUpdate: '2024-01-15',
-  achievements: [
-    'Implementação bem-sucedida do módulo de sensores IoT',
-    'Integração completa com sistemas legados',
-    'Redução de 15% no consumo energético nos testes piloto'
-  ],
-  problems: [
-    'Atraso na entrega de componentes críticos',
-    'Necessidade de ajustes na arquitetura de dados',
-    'Resistência inicial da equipe às novas tecnologias'
-  ],
-  decisions: [
-    'Migração para arquitetura de microserviços aprovada',
-    'Contratação de especialista em IoT autorizada',
-    'Extensão do prazo em 2 meses para garantir qualidade'
-  ],
-  learnings: [
-    'Importância de testes mais rigorosos na fase inicial',
-    'Necessidade de maior envolvimento das equipes operacionais',
-    'Valor da prototipagem rápida para validação de conceitos'
-  ],
-  currentRisks: [
-    'Possível atraso adicional por dependências externas',
-    'Orçamento sob pressão devido a mudanças de escopo',
-    'Risco de incompatibilidade com sistemas futuros'
-  ],
-  deviationCauses: [
-    'Mudanças nos requisitos durante desenvolvimento',
-    'Complexidade técnica subestimada',
-    'Indisponibilidade de recursos especializados'
-  ],
-  potentialImpacts: [
-    'Atraso em projetos dependentes',
-    'Necessidade de recursos adicionais',
-    'Possível redução no ROI esperado'
-  ],
-  nextSteps: [
-    { task: 'Finalizar testes de integração', responsible: 'Carlos Santos', deadline: '2024-02-15' },
-    { task: 'Treinar equipe operacional', responsible: 'Maria Oliveira', deadline: '2024-02-28' },
-    { task: 'Implementar melhorias de segurança', responsible: 'João Lima', deadline: '2024-03-10' }
-  ],
-  phases: [
-    { name: 'Planejamento', status: 'completed', startDate: '2024-01-15', endDate: '2024-02-15', progress: 100 },
-    { name: 'Desenvolvimento', status: 'in-progress', startDate: '2024-02-16', endDate: '2024-08-31', progress: 75 },
-    { name: 'Testes', status: 'in-progress', startDate: '2024-07-01', endDate: '2024-10-31', progress: 45 },
-    { name: 'Implementação', status: 'pending', startDate: '2024-11-01', endDate: '2024-12-31', progress: 0 }
-  ],
-  kpiHistory: [
-    { month: 'Ago/23', budget: 2500000, realized: 250000, committed: 300000, plannedSavings: 800000, realizedSavings: 80000 },
-    { month: 'Set/23', budget: 2500000, realized: 520000, committed: 600000, plannedSavings: 800000, realizedSavings: 160000 },
-    { month: 'Out/23', budget: 2500000, realized: 780000, committed: 900000, plannedSavings: 800000, realizedSavings: 240000 },
-    { month: 'Nov/23', budget: 2500000, realized: 1040000, committed: 1200000, plannedSavings: 800000, realizedSavings: 320000 },
-    { month: 'Dez/23', budget: 2500000, realized: 1300000, committed: 1500000, plannedSavings: 800000, realizedSavings: 400000 },
-    { month: 'Jan/24', budget: 2500000, realized: 1625000, committed: 1800000, plannedSavings: 800000, realizedSavings: 520000 }
-  ],
-  projectHistory: [
-    { date: '2024-01-15', event: 'Início do Projeto', type: 'milestone', description: 'Kickoff oficial com todas as equipes' },
-    { date: '2024-01-22', event: 'Revisão de Arquitetura', type: 'meeting', description: 'Definição da arquitetura técnica final' },
-    { date: '2024-02-10', event: 'Aprovação de Orçamento', type: 'approval', description: 'Orçamento adicional de 500k SEK aprovado' },
-    { date: '2024-02-18', event: 'Problema Técnico', type: 'issue', description: 'Incompatibilidade descoberta com sistema legado' },
-    { date: '2024-03-05', event: 'Mudança de Escopo', type: 'change', description: 'Adição de módulo de segurança avançada' }
-  ],
-  isFavorite: false
+// Mock data baseado no ID do projeto
+const getProjectMockData = (projectId: string): ProjectDetail => {
+  const baseProjects = {
+    '1': {
+      id: '1',
+      name: 'Sistema IoT Inteligente',
+      code: 'IOT-2024-001',
+      area: 'Inovação',
+      status: 'attention' as const,
+      category: 'Tecnologia',
+      site: 'São Paulo',
+      type: 'Estratégico',
+      leader: 'Ana Silva',
+      leaderEmail: 'ana.silva@electrolux.com',
+      leaderPhone: '+55 11 99999-9999',
+      completion: 65,
+      budget: 2500000,
+      committed: 1800000,
+      realized: 1625000,
+      balance: 875000,
+      plannedSavings: 800000,
+      realizedSavings: 520000,
+      buStatus: 'yellow' as const,
+      irStatus: 'green' as const,
+      timingStatus: 'red' as const,
+      savingStatus: 'yellow' as const,
+      achievements: [
+        'Implementação bem-sucedida do módulo de sensores IoT',
+        'Integração completa com sistemas legados',
+        'Redução de 15% no consumo energético nos testes piloto'
+      ],
+      problems: [
+        'Atraso na entrega de componentes críticos',
+        'Necessidade de ajustes na arquitetura de dados'
+      ],
+      currentRisks: [
+        'Possível atraso adicional por dependências externas',
+        'Orçamento sob pressão devido a mudanças de escopo'
+      ]
+    },
+    '2': {
+      id: '2',
+      name: 'Eficiência Energética',
+      code: 'EE-002',
+      area: 'Sustentabilidade',
+      status: 'critical' as const,
+      category: 'Energia',
+      site: 'São Paulo',
+      type: 'Opex',
+      leader: 'João Santos',
+      leaderEmail: 'joao.santos@electrolux.com',
+      leaderPhone: '+55 11 99999-0002',
+      completion: 35,
+      budget: 1800000,
+      committed: 1600000,
+      realized: 630000,
+      balance: 1170000,
+      plannedSavings: 1200000,
+      realizedSavings: 420000,
+      buStatus: 'red' as const,
+      irStatus: 'yellow' as const,
+      timingStatus: 'red' as const,
+      savingStatus: 'red' as const,
+      achievements: [
+        'Redução de 15% no consumo energético nas áreas piloto',
+        'Certificação ambiental obtida'
+      ],
+      problems: [
+        'Orçamento insuficiente para implementação completa',
+        'Resistência interna das equipes operacionais'
+      ],
+      currentRisks: [
+        'Não cumprimento das metas de economia',
+        'Necessidade de investimentos adicionais'
+      ]
+    }
+  };
+
+  const defaultProject = baseProjects['1'];
+  const selectedProject = baseProjects[projectId as keyof typeof baseProjects] || defaultProject;
+
+  return {
+    ...selectedProject,
+    startDate: '2024-01-15',
+    endDate: '2024-12-31',
+    lastUpdate: '2024-01-15',
+    decisions: [
+      'Migração para arquitetura de microserviços aprovada',
+      'Contratação de especialista autorizada'
+    ],
+    learnings: [
+      'Importância de testes mais rigorosos na fase inicial',
+      'Necessidade de maior envolvimento das equipes operacionais'
+    ],
+    deviationCauses: [
+      'Mudanças nos requisitos durante desenvolvimento',
+      'Complexidade técnica subestimada'
+    ],
+    potentialImpacts: [
+      'Atraso em projetos dependentes',
+      'Necessidade de recursos adicionais'
+    ],
+    nextSteps: [
+      { task: 'Finalizar testes de integração', responsible: 'Carlos Santos', deadline: '2024-02-15' },
+      { task: 'Treinar equipe operacional', responsible: 'Maria Oliveira', deadline: '2024-02-28' }
+    ],
+    phases: [
+      { name: 'Planejamento', status: 'completed' as const, startDate: '2024-01-15', endDate: '2024-02-15', progress: 100 },
+      { name: 'Desenvolvimento', status: 'in-progress' as const, startDate: '2024-02-16', endDate: '2024-08-31', progress: selectedProject.completion },
+      { name: 'Testes', status: 'in-progress' as const, startDate: '2024-07-01', endDate: '2024-10-31', progress: 45 },
+      { name: 'Implementação', status: 'pending' as const, startDate: '2024-11-01', endDate: '2024-12-31', progress: 0 }
+    ],
+    kpiHistory: [
+      { month: 'Ago/23', budget: selectedProject.budget, realized: selectedProject.budget * 0.1, committed: selectedProject.budget * 0.12, plannedSavings: selectedProject.plannedSavings, realizedSavings: selectedProject.plannedSavings * 0.1 },
+      { month: 'Set/23', budget: selectedProject.budget, realized: selectedProject.budget * 0.21, committed: selectedProject.budget * 0.24, plannedSavings: selectedProject.plannedSavings, realizedSavings: selectedProject.plannedSavings * 0.2 },
+      { month: 'Out/23', budget: selectedProject.budget, realized: selectedProject.budget * 0.31, committed: selectedProject.budget * 0.36, plannedSavings: selectedProject.plannedSavings, realizedSavings: selectedProject.plannedSavings * 0.3 },
+      { month: 'Nov/23', budget: selectedProject.budget, realized: selectedProject.budget * 0.42, committed: selectedProject.budget * 0.48, plannedSavings: selectedProject.plannedSavings, realizedSavings: selectedProject.plannedSavings * 0.4 },
+      { month: 'Dez/23', budget: selectedProject.budget, realized: selectedProject.budget * 0.52, committed: selectedProject.budget * 0.6, plannedSavings: selectedProject.plannedSavings, realizedSavings: selectedProject.plannedSavings * 0.5 },
+      { month: 'Jan/24', budget: selectedProject.budget, realized: selectedProject.realized, committed: selectedProject.committed, plannedSavings: selectedProject.plannedSavings, realizedSavings: selectedProject.realizedSavings }
+    ],
+    projectHistory: [
+      { date: '2024-01-15', event: 'Início do Projeto', type: 'milestone' as const, description: 'Kickoff oficial com todas as equipes' },
+      { date: '2024-01-22', event: 'Revisão de Arquitetura', type: 'meeting' as const, description: 'Definição da arquitetura técnica final' },
+      { date: '2024-02-10', event: 'Aprovação de Orçamento', type: 'approval' as const, description: 'Orçamento adicional aprovado' }
+    ],
+    isFavorite: false
+  };
 };
 
 const ProjectDeepDive: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const [project, setProject] = useState<ProjectDetail>(mockProjectData);
+  const [project, setProject] = useState<ProjectDetail>(getProjectMockData(projectId || '1'));
   const [selectedYear, setSelectedYear] = useState('2024');
   const [selectedSite, setSelectedSite] = useState('all');
   const [selectedArea, setSelectedArea] = useState('all');

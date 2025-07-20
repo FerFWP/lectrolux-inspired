@@ -163,7 +163,7 @@ export function CompactProjectView({
                       size="sm" 
                       variant="ghost" 
                       className="h-8 w-8 p-0"
-                      onClick={() => navigate(`/projetos/${project.id}`)}
+                      onClick={() => navigate(`/projetos/${project.id}`, { state: { projectCurrency: project.currency } })}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>

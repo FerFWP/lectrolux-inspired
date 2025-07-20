@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { 
   ArrowLeft, 
   Edit3, 
@@ -327,7 +327,8 @@ const statusColors = {
 export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("comando");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("resumo");
   const [project, setProject] = useState<any>(null);
   const [baselines, setBaselines] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -443,7 +444,22 @@ export default function ProjectDetail() {
 
   useEffect(() => {
     fetchProjectData();
-  }, [id]);
+    // Reset tab to "resumo" when navigating to a project
+    setActiveTab("resumo");
+    
+    // Set currency from navigation state if available (immediate response)
+    const projectCurrency = location.state?.projectCurrency;
+    if (projectCurrency) {
+      setSelectedCurrency(projectCurrency);
+    }
+  }, [id, location.state, setSelectedCurrency]);
+
+  // Reset currency to project's currency when project data is loaded (fallback)
+  useEffect(() => {
+    if (project && project.currency && !location.state?.projectCurrency) {
+      setSelectedCurrency(project.currency);
+    }
+  }, [project, setSelectedCurrency, location.state]);
 
   const handleProjectUpdate = (updatedProject: any) => {
     setProject(updatedProject);

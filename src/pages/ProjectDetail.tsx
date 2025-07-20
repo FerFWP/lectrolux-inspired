@@ -361,7 +361,10 @@ export default function ProjectDetail() {
     // Use the global currency context conversion function
     const convertedAmount = convertAmount(amount, project.currency || 'BRL');
     
-    return `${symbols[selectedCurrency as keyof typeof symbols] || selectedCurrency} ${convertedAmount.toLocaleString("pt-BR")}`;
+    // Simplify SEK display to show only "kr" symbol regardless of SEK type
+    const currencySymbol = selectedCurrency.startsWith('SEK') ? 'kr' : (symbols[selectedCurrency as keyof typeof symbols] || selectedCurrency);
+    
+    return `${currencySymbol} ${convertedAmount.toLocaleString("pt-BR")}`;
   };
 
   const getProgressColor = (progress: number) => {

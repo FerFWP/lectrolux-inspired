@@ -153,10 +153,16 @@ const mockBUData = {
   ]
 };
 
-const formatCurrency = (value: number, currency = "BRL") => {
-  if (value === null || value === undefined) return "—";
-  const symbols = { BRL: "R$", USD: "$", SEK: "SEK", "SEK BU": "SEK", "SEK AVG": "SEK" };
-  return `${symbols[currency as keyof typeof symbols] || "R$"} ${(value / 1000000).toFixed(1)}M`;
+const formatCurrency = (amount: number, currency: string = "SEK") => {
+  const exchangeRates = { BRL: 1.85, USD: 10.50, EUR: 11.20, SEK: 1.00 };
+  const convertedAmount = amount * (exchangeRates[currency as keyof typeof exchangeRates] || 1);
+  
+  return new Intl.NumberFormat('sv-SE', {
+    style: 'currency',
+    currency: 'SEK',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(convertedAmount);
 };
 
 const getStatusIcon = (status: string) => {
@@ -218,45 +224,120 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-// Modal de detalhes do projeto
+// Modal de detalhes do projeto com dados reais
 const ProjectDetailsModal = ({ project, isOpen, onClose }: { project: any; isOpen: boolean; onClose: () => void }) => (
   <Dialog open={isOpen} onOpenChange={onClose}>
-    <DialogContent className="max-w-2xl">
+    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
       <DialogHeader>
-        <DialogTitle>Detalhes do Projeto: {project?.name}</DialogTitle>
+        <DialogTitle className="text-xl">Detalhes do Projeto: {project?.name} ({project?.id})</DialogTitle>
       </DialogHeader>
       {project && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-6">
+          {/* Informações Básicas */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Gestor Responsável</label>
-              <p className="text-sm">{project.details?.manager || "—"}</p>
+              <p className="text-sm font-medium">{project.details?.manager || "—"}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Área</label>
-              <p className="text-sm">{project.area}</p>
+              <label className="text-sm font-medium text-muted-foreground">Área de Negócio</label>
+              <p className="text-sm font-medium">{project.area}</p>
             </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Moeda Original</label>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">{project.currency}</Badge>
+                <span className="text-xs text-muted-foreground">
+                  (Convertido para SEK: taxa {project.currency === 'SEK' ? '1.00' : project.currency === 'BRL' ? '1.85' : project.currency === 'USD' ? '10.50' : '11.20'})
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline do Projeto */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Data de Início</label>
               <p className="text-sm">{project.details?.startDate || "—"}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Data Final</label>
+              <label className="text-sm font-medium text-muted-foreground">Data Final Prevista</label>
               <p className="text-sm">{project.details?.endDate || "—"}</p>
             </div>
           </div>
+
+          {/* Descrição e Objetivos */}
           <div>
-            <label className="text-sm font-medium text-muted-foreground">Descrição</label>
-            <p className="text-sm">{project.details?.description || "—"}</p>
+            <label className="text-sm font-medium text-muted-foreground">Descrição do Projeto</label>
+            <p className="text-sm mt-1 p-3 bg-background border rounded">{project.details?.description || "—"}</p>
           </div>
+
+          {/* Status Financeiro Detalhado */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="p-3">
+              <div className="text-xs text-muted-foreground">Orçamento Total (SEK)</div>
+              <div className="text-lg font-bold">{new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(project.fy * (project.currency === 'SEK' ? 1 : project.currency === 'BRL' ? 1.85 : project.currency === 'USD' ? 10.50 : 11.20))}</div>
+            </Card>
+            <Card className="p-3">
+              <div className="text-xs text-muted-foreground">Realizado YTD (SEK)</div>
+              <div className="text-lg font-bold">{new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(project.ytdAC * (project.currency === 'SEK' ? 1 : project.currency === 'BRL' ? 1.85 : project.currency === 'USD' ? 10.50 : 11.20))}</div>
+            </Card>
+            <Card className="p-3">
+              <div className="text-xs text-muted-foreground">Desvio YTD</div>
+              <div className={`text-lg font-bold ${project.deltaYTD < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(project.deltaYTD * (project.currency === 'SEK' ? 1 : project.currency === 'BRL' ? 1.85 : project.currency === 'USD' ? 10.50 : 11.20))}
+              </div>
+            </Card>
+            <Card className="p-3">
+              <div className="text-xs text-muted-foreground">% Executado</div>
+              <div className="text-lg font-bold">{((project.ytdAC / project.fy) * 100).toFixed(1)}%</div>
+            </Card>
+          </div>
+
+          {/* Riscos e Alertas */}
           <div>
             <label className="text-sm font-medium text-muted-foreground">Riscos Identificados</label>
-            <p className="text-sm">{project.details?.risks || "—"}</p>
+            <div className="mt-1 p-3 bg-yellow-50 border border-yellow-200 rounded">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
+                <p className="text-sm">{project.details?.risks || "Nenhum risco crítico identificado"}</p>
+              </div>
+            </div>
           </div>
+
+          {/* Próximos Marcos */}
           <div>
             <label className="text-sm font-medium text-muted-foreground">Próximo Marco</label>
-            <p className="text-sm">{project.details?.nextMilestone || "—"}</p>
+            <div className="mt-1 p-3 bg-blue-50 border border-blue-200 rounded">
+              <div className="flex items-start gap-2">
+                <Calendar className="h-4 w-4 text-blue-600 mt-0.5" />
+                <p className="text-sm">{project.details?.nextMilestone || "Marcos não definidos"}</p>
+              </div>
+            </div>
           </div>
+
+          {/* Sub-projetos (se existirem) */}
+          {project.subProjects && project.subProjects.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-3 block">Sub-projetos</label>
+              <div className="space-y-2">
+                {project.subProjects.map((sub: any, index: number) => (
+                  <div key={index} className="p-3 border rounded bg-background">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">{sub.name}</span>
+                      <Badge variant={sub.status === 'ok' ? 'default' : sub.status === 'attention' ? 'secondary' : 'destructive'}>
+                        {sub.status === 'ok' ? 'OK' : sub.status === 'attention' ? 'Atenção' : 'Crítico'}
+                      </Badge>
+                    </div>
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      Realizado: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(sub.ytdAC * (sub.currency === 'SEK' ? 1 : sub.currency === 'BRL' ? 1.85 : sub.currency === 'USD' ? 10.50 : 11.20))} | 
+                      Desvio: {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(sub.deltaYTD * (sub.currency === 'SEK' ? 1 : sub.currency === 'BRL' ? 1.85 : sub.currency === 'USD' ? 10.50 : 11.20))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </DialogContent>
@@ -268,7 +349,7 @@ export default function VmoLatamCapexMeeting() {
   const [selectedYear, setSelectedYear] = useState("2024");
   const [selectedArea, setSelectedArea] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedCurrency, setSelectedCurrency] = useState("BRL");
+  const [selectedCurrency, setSelectedCurrency] = useState("SEK");
   const [selectedFinancialStatus, setSelectedFinancialStatus] = useState("all");
   const [expandedProjects, setExpandedProjects] = useState<string[]>([]);
   const [showMoreHighlights, setShowMoreHighlights] = useState(false);
@@ -434,11 +515,10 @@ export default function VmoLatamCapexMeeting() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="BRL">BRL</SelectItem>
-                    <SelectItem value="USD">USD</SelectItem>
-                    <SelectItem value="SEK">SEK</SelectItem>
-                    <SelectItem value="SEK BU">SEK BU</SelectItem>
-                    <SelectItem value="SEK AVG">SEK AVG</SelectItem>
+                    <SelectItem value="SEK">SEK - Coroa Sueca (padrão)</SelectItem>
+                    <SelectItem value="BRL">BRL - Real Brasileiro</SelectItem>
+                    <SelectItem value="USD">USD - Dólar Americano</SelectItem>
+                    <SelectItem value="EUR">EUR - Euro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -564,6 +644,7 @@ export default function VmoLatamCapexMeeting() {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Taxa de Câmbio Aplicada:</span>
                 <span className="text-sm">{mockBUData.exchangeRate.rate} {mockBUData.exchangeRate.currency}</span>
+                <span className="text-xs text-green-600 ml-2">✓ Conversão automática para SEK</span>
               </div>
               <div className="text-sm text-muted-foreground">
                 Última atualização: {mockBUData.exchangeRate.lastUpdated}

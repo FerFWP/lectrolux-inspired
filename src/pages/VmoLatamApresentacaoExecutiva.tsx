@@ -157,14 +157,154 @@ export default function VmoLatamApresentacaoExecutiva() {
     }
   };
 
-  // Dados simulados para tabela dinâmica
-  const pivotData = [
-    { ano: "2024", area: "BRM", projeto: "ERP System", mes: "Jan", tipo: "Target", valor: 1250 },
-    { ano: "2024", area: "BRM", projeto: "ERP System", mes: "Jan", tipo: "AC", valor: 1350 },
-    { ano: "2024", area: "BRM", projeto: "Automation", mes: "Jan", tipo: "Target", valor: 800 },
-    { ano: "2024", area: "BRM", projeto: "Automation", mes: "Jan", tipo: "AC", valor: 750 },
-    { ano: "2024", area: "Business Excellence", projeto: "Process Optimization", mes: "Jan", tipo: "Target", valor: 1000 },
-    { ano: "2024", area: "Business Excellence", projeto: "Process Optimization", mes: "Jan", tipo: "AC", valor: 980 },
+  // Dados simulados para tabela dinâmica com informações mais realistas
+  const pivotTableData = [
+    {
+      ano: 2024,
+      area: "BRM",
+      projeto: "ERP Implementation",
+      mes: "Janeiro",
+      target: 1500000,
+      ac: 1450000,
+      sop: 1480000,
+      status: "Em andamento",
+      responsavel: "João Silva",
+      departamento: "TI"
+    },
+    {
+      ano: 2024,
+      area: "BRM",
+      projeto: "Process Automation",
+      mes: "Janeiro",
+      target: 800000,
+      ac: 750000,
+      sop: 780000,
+      status: "Concluído",
+      responsavel: "Maria Santos",
+      departamento: "Operações"
+    },
+    {
+      ano: 2024,
+      area: "Business Excellence",
+      projeto: "Lean Manufacturing",
+      mes: "Janeiro",
+      target: 1200000,
+      ac: 1180000,
+      sop: 1200000,
+      status: "Em andamento",
+      responsavel: "Carlos Lima",
+      departamento: "Produção"
+    },
+    {
+      ano: 2024,
+      area: "Business Excellence",
+      projeto: "Quality Improvement",
+      mes: "Janeiro",
+      target: 900000,
+      ac: 920000,
+      sop: 915000,
+      status: "Concluído",
+      responsavel: "Ana Costa",
+      departamento: "Qualidade"
+    },
+    {
+      ano: 2024,
+      area: "Group Solutions",
+      projeto: "IT Infrastructure",
+      mes: "Janeiro",
+      target: 2000000,
+      ac: 1980000,
+      sop: 1990000,
+      status: "Em andamento",
+      responsavel: "Pedro Oliveira",
+      departamento: "TI"
+    },
+    {
+      ano: 2024,
+      area: "Group Solutions",
+      projeto: "Digital Transformation",
+      mes: "Janeiro",
+      target: 1500000,
+      ac: 1520000,
+      sop: 1510000,
+      status: "Em andamento",
+      responsavel: "Lucia Torres",
+      departamento: "Digital"
+    },
+    {
+      ano: 2024,
+      area: "Supply Chain",
+      projeto: "Logistics Optimization",
+      mes: "Janeiro",
+      target: 1100000,
+      ac: 1080000,
+      sop: 1090000,
+      status: "Em andamento",
+      responsavel: "Roberto Mendes",
+      departamento: "Logística"
+    },
+    {
+      ano: 2024,
+      area: "Supply Chain",
+      projeto: "Vendor Management",
+      mes: "Janeiro",
+      target: 750000,
+      ac: 770000,
+      sop: 760000,
+      status: "Concluído",
+      responsavel: "Sandra Ribeiro",
+      departamento: "Compras"
+    },
+    // Dados para Fevereiro
+    {
+      ano: 2024,
+      area: "BRM",
+      projeto: "ERP Implementation",
+      mes: "Fevereiro",
+      target: 1500000,
+      ac: 1480000,
+      sop: 1490000,
+      status: "Em andamento",
+      responsavel: "João Silva",
+      departamento: "TI"
+    },
+    {
+      ano: 2024,
+      area: "Business Excellence",
+      projeto: "Lean Manufacturing",
+      mes: "Fevereiro",
+      target: 1200000,
+      ac: 1220000,
+      sop: 1210000,
+      status: "Em andamento",
+      responsavel: "Carlos Lima",
+      departamento: "Produção"
+    },
+    {
+      ano: 2024,
+      area: "Group Solutions",
+      projeto: "IT Infrastructure",
+      mes: "Fevereiro",
+      target: 2000000,
+      ac: 2020000,
+      sop: 2010000,
+      status: "Em andamento",
+      responsavel: "Pedro Oliveira",
+      departamento: "TI"
+    },
+    // Dados para diferentes anos
+    {
+      ano: 2023,
+      area: "BRM",
+      projeto: "Legacy System Upgrade",
+      mes: "Dezembro",
+      target: 1300000,
+      ac: 1250000,
+      sop: 1280000,
+      status: "Concluído",
+      responsavel: "João Silva",
+      departamento: "TI"
+    }
   ];
 
   const availableDimensions = [
@@ -172,8 +312,145 @@ export default function VmoLatamApresentacaoExecutiva() {
     { id: "area", label: "Área", description: "Área ou cluster organizacional" },
     { id: "projeto", label: "Projeto", description: "Projeto específico" },
     { id: "mes", label: "Mês", description: "Mês de referência" },
-    { id: "tipo", label: "Tipo de Valor", description: "Target, AC, SOP, etc." }
+    { id: "tipo", label: "Tipo de Valor", description: "Target, AC, SOP, etc." },
+    { id: "status", label: "Status", description: "Status do projeto" },
+    { id: "responsavel", label: "Responsável", description: "Responsável pelo projeto" },
+    { id: "departamento", label: "Departamento", description: "Departamento responsável" }
   ];
+
+  // Estados para drag and drop
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+
+  // Funções para drag and drop
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, dimensionId: string) => {
+    setDraggedItem(dimensionId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDropToRows = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (draggedItem && !pivotRows.includes(draggedItem)) {
+      setPivotRows(prev => [...prev, draggedItem]);
+    }
+    setDraggedItem(null);
+  };
+
+  const handleDropToColumns = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (draggedItem && !pivotColumns.includes(draggedItem)) {
+      setPivotColumns(prev => [...prev, draggedItem]);
+    }
+    setDraggedItem(null);
+  };
+
+  // Função para gerar dados da tabela dinâmica
+  const generatePivotData = () => {
+    if (pivotRows.length === 0 && pivotColumns.length === 0) {
+      return { headers: [], rows: [] };
+    }
+
+    let filteredData = pivotTableData;
+    
+    // Aplicar filtros
+    if (pivotFilters.area !== "All") {
+      filteredData = filteredData.filter(item => item.area === pivotFilters.area);
+    }
+    if (pivotFilters.projeto !== "All") {
+      filteredData = filteredData.filter(item => item.projeto.includes(pivotFilters.projeto));
+    }
+
+    const headers = [];
+    const rows = [];
+
+    if (pivotRows.includes("area") && pivotColumns.includes("tipo")) {
+      headers.push("Área", "Target", "AC", "SOP", "Variação AC-Target");
+      
+      const areas = [...new Set(filteredData.map(item => item.area))];
+      
+      areas.forEach(area => {
+        const areaData = filteredData.filter(item => item.area === area);
+        const totalTarget = areaData.reduce((sum, item) => sum + item.target, 0);
+        const totalAC = areaData.reduce((sum, item) => sum + item.ac, 0);
+        const totalSOP = areaData.reduce((sum, item) => sum + item.sop, 0);
+        const variacao = totalAC - totalTarget;
+        
+        rows.push([
+          area,
+          formatCurrency(totalTarget),
+          formatCurrency(totalAC),
+          formatCurrency(totalSOP),
+          formatCurrency(variacao)
+        ]);
+      });
+    } else if (pivotRows.includes("projeto")) {
+      headers.push("Projeto", "Área", "Target", "AC", "Status", "Responsável");
+      
+      const projetos = [...new Set(filteredData.map(item => item.projeto))];
+      
+      projetos.forEach(projeto => {
+        const projetoData = filteredData.find(item => item.projeto === projeto);
+        if (projetoData) {
+          rows.push([
+            projeto,
+            projetoData.area,
+            formatCurrency(projetoData.target),
+            formatCurrency(projetoData.ac),
+            projetoData.status,
+            projetoData.responsavel
+          ]);
+        }
+      });
+    } else if (pivotRows.includes("mes")) {
+      headers.push("Mês", "Target Total", "AC Total", "Variação", "Projetos Ativos");
+      
+      const meses = [...new Set(filteredData.map(item => item.mes))];
+      
+      meses.forEach(mes => {
+        const mesData = filteredData.filter(item => item.mes === mes);
+        const totalTarget = mesData.reduce((sum, item) => sum + item.target, 0);
+        const totalAC = mesData.reduce((sum, item) => sum + item.ac, 0);
+        const variacao = totalAC - totalTarget;
+        const projetos = mesData.length;
+        
+        rows.push([
+          mes,
+          formatCurrency(totalTarget),
+          formatCurrency(totalAC),
+          formatCurrency(variacao),
+          projetos.toString()
+        ]);
+      });
+    } else if (pivotRows.includes("status")) {
+      headers.push("Status", "Quantidade de Projetos", "Target Total", "AC Total");
+      
+      const statuses = [...new Set(filteredData.map(item => item.status))];
+      
+      statuses.forEach(status => {
+        const statusData = filteredData.filter(item => item.status === status);
+        const totalTarget = statusData.reduce((sum, item) => sum + item.target, 0);
+        const totalAC = statusData.reduce((sum, item) => sum + item.ac, 0);
+        const quantidade = statusData.length;
+        
+        rows.push([
+          status,
+          quantidade.toString(),
+          formatCurrency(totalTarget),
+          formatCurrency(totalAC)
+        ]);
+      });
+    } else {
+      // Dados padrão
+      headers.push("Item", "Valor");
+      rows.push(["Total Geral", formatCurrency(filteredData.reduce((sum, item) => sum + item.target, 0))]);
+    }
+
+    return { headers, rows };
+  };
 
   // Dados para gráficos de pizza
   const assertivenessPieData = [
@@ -1401,6 +1678,7 @@ export default function VmoLatamApresentacaoExecutiva() {
                             variant="outline" 
                             className="w-full justify-start cursor-move hover:bg-blue-50 border-blue-200 p-2"
                             draggable
+                            onDragStart={(e) => handleDragStart(e, dimension.id)}
                           >
                             {dimension.label}
                           </Badge>
@@ -1426,21 +1704,28 @@ export default function VmoLatamApresentacaoExecutiva() {
                     </TooltipContent>
                   </UITooltip>
                 </TooltipProvider>
-                <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4 min-h-[120px]">
+                <div 
+                  className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4 min-h-[120px]"
+                  onDragOver={handleDragOver}
+                  onDrop={handleDropToRows}
+                >
                   {pivotRows.length === 0 ? (
                     <p className="text-center text-blue-600 text-sm">
                       Solte dimensões aqui para linhas
                     </p>
                   ) : (
                     <div className="space-y-2">
-                      {pivotRows.map((row, index) => (
-                        <Badge key={index} variant="default" className="w-full justify-between">
-                          {row}
-                          <X className="h-3 w-3 cursor-pointer" onClick={() => 
-                            setPivotRows(prev => prev.filter((_, i) => i !== index))
-                          } />
-                        </Badge>
-                      ))}
+                      {pivotRows.map((row, index) => {
+                        const dimension = availableDimensions.find(d => d.id === row);
+                        return (
+                          <Badge key={index} variant="default" className="w-full justify-between">
+                            {dimension?.label || row}
+                            <X className="h-3 w-3 cursor-pointer" onClick={() => 
+                              setPivotRows(prev => prev.filter((_, i) => i !== index))
+                            } />
+                          </Badge>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1458,21 +1743,28 @@ export default function VmoLatamApresentacaoExecutiva() {
                     </TooltipContent>
                   </UITooltip>
                 </TooltipProvider>
-                <div className="bg-green-50 border-2 border-dashed border-green-300 rounded-lg p-4 min-h-[120px]">
+                <div 
+                  className="bg-green-50 border-2 border-dashed border-green-300 rounded-lg p-4 min-h-[120px]"
+                  onDragOver={handleDragOver}
+                  onDrop={handleDropToColumns}
+                >
                   {pivotColumns.length === 0 ? (
                     <p className="text-center text-green-600 text-sm">
                       Solte dimensões aqui para colunas
                     </p>
                   ) : (
                     <div className="space-y-2">
-                      {pivotColumns.map((col, index) => (
-                        <Badge key={index} variant="default" className="w-full justify-between">
-                          {col}
-                          <X className="h-3 w-3 cursor-pointer" onClick={() => 
-                            setPivotColumns(prev => prev.filter((_, i) => i !== index))
-                          } />
-                        </Badge>
-                      ))}
+                      {pivotColumns.map((col, index) => {
+                        const dimension = availableDimensions.find(d => d.id === col);
+                        return (
+                          <Badge key={index} variant="default" className="w-full justify-between">
+                            {dimension?.label || col}
+                            <X className="h-3 w-3 cursor-pointer" onClick={() => 
+                              setPivotColumns(prev => prev.filter((_, i) => i !== index))
+                            } />
+                          </Badge>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1484,100 +1776,87 @@ export default function VmoLatamApresentacaoExecutiva() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold">Preview da Tabela</h4>
-              <Button size="sm" onClick={() => {
-                setPivotRows(["area"]);
-                setPivotColumns(["tipo"]);
-              }}>
-                Exemplo Rápido
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => {
+                  setPivotRows(["area"]);
+                  setPivotColumns(["tipo"]);
+                }}>
+                  Área × Tipo
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => {
+                  setPivotRows(["projeto"]);
+                  setPivotColumns([]);
+                }}>
+                  Por Projeto
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => {
+                  setPivotRows(["mes"]);
+                  setPivotColumns([]);
+                }}>
+                  Por Mês
+                </Button>
+              </div>
             </div>
             <div className="bg-white border rounded-lg overflow-hidden">
-              {pivotRows.length > 0 || pivotColumns.length > 0 ? (
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <TooltipProvider>
-                        <th className="text-left p-3 font-medium border-r">
-                          <UITooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help">Dimensão</span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Linhas da tabela dinâmica</p>
-                            </TooltipContent>
-                          </UITooltip>
-                        </th>
-                        {pivotColumns.includes("tipo") ? (
-                          <>
-                            <th className="text-center p-3 font-medium">
-                              <UITooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help">Target</span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Valores alvo estabelecidos</p>
-                                </TooltipContent>
-                              </UITooltip>
-                            </th>
-                            <th className="text-center p-3 font-medium">
-                              <UITooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help">AC</span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Valores realizados (Actual)</p>
-                                </TooltipContent>
-                              </UITooltip>
-                            </th>
-                            <th className="text-center p-3 font-medium">
-                              <UITooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help">Variação</span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Diferença entre AC e Target</p>
-                                </TooltipContent>
-                              </UITooltip>
-                            </th>
-                          </>
-                        ) : (
-                          <th className="text-center p-3 font-medium">Valores</th>
-                        )}
-                      </TooltipProvider>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pivotRows.includes("area") ? (
-                      ["BRM", "Business Excellence", "Group Solutions"].map((area, index) => (
-                        <tr key={index} className="border-b">
-                          <td className="p-3 font-medium border-r">{area}</td>
-                          {pivotColumns.includes("tipo") ? (
-                            <>
-                              <td className="text-center p-3">{formatCurrency(15000 + index * 2000)}</td>
-                              <td className="text-center p-3">{formatCurrency(15500 + index * 1800)}</td>
-                              <td className="text-center p-3 text-green-600 font-semibold">
-                                {formatCurrency(500 - index * 200)}
-                              </td>
-                            </>
-                          ) : (
-                            <td className="text-center p-3">{formatCurrency(15000 + index * 2000)}</td>
-                          )}
-                        </tr>
-                      ))
-                    ) : (
+{(() => {
+                const { headers, rows } = generatePivotData();
+                
+                if (headers.length === 0 || rows.length === 0) {
+                  return (
+                    <div className="text-center p-8 text-gray-500">
+                      <p className="text-lg mb-2">Configure sua tabela dinâmica</p>
+                      <p className="text-sm">Arraste dimensões para as áreas de linhas e colunas, ou use os botões de exemplo acima</p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50">
                       <tr>
-                        <td colSpan={4} className="text-center p-8 text-gray-500">
-                          Configure as dimensões acima para visualizar os dados
-                        </td>
+                        {headers.map((header, index) => (
+                          <th key={index} className="text-left p-3 font-medium border-r">
+                            <TooltipProvider>
+                              <UITooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">{header}</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Dados agrupados por {header}</p>
+                                </TooltipContent>
+                              </UITooltip>
+                            </TooltipProvider>
+                          </th>
+                        ))}
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="text-center p-8 text-gray-500">
-                  Arraste dimensões para as áreas de linhas e colunas para criar sua tabela dinâmica
-                </div>
-              )}
+                    </thead>
+                    <tbody>
+                      {rows.map((row, rowIndex) => (
+                        <tr key={rowIndex} className="border-b hover:bg-gray-50">
+                          {row.map((cell, cellIndex) => (
+                            <td key={cellIndex} className={`p-3 border-r ${cellIndex === 0 ? 'font-medium' : ''}`}>
+                              <span className={
+                                headers[cellIndex]?.includes("Variação") && 
+                                typeof cell === 'string' && 
+                                cell.startsWith("-")
+                                  ? "text-red-600 font-semibold" 
+                                  : headers[cellIndex]?.includes("Variação") && 
+                                    typeof cell === 'string' && 
+                                    !cell.startsWith("-") && 
+                                    cell !== "SEK 0.00"
+                                  ? "text-green-600 font-semibold"
+                                  : ""
+                              }>
+                                {cell}
+                              </span>
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                );
+              })()}
             </div>
           </div>
         </CardContent>

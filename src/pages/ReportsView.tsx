@@ -160,7 +160,7 @@ export default function ReportsView() {
       <Card 
         className={`relative transition-all duration-200 hover:shadow-lg cursor-pointer group ${
           isFavorite ? 'ring-2 ring-primary/20 bg-primary/5' : ''
-        } ${report.id === 'multi-currency' ? 'ring-2 ring-blue-500/30 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900' : ''}`}
+        }`}
         onMouseEnter={() => setHoveredReport(report.id)}
         onMouseLeave={() => setHoveredReport(null)}
       >

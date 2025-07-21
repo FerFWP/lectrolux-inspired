@@ -62,7 +62,7 @@ const reports: Report[] = [
     name: 'Análise por Área',
     description: 'Performance financeira segmentada por áreas de negócio',
     icon: Building,
-    route: '/vmo-latam/dashboard',
+    route: '/vmo-latam/analise-area',
     category: 'financial',
     lastUpdated: '2 dias',
     previewData: { value: 'R$ 8.9M', trend: 'down', percentage: '-1.3%' }

@@ -83,7 +83,7 @@ const reports: Report[] = [
     name: 'Governança',
     description: 'Indicadores de governança corporativa e compliance',
     icon: Activity,
-    route: '/vmo-latam/governanca',
+    route: '/vmo-latam/governanca-auditoria',
     category: 'strategic',
     lastUpdated: 'Hoje',
     previewData: { value: '94.1%', trend: 'up', percentage: '+1.8%' }
